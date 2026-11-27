@@ -1,0 +1,350 @@
+/* The art kit: mark, punched ticket, bowl clock, hand stamps. One ink per object. */
+
+/* ---------- Mark and wordmark ---------- */
+
+.mark__cell,
+.mark__punch {
+  fill: var(--mark-ink, var(--ink));
+}
+.mark__punch {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.wordmark {
+  font-weight: 800;
+  font-stretch: 78%;
+  letter-spacing: 0.01em;
+  line-height: 0.9;
+  white-space: nowrap;
+}
+.wordmark--punched {
+  display: inline-flex;
+  align-items: center;
+}
+/* The O is a ticket cell with a round hole: paper removed, not ink added. */
+.wordmark__o {
+  display: inline-block;
+  width: 0.56em;
+  height: 0.7em;
+  margin: 0 0.035em;
+  background: radial-gradient(circle at 50% 50%, transparent 0 0.15em, currentColor 0.16em);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Down fast, held, released slower: a punch, never a bounce. */
+  @keyframes punch-in {
+    0% {
+      transform: scale(0);
+    }
+    60% {
+      transform: scale(1.12);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  .site-header .mark__punch {
+    animation: punch-in 270ms var(--e-press) 500ms both;
+  }
+  a:hover > .mark .mark__punch {
+    animation: punch-in 270ms var(--e-press) both;
+  }
+}
+
+/* ---------- Ticket ---------- */
+
+.ticket {
+  position: relative;
+  width: 100%;
+}
+.ticket__svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.tk-stock {
+  fill: var(--stock);
+}
+.tk-line {
+  fill: none;
+  stroke: var(--tk-text);
+}
+.tk-fill {
+  fill: var(--tk-text);
+}
+.tk-serial {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  fill: var(--ink);
+}
+.tk-brand {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  fill: var(--tk-text);
+}
+.tk-amount {
+  font-size: 50px;
+  font-weight: 800;
+  font-stretch: 78%;
+  fill: var(--stock);
+}
+.tk-amount:lang(hi) {
+  font-size: 42px;
+}
+.tk-unit {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  fill: var(--stock);
+}
+.tk-note {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  fill: var(--stock);
+}
+.tk-cell {
+  font-size: 13px;
+  font-weight: 700;
+  font-stretch: 85%;
+  fill: var(--tk-text);
+  font-variant-numeric: tabular-nums;
+}
+.tk-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  fill: var(--tk-text);
+}
+.tk-foot {
+  font-size: 17px;
+  font-weight: 800;
+  font-stretch: 85%;
+  text-transform: uppercase;
+  fill: var(--tk-text);
+}
+.tk-small {
+  font-size: 11.5px;
+  font-weight: 500;
+  fill: var(--tk-text);
+}
+.tk-note:lang(hi),
+.tk-label:lang(hi),
+.tk-small:lang(hi),
+.tk-foot:lang(hi) {
+  letter-spacing: 0;
+}
+
+/* The edge the punch leaves, so the hole reads even on a pale ground. */
+.ticket__burr {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+.ticket__hole,
+.ticket__chad {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.ticket__chad {
+  fill: var(--stock);
+  stroke: var(--tk-text);
+  stroke-width: 1;
+  opacity: 0;
+}
+.ticket__stamp {
+  position: absolute;
+  inset: 34% 0 auto 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ticket__hole.is-punching {
+    animation: punch-in 270ms var(--e-press) both;
+  }
+  /* The chad: the disc of paper that drops out of the hole. */
+  @keyframes chad-fall {
+    0% {
+      opacity: 1;
+      transform: translateY(0) rotate(0deg);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(120px) rotate(70deg);
+    }
+  }
+  .ticket__chad {
+    animation: chad-fall 620ms var(--e-sink) 200ms both;
+  }
+}
+
+/* ---------- Bowl ---------- */
+
+.bowl {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  --fill: 0;
+}
+.bowl__tin {
+  fill: var(--tin-light);
+}
+.bowl__water {
+  fill: var(--water);
+}
+.bowl__veil {
+  fill: var(--water);
+  opacity: 0.38;
+}
+.bowl__hatch {
+  stroke: var(--paper);
+  stroke-width: 1;
+  opacity: 0.4;
+  fill: none;
+}
+.bowl__ripple {
+  fill: none;
+  stroke: var(--paper);
+  stroke-width: 1.5;
+}
+.bowl__copper {
+  fill: var(--copper);
+}
+.bowl__outline {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+.bowl__rim {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 5;
+  stroke-linecap: square;
+}
+.bowl__dent {
+  fill: none;
+  stroke: var(--copper-ink);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.bowl__pinhole {
+  fill: var(--ink);
+}
+
+/* Lower as it fills; the fill itself is the only linear motion. */
+.bowl__travel {
+  transform: translateY(calc(var(--fill) * 30px));
+  transition: transform 300ms linear;
+}
+.bowl__inside {
+  transform: translateY(calc((1 - var(--fill)) * 62px));
+  transition: transform 300ms linear;
+}
+.bowl.is-sunk .bowl__travel {
+  transform: translateY(70px);
+  transition: transform var(--t-water) var(--e-sink);
+}
+.bowl.is-sunk .bowl__inside {
+  transform: none;
+}
+.bowl.is-lifted .bowl__travel {
+  transform: translateY(-58px);
+  transition: transform 320ms var(--e-paper);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes bob {
+    0%,
+    100% {
+      transform: translateY(-1.5px) rotate(-0.4deg);
+    }
+    50% {
+      transform: translateY(1.5px) rotate(0.4deg);
+    }
+  }
+  .bowl.is-floating:not(.is-still) .bowl__bob {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: bob 3.2s ease-in-out infinite;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bowl__travel,
+  .bowl__inside {
+    transition: none !important;
+  }
+}
+
+/* ---------- Stamps ---------- */
+
+.stamp {
+  display: inline-block;
+  line-height: 0;
+}
+.stamp svg {
+  overflow: visible;
+}
+.stamp__ring {
+  fill: none;
+  stroke: var(--tk-text);
+}
+.stamp__word {
+  font-size: 25px;
+  font-weight: 800;
+  font-stretch: 85%;
+  letter-spacing: 2.5px;
+  fill: var(--tk-text);
+}
+.stamp__word:lang(hi) {
+  font-size: 23px;
+  letter-spacing: 0;
+}
+.stamp__curve {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  fill: var(--tk-text);
+}
+.stamp__curve--low {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+.stamp__date {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: var(--tk-text);
+}
+.stamp__date--small {
+  font-size: 9px;
+  font-weight: 600;
+}
+
+/* A stamp struck in response to an action lands heavy, once. */
+.stamp--struck {
+  transform: rotate(var(--rot, -6deg));
+}
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes strike {
+    0% {
+      opacity: 0;
+      transform: scale(1.4) rotate(var(--rot, -6deg));
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(var(--rot, -6deg));
+    }
+  }
+  .stamp--struck {
+    animation: strike var(--t-press) var(--e-press) 160ms both;
+  }
+}

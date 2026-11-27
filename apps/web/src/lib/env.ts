@@ -11,6 +11,11 @@
  */
 import { z } from 'zod';
 
+// The site's Content-Security-Policy forbids `eval`. Zod otherwise probes for
+// it once to decide whether to compile parsers, the browser refuses, and the
+// refusal is reported as a policy violation on every page.
+z.config({ jitless: true });
+
 export const CLUSTERS = ['devnet', 'testnet', 'mainnet-beta', 'localnet'] as const;
 export type Cluster = (typeof CLUSTERS)[number];
 

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 import { describePayAction } from '@/lib/actions/pay';
 import { ActionFailure } from '@/lib/actions/spec';
@@ -13,17 +14,19 @@ interface Props {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-// Structure only, visual design pending.
-//
-// The shareable "pay me" link. Blink-aware clients turn this URL into the
-// Action at /api/actions/pay (see /actions.json); everyone else lands here and
-// sees the same description. Data: `describePayAction`.
+/**
+ * The shareable "pay me" link. Blink-aware clients turn this URL into the
+ * Action at /api/actions/pay (see /actions.json); everyone else lands here and
+ * sees the same description, set as a payment request slip with one button.
+ * Data: `describePayAction`.
+ */
 export default async function PayPage({ searchParams }: Props) {
   const query = new URLSearchParams();
   for (const [key, value] of Object.entries(await searchParams)) {
     if (typeof value === 'string') query.set(key, value);
   }
   const url = new URL(`/pay?${query.toString()}`, publicEnv.siteUrl);
+  const to = query.get('to');
 
   try {
     const action = await describePayAction(url, {
@@ -32,19 +35,58 @@ export default async function PayPage({ searchParams }: Props) {
       cluster: publicEnv.cluster,
     });
     return (
-      <main>
-        <h1>{action.title}</h1>
-        <p>{action.description}</p>
-        {action.error ? <p role="alert">{action.error.message}</p> : null}
-        {action.disabled ? null : <a href={`/app?${query.toString()}`}>{action.label}</a>}
+      <main className="pay wrap">
+        <div className="slip">
+          <p className="label slip__kicker">Payment request</p>
+          <h1 className="h2">{action.title}</h1>
+          <hr className="rule" />
+          <p className="lead slip__text">{action.description}</p>
+          {to ? (
+            <dl className="kv">
+              <div className="kv__row">
+                <dt>Pay to</dt>
+                <dd className="mono">{to}</dd>
+              </div>
+            </dl>
+          ) : null}
+          {action.error ? (
+            <p className="notice" data-ink="red" role="alert">
+              {action.error.message}
+            </p>
+          ) : null}
+          {action.disabled ? null : (
+            <div className="btn-row slip__actions">
+              <Link href={`/app?${query.toString()}`} className="btn">
+                {action.label}
+              </Link>
+            </div>
+          )}
+          <hr className="perf" />
+          <p className="small quiet">
+            Paid through HOLDBACK on {publicEnv.cluster}: the money is held on-chain for an undo
+            window sized from the evidence about this recipient. You review the verdict before you
+            sign anything.
+          </p>
+        </div>
       </main>
     );
   } catch (failure) {
     if (!(failure instanceof ActionFailure)) throw failure;
     return (
-      <main>
-        <h1>Payment link</h1>
-        <p role="alert">{failure.message}</p>
+      <main className="pay wrap">
+        <div className="slip">
+          <p className="label slip__kicker">Payment request</p>
+          <h1 className="h2">This payment link cannot be used</h1>
+          <hr className="rule" />
+          <p className="notice" data-ink="red" role="alert">
+            {failure.message}
+          </p>
+          <div className="btn-row slip__actions">
+            <Link href="/app" className="btn btn--ghost">
+              Open the app instead
+            </Link>
+          </div>
+        </div>
       </main>
     );
   }

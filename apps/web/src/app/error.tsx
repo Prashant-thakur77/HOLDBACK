@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-// Structure only, visual design pending. Catches errors thrown while rendering any route.
+/** Catches errors thrown while rendering any route. Says what is and is not affected. */
 export default function RouteError({
   error,
   reset,
@@ -15,13 +15,25 @@ export default function RouteError({
   }, [error]);
 
   return (
-    <main>
-      <h1>Something went wrong</h1>
-      <p>The page could not be shown. Your funds are not affected by this.</p>
-      {error.digest ? <p>Reference: {error.digest}</p> : null}
-      <button type="button" onClick={reset}>
-        Try again
-      </button>
+    <main className="wrap lost">
+      <div>
+        <p className="label">Something went wrong</p>
+        <h1 className="h2">This page could not be shown</h1>
+        <p className="lead" style={{ marginTop: 'var(--s4)' }}>
+          The fault is in this page, not in your wallet. Holds live on-chain and are not affected by
+          it.
+        </p>
+        {error.digest ? (
+          <p className="small quiet" style={{ marginTop: 'var(--s3)' }}>
+            Reference: <span className="mono">{error.digest}</span>
+          </p>
+        ) : null}
+        <div className="btn-row lost__links">
+          <button type="button" className="btn" onClick={reset}>
+            Try again
+          </button>
+        </div>
+      </div>
     </main>
   );
 }

@@ -200,3 +200,18 @@ hash now equals the hash anyone gets from the documented command.
 - **The run records its own environment.** Collectors and sources that were unavailable are
   listed in `eval/results.json` and printed next to the table, so a run without keys cannot
   pass for a full one.
+
+## D24. Website
+
+- **Direction.** The site is printed counter matter: tinted paper, one ink, and every hold
+  drawn as a punched hour-grid ticket. The home page's first screen lets a visitor pick who
+  they are paying, watch that tier's window punched into the ticket, and take the payment
+  back before the bowl sinks.
+- **Motion is CSS and View Transitions only**, with no animation library, to keep the Worker
+  and phone bundles light. Reduced motion keeps every state change and drops the travel.
+- **Results are compiled in at build time** from `eval/results.json` and
+  `eval/program_invariants.json`; rebuild the site after `make eval`.
+- **Counters never invent numbers.** They show real values, zeros with "no holds recorded
+  yet", or a single "unavailable" line.
+- **`zod` runs in `jitless` mode** so the content-security policy needs no `unsafe-eval`.
+- The integrations page is `/integrations`.

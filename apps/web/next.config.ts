@@ -1,4 +1,5 @@
 import { execSync } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 
 import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
@@ -29,9 +30,26 @@ function browserRpcUrl(): string {
   return cluster === 'localnet' ? 'http://127.0.0.1:8899' : `https://api.${cluster}.solana.com`;
 }
 
+/**
+ * Evaluation data, read once when the build starts and compiled in as text.
+ * The Workers runtime has no file system, so the results page cannot read
+ * these at request time. A file that does not exist yet becomes an empty
+ * string and the page says the evaluation has not been run.
+ */
+function evalFile(name: string): string {
+  try {
+    return fs.readFileSync(path.resolve(__dirname, '../../eval', name), 'utf8');
+  } catch {
+    return '';
+  }
+}
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Title, description and share-image tags are sent in <head> to every client
+  // rather than streamed into the body, so link previews and audits find them.
+  htmlLimitedBots: /.*/,
   // The SDK and the Dojo engine are linked from the repository (`file:`
   // dependencies), so they are compiled and bundled like application code.
   transpilePackages: ['@holdback/sdk', '@holdback/dojo'],
@@ -41,6 +59,8 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_BUILD_COMMIT: process.env.NEXT_PUBLIC_BUILD_COMMIT ?? buildCommit(),
     NEXT_PUBLIC_BUILD_TIME: process.env.NEXT_PUBLIC_BUILD_TIME ?? new Date().toISOString(),
+    EVAL_PROGRAM_INVARIANTS: evalFile('program_invariants.json'),
+    EVAL_RESULTS: evalFile('results.json'),
   },
   webpack(config) {
     // The linked packages resolve `@solana/web3.js` from the repository root,

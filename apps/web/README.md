@@ -113,7 +113,7 @@ curl -sI https://<host>/dojo/watch/<run id> | grep -i content-security-policy
 | `POST /api/actions/pay?to=&amount=`      | Body `{"account": "<payer>"}`; returns the unsigned payment transaction |
 | `OPTIONS` on both                        | CORS preflight with the Action headers                                  |
 | `/api/dojo/*`                            | The Scam Dojo engine's handler (`@holdback/dojo`)                       |
-| `/action-icon.svg`                       | Icon shown on Action cards (placeholder mark, replace the file)         |
+| `/action-icon.svg`                       | Icon shown on Action cards                                              |
 
 Action parameters: `to` is the recipient address. `amount` is in whole units of the asset
 (`12.5`); when it is missing the Action asks the payer for it. `mint` is a mint address, `SOL`
@@ -131,27 +131,40 @@ to the configured agent, RPC and Supabase origins. `/dojo/watch/*` alone gets
 `Content-Security-Policy: frame-ancestors https://app.bytearena.fun` instead, because the arena
 embeds that page. The rules live in `src/lib/security-headers.ts`.
 
-## For the design pass
+## Pages and design
 
-Everything visual is still to be built. The pages in `src/app` are structure only: plain semantic
-HTML that proves the data flow. Replace their markup and add styles; keep the hooks and loaders.
+The design system is written down in `.design/DESIGN.md` (tokens, type, motion, art, sitemap) on
+top of the taste profile in `.design/taste.md`. Styles are plain CSS in `src/styles` (tokens, base,
+art, chrome, home, pages, app), fonts are self-hosted in `public/fonts`, and all art is SVG drawn
+in code (`src/components/art`). Nothing loads from another origin; if that changes, add the origin
+to the policy in `src/lib/security-headers.ts`, or the browser will block it.
 
-If the design loads fonts, images or scripts from another origin, add that origin to the policy in
-`src/lib/security-headers.ts`, or the browser will block it.
+| Route                 | File                                             | What it is                                                           |
+| --------------------- | ------------------------------------------------ | -------------------------------------------------------------------- |
+| `/`                   | `src/app/page.tsx`, `src/components/home/*`      | The claim, the bowl demo, live counters, the whole story in teasers  |
+| `/how-it-works`       | `src/app/how-it-works/page.tsx`                  | One payment in five stages, tiers, deposit boxes, limits             |
+| `/evidence`           | `src/app/evidence/page.tsx`                      | Evidence hash, collectors, what each key can do, invariants          |
+| `/results`            | `src/app/results/page.tsx`, `src/lib/results.ts` | Printed from `eval/results.json` and `eval/program_invariants.json`  |
+| `/integrations`       | `src/app/integrations/page.tsx`                  | What each integration does here                                      |
+| `/dojo`               | `src/app/dojo/page.tsx`, `src/components/dojo/*` | Scam Dojo, played in the browser against `/api/dojo`                 |
+| `/docs`               | `src/app/docs/page.tsx`                          | Commands, addresses, accounts, routes, questions                     |
+| `/app`                | `src/app/app/page.tsx`, `src/components/app/*`   | Dashboard: connect, send with verdict and pre-sign slip, holds       |
+| `/h/[holdPda]`        | `src/app/h/[holdPda]/*`                          | Public receipt with the in-browser hash check                        |
+| `/pay`                | `src/app/pay/page.tsx`                           | Payment request slip (the Action's fallback page)                    |
+| `/dojo/watch/[runId]` | `src/app/dojo/watch/[runId]/*`                   | Spectator page; rendered without the site shell because it is framed |
+| not found, errors     | `not-found.tsx`, `error.tsx`, `global-error.tsx` | Designed dead ends                                                   |
 
-### Structure-only routes
+The shell (header, contents sheet, footer, scroll reveals, page turn) is `src/components/site`.
+Interface copy in the four languages is `src/lib/i18n.ts`; the server renders English and the
+reader's saved choice is applied after hydration.
 
-| Route                 | File                                                  | Data it already uses              |
-| --------------------- | ----------------------------------------------------- | --------------------------------- |
-| `/`                   | `src/app/page.tsx`                                    | `loadLiveStats`                   |
-| `/app`                | `src/app/app/page.tsx` (+ `layout.tsx` for wallets)   | every wallet hook below           |
-| `/h/[holdPda]`        | `src/app/h/[holdPda]/page.tsx`, `VerifyHash.tsx`      | `loadReceipt`, `useVerifyReceipt` |
-| `/pay`                | `src/app/pay/page.tsx`                                | `describePayAction`               |
-| `/dojo/watch/[runId]` | `src/app/dojo/watch/[runId]/page.tsx`, `WatchRun.tsx` | `loadDojoWatch`, `useDojoWatch`   |
-| not found, errors     | `not-found.tsx`, `error.tsx`, `global-error.tsx`      | none                              |
-| root layout           | `src/app/layout.tsx`                                  | metadata from env                 |
+`next.config.ts` reads `eval/program_invariants.json` and `eval/results.json` when the build
+starts and compiles their text in, because the Workers runtime has no file system. A missing file
+becomes an explicit "not run" state on the results page. Rebuild after `make eval` to publish new
+numbers.
 
-`public/action-icon.svg` is a placeholder mark. Keep the path when replacing it.
+`public/action-icon.svg` is the mark shown on Action cards; `src/app/icon.svg` is the favicon and
+`public/og.png` the share image.
 
 ### Wallet
 

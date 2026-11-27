@@ -12,18 +12,20 @@ interface Props {
   params: Promise<{ runId: string }>;
 }
 
-// Structure only, visual design pending. Data: `loadDojoWatch(runId)` on the
-// server, `useDojoWatch(runId, initial)` in the client component.
-//
-// This route is embedded by app.bytearena.fun; its framing header is set in
-// next.config.ts (see src/lib/security-headers.ts).
+/**
+ * The spectator page. Data: `loadDojoWatch(runId)` on the server,
+ * `useDojoWatch(runId, initial)` in the client component.
+ *
+ * This route is embedded by app.bytearena.fun; its framing header is set in
+ * next.config.ts (see src/lib/security-headers.ts), and the site shell leaves
+ * it bare (see `isBareRoute`).
+ */
 export default async function DojoWatchPage({ params }: Props) {
   const { runId } = await params;
   const run = await loadDojoWatch(runId);
   if (!run) notFound();
   return (
-    <main>
-      <h1>Scam Dojo</h1>
+    <main className="watch-page">
       <WatchRun runId={runId} initial={run} />
     </main>
   );
