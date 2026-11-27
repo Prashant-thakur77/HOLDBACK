@@ -1,0 +1,30 @@
+# Rust / Anchor
+/target
+.anchor/
+/test-ledger
+
+# Dependencies
+node_modules/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+keys/
+
+# Build artifacts
+sdk/dist/
+dark-forest/dist/
+
+# Cloudflare Workers
+.wrangler/
+
+# OS
+.DS_Store
+*.swp
+*.swo
+
+# IDEs
+.idea/
+.vscode/
+*.iml
