@@ -5,6 +5,8 @@ sizes that window from live, cited scam evidence: no wait for people you trust, 
 for a flagged wallet. When the recipient looks dangerous, a voice in your language explains
 why, and one tap brings the money back before a scammer can claim it.
 
+- Live: **https://holdback.prashantthakur.dev** (site, dashboard, receipts, Blink, Scam Dojo)
+- Risk agent API: https://holdback-api.prashantthakur.dev
 - Program (devnet): [`26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom`](https://explorer.solana.com/address/26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom?cluster=devnet)
 - Status: devnet, unaudited. [What has run where](#what-has-run-where) is listed honestly below.
 

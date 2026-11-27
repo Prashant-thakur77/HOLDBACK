@@ -267,7 +267,7 @@ npx wrangler secret put CRANK_SECRET
 npx wrangler secret put DOJO_SECRET
 ```
 
-`SOLANA_RPC_URL` is set as a secret because a private RPC URL contains its API key; remove the default from `[vars]` in `wrangler.toml` when you do. The Cron Triggers are declared in `wrangler.toml` and start with the first deploy. The hourly list refresh parses several megabytes of JSON, which needs the Workers Paid CPU limit; on the free plan run `npm run blocklists:refresh` from a machine on a schedule instead. To cache voice notes in R2, create a bucket and uncomment the `r2_buckets` block in `wrangler.toml`.
+`SOLANA_RPC_URL` is set as a secret because a private RPC URL contains its API key. One Cron Trigger, every minute, is declared in `wrangler.toml`; on minutes divisible by ten it also re-assesses pending holds and on minute 0 it refreshes the lists (`jobsFor` in `src/cron.ts`), because the free plan caps Cron Triggers per account. Metered routes are limited to 30 calls a minute per caller IP through the `ASSESS_LIMITER` rate-limiting binding. The hourly list refresh parses several megabytes of JSON, which needs the Workers Paid CPU limit; on the free plan run `npm run blocklists:refresh` from a machine on a schedule instead. To cache voice notes in R2, create a bucket and uncomment the `r2_buckets` block in `wrangler.toml`.
 
 ## Layout
 

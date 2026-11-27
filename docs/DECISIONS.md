@@ -215,3 +215,22 @@ hash now equals the hash anyone gets from the documented command.
   yet", or a single "unavailable" line.
 - **`zod` runs in `jitless` mode** so the content-security policy needs no `unsafe-eval`.
 - The integrations page is `/integrations`.
+
+## D25. Deployment
+
+- **Cloudflare Workers for both services**, on one-level subdomains
+  (`holdback.prashantthakur.dev`, `holdback-api.prashantthakur.dev`) so the free
+  certificate covers them.
+- **One Cron Trigger.** The free plan caps Cron Triggers per account, so a single
+  every-minute trigger runs the crank and, by clock time, the ten-minute re-assessment and
+  the hourly list refresh. The lists were first loaded into the database from a workstation
+  because parsing them can exceed the free plan's CPU limit per request.
+- **Metered routes are rate-limited** (assess, re-assess, flags, relay login, voice) per
+  caller IP with the Workers rate-limiting binding.
+- **Wallet sessions without the Supabase JWT secret.** The project signs its own tokens with
+  an asymmetric key and does not expose a shared secret, so wallet sessions are signed with
+  the service's secret. Every service endpoint accepts them; Realtime does not, and clients
+  poll instead. Setting `SUPABASE_JWT_SECRET` (the project's legacy secret) re-enables
+  Realtime without code changes.
+- **The Supabase server key is the new secret key**, used where the code says "service
+  role".

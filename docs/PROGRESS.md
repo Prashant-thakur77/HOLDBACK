@@ -59,9 +59,13 @@ Checked items are built, tested and committed.
 - [x] Dataset, baseline, metrics, replay, latency, negative result (`make eval`; limited by missing keys, stated in the results)
 
 ## Continuous integration
+
 - [x] CI green: secret scan, program (build, Rust tests, property test, localnet), packages, web, eval
 
 ## Phase 10: docs and submission
 
 - [x] README, architecture, threat model, references, demo script, submission text
-- [ ] Deploy (needs a private RPC and a Supabase project), release with APK, videos
+- [x] Deployed: site https://holdback.prashantthakur.dev, risk agent https://holdback-api.prashantthakur.dev (Cloudflare Workers), Supabase migrations, `helius-webhook` function and Helius webhook
+- [x] Live end to end on devnet: assess, create hold `3CvKNWqqtC2kWSg2Wxdc8UXYDHeefwHDcf1maYGqLd5bxvTL4uupb2xkgQmyefXhi9Z3r6FLnH5Wj4YUbvwkdpU`, webhook mirror, evidence hash verified, undo `5X5ZpRxU2cig87wWub5iGFx782yfCEzQyhdc9sMraMz27njqDaJ17iaYwmNqrvh6a1DTuA5QHd11mdAtFLxtHMBh`, receipt page shows it
+- [x] Crank inside the Workers runtime: release `4tyUf8rAuJA6h3e96jkprDaRP7geJQivD7Ve8muSpqALsTQjGjrUVGhzrV6r5t3EWVge6yKwzDuKLTSRhiNokXSq`, close `4PqCz86ERY5saKnRViWTqxorBNGfunBmhQMpppRKFXmL28brF3ZJhG15SBZghe4Kp6prPwQbLU6PFWMVgcPza6jU`
+- [ ] GitHub release with the APK, videos

@@ -20,7 +20,5 @@
   "observability": {
     "enabled": true,
   },
-  // Custom domain: uncomment and set the hostname once the zone is on this
-  // Cloudflare account, then redeploy.
-  // "routes": [{ "pattern": "holdback.example.com", "custom_domain": true }]
+  "routes": [{ "pattern": "holdback.prashantthakur.dev", "custom_domain": true }],
 }
