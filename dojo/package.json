@@ -1,0 +1,35 @@
+{
+  "name": "@holdback/dojo",
+  "version": "0.1.0",
+  "description": "Scam Dojo: a turn-based game about telling real payment requests from scams, with a pure engine and a Fetch API handler",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "BYTE_GAME.md"
+  ],
+  "sideEffects": false,
+  "keywords": [
+    "solana",
+    "holdback",
+    "scam",
+    "game",
+    "dojo"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "dev": "tsx scripts/serve.ts",
+    "simulate": "tsx scripts/simulate.ts",
+    "byte:doc": "tsx scripts/byte-doc.ts",
+    "collect": "tsx scripts/collect-reports.ts",
+    "new-addresses": "tsx scripts/new-addresses.ts"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.119.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

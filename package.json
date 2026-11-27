@@ -8,8 +8,7 @@
     "sdk",
     "dojo",
     "mcp",
-    "services/agent",
-    "apps/web"
+    "services/agent"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
