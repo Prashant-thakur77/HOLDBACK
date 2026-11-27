@@ -28,3 +28,6 @@ dark-forest/dist/
 .idea/
 .vscode/
 *.iml
+
+# Local notes
+PLAN.md
