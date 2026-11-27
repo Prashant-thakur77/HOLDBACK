@@ -64,6 +64,14 @@ test('tracks an in-memory private session lifecycle', async () => {
   payments.createEscrowWrapper = async () => 'escrow-tx'
   payments.delegateToPer = async () => 'delegate-tx'
   payments.recordSettlement = async () => 'settlement-tx'
+  payments.provider = { wallet: { publicKey: DARK_FOREST_PROGRAM_ID } }
+  payments.program = {
+    methods: {
+      recordPayment: () => ({
+        accounts: () => ({ rpc: async () => 'payment-tx' }),
+      }),
+    },
+  }
 
   const session = await payments.startPrivateSession(77, DARK_FOREST_PROGRAM_ID, {
     agentEndpoint: 'https://agent.example.com',
@@ -76,7 +84,7 @@ test('tracks an in-memory private session lifecycle', async () => {
   assert.equal(session.isActive, true)
   assert.equal((await payments.getActiveSession(77))?.requestCount, 0)
 
-  await payments.recordPayment(77, 500_000)
+  assert.equal(await payments.recordPayment(77, 500_000), 'payment-tx')
   assert.equal((await payments.getActiveSession(77))?.totalPaid, 500_000)
   assert.equal((await payments.getActiveSession(77))?.requestCount, 1)
 
