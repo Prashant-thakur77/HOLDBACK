@@ -99,24 +99,25 @@ Every number below is produced by a script and stored in `eval/results.json`
 
 <!-- results:start -->
 
-Run of 2026-11-27 at commit `9966f61`. Held-out means first published on or after 2026-07-01.
+Run of 2026-11-27 at commit `0e96710`. Held-out means first published on or after 2026-07-01.
 
-| Metric                                           | Static blocklist                                     | HOLDBACK                          |
-| ------------------------------------------------ | ---------------------------------------------------- | --------------------------------- |
-| Recall on held-out scam addresses                | 0/3 (0.0%, 95% CI 0.0% to 56.1%)                     | 0/3 (0.0%, 95% CI 0.0% to 56.1%)  |
-| False-positive rate on legit addresses           | 0/54 (0.0%, 95% CI 0.0% to 6.6%)                     | 0/54 (0.0%, 95% CI 0.0% to 6.6%)  |
-| Precision                                        | no rows (n = 0)                                      | no rows (n = 0)                   |
-| Scam value protected, sender reacts after 10 min | 0.0% blocked (0/3); the rest is a plain transfer, 0% | 100.0% reclaimable (3/3 payments) |
-| Scam value protected, sender reacts after 1 h    | 0.0% blocked (0/3); the rest is a plain transfer, 0% | 0.0% reclaimable (0/3 payments)   |
-| Scam value protected, sender reacts after 6 h    | 0.0% blocked (0/3); the rest is a plain transfer, 0% | 0.0% reclaimable (0/3 payments)   |
-| Scam value protected, sender reacts after 24 h   | 0.0% blocked (0/3); the rest is a plain transfer, 0% | 0.0% reclaimable (0/3 payments)   |
-| Median time to verdict                           | n/a                                                  | 389 ms (n = 102)                  |
-| `/v1/assess`, first request                      | n/a                                                  | p50 253 ms, p95 340 ms (n = 30)   |
-| `/v1/assess`, repeat request                     | n/a                                                  | p50 132 ms, p95 148 ms (n = 30)   |
-| `create_hold` to confirmed, devnet               | n/a                                                  | p50 890 ms, p95 1,063 ms (n = 5)  |
-| `reclaim` to confirmed, devnet                   | n/a                                                  | p50 834 ms, p95 989 ms (n = 5)    |
+| Metric                                                     | Static blocklist                                     | HOLDBACK                             |
+| ---------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------ |
+| Recall on held-out scam addresses                          | 0/3 (0.0%, 95% CI 0.0% to 56.1%)                     | 3/3 (100.0%, 95% CI 43.9% to 100.0%) |
+| Recall without the label’s own list (independent evidence) | n/a                                                  | 0/3 (0.0%, 95% CI 0.0% to 56.1%)     |
+| False-positive rate on legit addresses                     | 0/54 (0.0%, 95% CI 0.0% to 6.6%)                     | 0/54 (0.0%, 95% CI 0.0% to 6.6%)     |
+| Precision                                                  | no rows (n = 0)                                      | 3/3 (100.0%, 95% CI 43.9% to 100.0%) |
+| Scam value protected, sender reacts after 10 min           | 0.0% blocked (0/3); the rest is a plain transfer, 0% | 100.0% reclaimable (3/3 payments)    |
+| Scam value protected, sender reacts after 1 h              | 0.0% blocked (0/3); the rest is a plain transfer, 0% | 100.0% reclaimable (3/3 payments)    |
+| Scam value protected, sender reacts after 6 h              | 0.0% blocked (0/3); the rest is a plain transfer, 0% | 100.0% reclaimable (3/3 payments)    |
+| Scam value protected, sender reacts after 24 h             | 0.0% blocked (0/3); the rest is a plain transfer, 0% | 100.0% reclaimable (3/3 payments)    |
+| Median time to verdict                                     | n/a                                                  | 298 ms (n = 102)                     |
+| `/v1/assess`, first request                                | n/a                                                  | p50 283 ms, p95 621 ms (n = 30)      |
+| `/v1/assess`, repeat request                               | n/a                                                  | p50 185 ms, p95 1,358 ms (n = 30)    |
+| `create_hold` to confirmed, devnet                         | n/a                                                  | p50 839 ms, p95 1,024 ms (n = 5)     |
+| `reclaim` to confirmed, devnet                             | n/a                                                  | p50 1,006 ms, p95 1,619 ms (n = 5)   |
 
-In this run these evidence collectors were unavailable for every assessment: `baseline`, `blocklist`, `chainabuse`, `helius`, `web_reports`. Dataset sources that could not be used: `chainabuse`. The numbers describe that configuration and nothing more; [`eval/RESULTS.md`](eval/RESULTS.md) lists every limit and the full tables.
+Every scam label comes from a public list that the `blocklist` collector also reads, so recall above repeats the label; without that list the Guardian caught 0 of 3. In this run these evidence collectors were unavailable for every assessment: `baseline`, `chainabuse`, `helius`, `web_reports`. Dataset sources that could not be used: `chainabuse`. The numbers describe that configuration and nothing more; [`eval/RESULTS.md`](eval/RESULTS.md) lists every limit and the full tables.
 
 **Where it fails.** A wallet created less than a day ago, with no reports and little or no history, gives the Guardian nothing to find. Of 44 such wallets (new mainnet wallets and never-used keypairs, none of them a known scam) it rated 0/44 (0.0%, 95% CI 0.0% to 8.0%) as suspicious or worse. What still helps is the default window: every one of them got 30 min, so a payment to them could still be undone for 44/44 (100.0%) after 10 min, 0/44 (0.0%) after 1 h, 0/44 (0.0%) after 6 h, 0/44 (0.0%) after 24 h. The gap that remains: a victim who notices after the default window has closed gets nothing back, exactly as with a plain transfer.
 

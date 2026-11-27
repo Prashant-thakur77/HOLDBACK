@@ -1,11 +1,10 @@
 # HOLDBACK evaluation results
 
-Generated 2026-11-27T15:48:29+00:00 at commit `9966f61644e0a1100b719e1c36be96c73d51d486` with uncommitted changes by `eval/merge_results.py`. Do not edit: every number here is copied from `eval/results.json`.
+Generated 2026-11-27T16:01:07+00:00 at commit `0e96710ca8862463147ca0662a0aa13063403123` with uncommitted changes by `eval/merge_results.py`. Do not edit: every number here is copied from `eval/results.json`.
 
 ## Read this first: limits of this run
 
 - Collector `baseline` was unavailable in every assessment: no sender history, which only affects the trusted fast path (needs Supabase).
-- Collector `blocklist` was unavailable in every assessment: no sanctions-list or scam-list lookup, so listed addresses are not recognised (needs Supabase with the lists loaded).
 - Collector `chainabuse` was unavailable in every assessment: no abuse-report lookup (needs CHAINABUSE_API_KEY).
 - Collector `helius` was unavailable in every assessment: no wallet age, history or behaviour heuristics (needs HELIUS_API_KEY).
 - Collector `web_reports` was unavailable in every assessment: no web search for reports naming the address (needs FIRECRAWL_API_KEY).
@@ -50,10 +49,10 @@ A recipient counts as caught when its tier is SUSPICIOUS or higher.
 | Split    | Method                              | Recall                               | False-positive rate              | Precision                            |
 | -------- | ----------------------------------- | ------------------------------------ | -------------------------------- | ------------------------------------ |
 | Held-out | Static blocklist                    | 0/3 (0.0%, 95% CI 0.0% to 56.1%)     | 0/54 (0.0%, 95% CI 0.0% to 6.6%) | no rows (n = 0)                      |
-| Held-out | HOLDBACK                            | 0/3 (0.0%, 95% CI 0.0% to 56.1%)     | 0/54 (0.0%, 95% CI 0.0% to 6.6%) | no rows (n = 0)                      |
+| Held-out | HOLDBACK                            | 3/3 (100.0%, 95% CI 43.9% to 100.0%) | 0/54 (0.0%, 95% CI 0.0% to 6.6%) | 3/3 (100.0%, 95% CI 43.9% to 100.0%) |
 | Held-out | HOLDBACK, label's own list excluded | 0/3 (0.0%, 95% CI 0.0% to 56.1%)     |                                  |                                      |
 | Dev      | Static blocklist                    | 1/1 (100.0%, 95% CI 20.7% to 100.0%) | 0/54 (0.0%, 95% CI 0.0% to 6.6%) | 1/1 (100.0%, 95% CI 20.7% to 100.0%) |
-| Dev      | HOLDBACK                            | 0/1 (0.0%, 95% CI 0.0% to 79.3%)     | 0/54 (0.0%, 95% CI 0.0% to 6.6%) | no rows (n = 0)                      |
+| Dev      | HOLDBACK                            | 1/1 (100.0%, 95% CI 20.7% to 100.0%) | 0/54 (0.0%, 95% CI 0.0% to 6.6%) | 1/1 (100.0%, 95% CI 20.7% to 100.0%) |
 | Dev      | HOLDBACK, label's own list excluded | 0/1 (0.0%, 95% CI 0.0% to 79.3%)     |                                  |                                      |
 | Undated  | Static blocklist                    | no rows (n = 0)                      | 0/54 (0.0%, 95% CI 0.0% to 6.6%) | no rows (n = 0)                      |
 | Undated  | HOLDBACK                            | no rows (n = 0)                      | 0/54 (0.0%, 95% CI 0.0% to 6.6%) | no rows (n = 0)                      |
@@ -65,16 +64,16 @@ Share of scam-payment value the sender could still pull back if they pressed Und
 
 | Split    | Method           | Payments | Amounts stated | Undo after 10 min | Undo after 1 h | Undo after 6 h | Undo after 24 h |
 | -------- | ---------------- | -------- | -------------- | ----------------- | -------------- | -------------- | --------------- |
-| Held-out | HOLDBACK         | 3        | 0              | 100.0%            | 0.0%           | 0.0%           | 0.0%            |
+| Held-out | HOLDBACK         | 3        | 0              | 100.0%            | 100.0%         | 100.0%         | 100.0%          |
 | Held-out | Static blocklist | 3        |                | 0.0%              | 0.0%           | 0.0%           | 0.0%            |
-| Dev      | HOLDBACK         | 1        | 0              | 100.0%            | 0.0%           | 0.0%           | 0.0%            |
+| Dev      | HOLDBACK         | 1        | 0              | 100.0%            | 100.0%         | 100.0%         | 100.0%          |
 | Dev      | Static blocklist | 1        |                | 100.0%            | 100.0%         | 100.0%         | 100.0%          |
 | Undated  | HOLDBACK         | 0        | 0              | n/a               | n/a            | n/a            | n/a             |
 | Undated  | Static blocklist | 0        |                | n/a               | n/a            | n/a            | n/a             |
 
 ## Time to verdict
 
-Median 389 ms, p95 806 ms over n = 102 first-time assessments (client-side, one request at a time).
+Median 298 ms, p95 901 ms over n = 102 first-time assessments (client-side, one request at a time).
 
 ## Negative result: wallets less than a day old
 
@@ -94,12 +93,12 @@ Caught: 0/44 (0.0%, 95% CI 0.0% to 8.0%). Windows assigned (seconds): [1800].
 
 ## Latency
 
-| Measurement                         | n   | p50    | p95      |
-| ----------------------------------- | --- | ------ | -------- |
-| `/v1/assess` (cold)                 | 30  | 253 ms | 340 ms   |
-| `/v1/assess` (warm)                 | 30  | 132 ms | 148 ms   |
-| `create_hold` to confirmed (devnet) | 5   | 890 ms | 1,063 ms |
-| `reclaim` to confirmed (devnet)     | 5   | 834 ms | 989 ms   |
+| Measurement                         | n   | p50      | p95      |
+| ----------------------------------- | --- | -------- | -------- |
+| `/v1/assess` (cold)                 | 30  | 283 ms   | 620 ms   |
+| `/v1/assess` (warm)                 | 30  | 185 ms   | 1,358 ms |
+| `create_hold` to confirmed (devnet) | 5   | 839 ms   | 1,024 ms |
+| `reclaim` to confirmed (devnet)     | 5   | 1,006 ms | 1,619 ms |
 
 ## Program invariants
 

@@ -120,6 +120,13 @@ function resultsTable(results: Results): string {
       proportion(holdback?.recall),
     ],
     [
+      // The scam labels come from public lists the blocklist collector also reads, so a
+      // hit there only repeats the label. This row counts evidence from every other source.
+      'Recall without the label’s own list (independent evidence)',
+      'n/a',
+      proportion(holdback?.independent_recall),
+    ],
+    [
       'False-positive rate on legit addresses',
       proportion(baseline?.false_positive_rate),
       proportion(holdback?.false_positive_rate),
@@ -157,6 +164,12 @@ function limits(results: Results): string {
   const missing = results.environment.guardian?.collectors_unavailable_in_every_assessment ?? [];
   const sources = results.environment.dataset_sources_unavailable ?? [];
   const parts: string[] = [];
+  const independent = results.holdback?.splits.heldout.independent_recall;
+  if (independent && independent.n > 0) {
+    parts.push(
+      `Every scam label comes from a public list that the \`blocklist\` collector also reads, so recall above repeats the label; without that list the Guardian caught ${independent.successes} of ${independent.n}.`,
+    );
+  }
   if (missing.length > 0) {
     parts.push(
       `In this run these evidence collectors were unavailable for every assessment: ${missing.map((name) => `\`${name}\``).join(', ')}.`,

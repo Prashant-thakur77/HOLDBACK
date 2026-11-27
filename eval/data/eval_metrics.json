@@ -1,5 +1,5 @@
 {
-  "computed_at": "2026-11-27T15:48:29+00:00",
+  "computed_at": "2026-11-27T15:58:29+00:00",
   "detection_rule": "tier is SUSPICIOUS or higher",
   "environment": {
     "guardian": {
@@ -25,13 +25,13 @@
     ],
     "collectors_unavailable_in_every_assessment": [
       "baseline",
-      "blocklist",
       "chainabuse",
       "helius",
       "web_reports"
     ],
     "collectors_unavailable_in_some_assessments": {},
     "collectors_answering_in_every_assessment": [
+      "blocklist",
       "context",
       "onchain_reputation",
       "sns"
@@ -41,11 +41,11 @@
   "splits": {
     "heldout": {
       "recall": {
-        "successes": 0,
+        "successes": 3,
         "n": 3,
-        "value": 0.0,
-        "ci95_low": 0.0,
-        "ci95_high": 0.5614970317550454
+        "value": 1.0,
+        "ci95_low": 0.4385029682449546,
+        "ci95_high": 1.0
       },
       "false_positive_rate": {
         "successes": 0,
@@ -55,11 +55,11 @@
         "ci95_high": 0.0664135880908964
       },
       "precision": {
-        "successes": 0,
-        "n": 0,
-        "value": null,
-        "ci95_low": null,
-        "ci95_high": null
+        "successes": 3,
+        "n": 3,
+        "value": 1.0,
+        "ci95_low": 0.4385029682449546,
+        "ci95_high": 1.0
       },
       "scam_rows": 3,
       "legit_rows": 54,
@@ -73,10 +73,10 @@
       },
       "tiers": {
         "TRUSTED": 0,
-        "UNKNOWN": 3,
+        "UNKNOWN": 0,
         "SUSPICIOUS": 0,
         "FLAGGED": 0,
-        "SANCTIONED": 0
+        "SANCTIONED": 3
       },
       "replay": {
         "payments": 3,
@@ -99,33 +99,33 @@
             "delay": "1 h",
             "delay_secs": 3600,
             "payments": 3,
-            "payments_reclaimable": 0,
-            "share_of_payments": 0.0,
+            "payments_reclaimable": 3,
+            "share_of_payments": 1.0,
             "value_usd": 3000.0,
-            "value_reclaimable_usd": 0,
-            "share_of_value": 0.0,
+            "value_reclaimable_usd": 3000.0,
+            "share_of_value": 1.0,
             "plain_transfer_share_of_value": 0.0
           },
           {
             "delay": "6 h",
             "delay_secs": 21600,
             "payments": 3,
-            "payments_reclaimable": 0,
-            "share_of_payments": 0.0,
+            "payments_reclaimable": 3,
+            "share_of_payments": 1.0,
             "value_usd": 3000.0,
-            "value_reclaimable_usd": 0,
-            "share_of_value": 0.0,
+            "value_reclaimable_usd": 3000.0,
+            "share_of_value": 1.0,
             "plain_transfer_share_of_value": 0.0
           },
           {
             "delay": "24 h",
             "delay_secs": 86400,
             "payments": 3,
-            "payments_reclaimable": 0,
-            "share_of_payments": 0.0,
+            "payments_reclaimable": 3,
+            "share_of_payments": 1.0,
             "value_usd": 3000.0,
-            "value_reclaimable_usd": 0,
-            "share_of_value": 0.0,
+            "value_reclaimable_usd": 3000.0,
+            "share_of_value": 1.0,
             "plain_transfer_share_of_value": 0.0
           }
         ]
@@ -133,11 +133,11 @@
     },
     "dev": {
       "recall": {
-        "successes": 0,
+        "successes": 1,
         "n": 1,
-        "value": 0.0,
-        "ci95_low": 0.0,
-        "ci95_high": 0.7934506856227626
+        "value": 1.0,
+        "ci95_low": 0.20654931437723745,
+        "ci95_high": 1.0
       },
       "false_positive_rate": {
         "successes": 0,
@@ -147,11 +147,11 @@
         "ci95_high": 0.0664135880908964
       },
       "precision": {
-        "successes": 0,
-        "n": 0,
-        "value": null,
-        "ci95_low": null,
-        "ci95_high": null
+        "successes": 1,
+        "n": 1,
+        "value": 1.0,
+        "ci95_low": 0.20654931437723745,
+        "ci95_high": 1.0
       },
       "scam_rows": 1,
       "legit_rows": 54,
@@ -165,10 +165,10 @@
       },
       "tiers": {
         "TRUSTED": 0,
-        "UNKNOWN": 1,
+        "UNKNOWN": 0,
         "SUSPICIOUS": 0,
         "FLAGGED": 0,
-        "SANCTIONED": 0
+        "SANCTIONED": 1
       },
       "replay": {
         "payments": 1,
@@ -191,33 +191,33 @@
             "delay": "1 h",
             "delay_secs": 3600,
             "payments": 1,
-            "payments_reclaimable": 0,
-            "share_of_payments": 0.0,
+            "payments_reclaimable": 1,
+            "share_of_payments": 1.0,
             "value_usd": 1000.0,
-            "value_reclaimable_usd": 0,
-            "share_of_value": 0.0,
+            "value_reclaimable_usd": 1000.0,
+            "share_of_value": 1.0,
             "plain_transfer_share_of_value": 0.0
           },
           {
             "delay": "6 h",
             "delay_secs": 21600,
             "payments": 1,
-            "payments_reclaimable": 0,
-            "share_of_payments": 0.0,
+            "payments_reclaimable": 1,
+            "share_of_payments": 1.0,
             "value_usd": 1000.0,
-            "value_reclaimable_usd": 0,
-            "share_of_value": 0.0,
+            "value_reclaimable_usd": 1000.0,
+            "share_of_value": 1.0,
             "plain_transfer_share_of_value": 0.0
           },
           {
             "delay": "24 h",
             "delay_secs": 86400,
             "payments": 1,
-            "payments_reclaimable": 0,
-            "share_of_payments": 0.0,
+            "payments_reclaimable": 1,
+            "share_of_payments": 1.0,
             "value_usd": 1000.0,
-            "value_reclaimable_usd": 0,
-            "share_of_value": 0.0,
+            "value_reclaimable_usd": 1000.0,
+            "share_of_value": 1.0,
             "plain_transfer_share_of_value": 0.0
           }
         ]
@@ -344,17 +344,17 @@
   "time_to_verdict": {
     "client_ms": {
       "n": 102,
-      "median_ms": 389.3,
-      "p95_ms": 806.2,
-      "min_ms": 274.8,
-      "max_ms": 2205.9
+      "median_ms": 298.2,
+      "p95_ms": 901.4,
+      "min_ms": 213.1,
+      "max_ms": 3168.0
     },
     "server_ms": {
       "n": 102,
-      "median_ms": 386.0,
-      "p95_ms": 802.8,
-      "min_ms": 273.0,
-      "max_ms": 2178.0
+      "median_ms": 295.5,
+      "p95_ms": 900.4,
+      "min_ms": 212.0,
+      "max_ms": 3158.0
     },
     "note": "first assessment of each recipient, one request at a time"
   },

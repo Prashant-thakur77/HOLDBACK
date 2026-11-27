@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-27T15:48:29+00:00",
+  "generated_at": "2026-11-27T16:01:07+00:00",
   "git": {
-    "commit": "9966f61644e0a1100b719e1c36be96c73d51d486",
+    "commit": "0e96710ca8862463147ca0662a0aa13063403123",
     "uncommitted_changes": true
   },
   "environment": {
@@ -31,13 +31,13 @@
       ],
       "collectors_unavailable_in_every_assessment": [
         "baseline",
-        "blocklist",
         "chainabuse",
         "helius",
         "web_reports"
       ],
       "collectors_unavailable_in_some_assessments": {},
       "collectors_answering_in_every_assessment": [
+        "blocklist",
         "context",
         "onchain_reputation",
         "sns"
@@ -83,7 +83,7 @@
     "fresh_max_age_hours": 24
   },
   "dataset": {
-    "built_at": "2026-11-27T15:45:34+00:00",
+    "built_at": "2026-11-27T15:56:01+00:00",
     "cutoff_date": "2026-07-01",
     "seed": 20261127,
     "mainnet_rpc_host": "api.mainnet-beta.solana.com",
@@ -301,11 +301,11 @@
     "splits": {
       "heldout": {
         "recall": {
-          "successes": 0,
+          "successes": 3,
           "n": 3,
-          "value": 0.0,
-          "ci95_low": 0.0,
-          "ci95_high": 0.5614970317550454
+          "value": 1.0,
+          "ci95_low": 0.4385029682449546,
+          "ci95_high": 1.0
         },
         "false_positive_rate": {
           "successes": 0,
@@ -315,11 +315,11 @@
           "ci95_high": 0.0664135880908964
         },
         "precision": {
-          "successes": 0,
-          "n": 0,
-          "value": null,
-          "ci95_low": null,
-          "ci95_high": null
+          "successes": 3,
+          "n": 3,
+          "value": 1.0,
+          "ci95_low": 0.4385029682449546,
+          "ci95_high": 1.0
         },
         "scam_rows": 3,
         "legit_rows": 54,
@@ -333,10 +333,10 @@
         },
         "tiers": {
           "TRUSTED": 0,
-          "UNKNOWN": 3,
+          "UNKNOWN": 0,
           "SUSPICIOUS": 0,
           "FLAGGED": 0,
-          "SANCTIONED": 0
+          "SANCTIONED": 3
         },
         "replay": {
           "payments": 3,
@@ -359,33 +359,33 @@
               "delay": "1 h",
               "delay_secs": 3600,
               "payments": 3,
-              "payments_reclaimable": 0,
-              "share_of_payments": 0.0,
+              "payments_reclaimable": 3,
+              "share_of_payments": 1.0,
               "value_usd": 3000.0,
-              "value_reclaimable_usd": 0,
-              "share_of_value": 0.0,
+              "value_reclaimable_usd": 3000.0,
+              "share_of_value": 1.0,
               "plain_transfer_share_of_value": 0.0
             },
             {
               "delay": "6 h",
               "delay_secs": 21600,
               "payments": 3,
-              "payments_reclaimable": 0,
-              "share_of_payments": 0.0,
+              "payments_reclaimable": 3,
+              "share_of_payments": 1.0,
               "value_usd": 3000.0,
-              "value_reclaimable_usd": 0,
-              "share_of_value": 0.0,
+              "value_reclaimable_usd": 3000.0,
+              "share_of_value": 1.0,
               "plain_transfer_share_of_value": 0.0
             },
             {
               "delay": "24 h",
               "delay_secs": 86400,
               "payments": 3,
-              "payments_reclaimable": 0,
-              "share_of_payments": 0.0,
+              "payments_reclaimable": 3,
+              "share_of_payments": 1.0,
               "value_usd": 3000.0,
-              "value_reclaimable_usd": 0,
-              "share_of_value": 0.0,
+              "value_reclaimable_usd": 3000.0,
+              "share_of_value": 1.0,
               "plain_transfer_share_of_value": 0.0
             }
           ]
@@ -393,11 +393,11 @@
       },
       "dev": {
         "recall": {
-          "successes": 0,
+          "successes": 1,
           "n": 1,
-          "value": 0.0,
-          "ci95_low": 0.0,
-          "ci95_high": 0.7934506856227626
+          "value": 1.0,
+          "ci95_low": 0.20654931437723745,
+          "ci95_high": 1.0
         },
         "false_positive_rate": {
           "successes": 0,
@@ -407,11 +407,11 @@
           "ci95_high": 0.0664135880908964
         },
         "precision": {
-          "successes": 0,
-          "n": 0,
-          "value": null,
-          "ci95_low": null,
-          "ci95_high": null
+          "successes": 1,
+          "n": 1,
+          "value": 1.0,
+          "ci95_low": 0.20654931437723745,
+          "ci95_high": 1.0
         },
         "scam_rows": 1,
         "legit_rows": 54,
@@ -425,10 +425,10 @@
         },
         "tiers": {
           "TRUSTED": 0,
-          "UNKNOWN": 1,
+          "UNKNOWN": 0,
           "SUSPICIOUS": 0,
           "FLAGGED": 0,
-          "SANCTIONED": 0
+          "SANCTIONED": 1
         },
         "replay": {
           "payments": 1,
@@ -451,33 +451,33 @@
               "delay": "1 h",
               "delay_secs": 3600,
               "payments": 1,
-              "payments_reclaimable": 0,
-              "share_of_payments": 0.0,
+              "payments_reclaimable": 1,
+              "share_of_payments": 1.0,
               "value_usd": 1000.0,
-              "value_reclaimable_usd": 0,
-              "share_of_value": 0.0,
+              "value_reclaimable_usd": 1000.0,
+              "share_of_value": 1.0,
               "plain_transfer_share_of_value": 0.0
             },
             {
               "delay": "6 h",
               "delay_secs": 21600,
               "payments": 1,
-              "payments_reclaimable": 0,
-              "share_of_payments": 0.0,
+              "payments_reclaimable": 1,
+              "share_of_payments": 1.0,
               "value_usd": 1000.0,
-              "value_reclaimable_usd": 0,
-              "share_of_value": 0.0,
+              "value_reclaimable_usd": 1000.0,
+              "share_of_value": 1.0,
               "plain_transfer_share_of_value": 0.0
             },
             {
               "delay": "24 h",
               "delay_secs": 86400,
               "payments": 1,
-              "payments_reclaimable": 0,
-              "share_of_payments": 0.0,
+              "payments_reclaimable": 1,
+              "share_of_payments": 1.0,
               "value_usd": 1000.0,
-              "value_reclaimable_usd": 0,
-              "share_of_value": 0.0,
+              "value_reclaimable_usd": 1000.0,
+              "share_of_value": 1.0,
               "plain_transfer_share_of_value": 0.0
             }
           ]
@@ -604,21 +604,21 @@
     "time_to_verdict": {
       "client_ms": {
         "n": 102,
-        "median_ms": 389.3,
-        "p95_ms": 806.2,
-        "min_ms": 274.8,
-        "max_ms": 2205.9
+        "median_ms": 298.2,
+        "p95_ms": 901.4,
+        "min_ms": 213.1,
+        "max_ms": 3168.0
       },
       "server_ms": {
         "n": 102,
-        "median_ms": 386.0,
-        "p95_ms": 802.8,
-        "min_ms": 273.0,
-        "max_ms": 2178.0
+        "median_ms": 295.5,
+        "p95_ms": 900.4,
+        "min_ms": 212.0,
+        "max_ms": 3158.0
       },
       "note": "first assessment of each recipient, one request at a time"
     },
-    "computed_at": "2026-11-27T15:48:29+00:00"
+    "computed_at": "2026-11-27T15:58:29+00:00"
   },
   "negative_result": {
     "n": 44,
@@ -722,7 +722,7 @@
     "not_scored": 0
   },
   "latency": {
-    "generated_at": "2026-11-27T15:47:58.966Z",
+    "generated_at": "2026-11-27T16:01:07.225Z",
     "environment": {
       "guardian": {
         "mode": "local Node process",
@@ -746,21 +746,20 @@
       "pause_between_requests_ms": 1000,
       "cold": {
         "n": 30,
-        "p50_ms": 252.8,
-        "p95_ms": 340.1,
-        "min_ms": 226.4,
-        "max_ms": 660.7
+        "p50_ms": 283.2,
+        "p95_ms": 620.5,
+        "min_ms": 167.8,
+        "max_ms": 1157.3
       },
       "warm": {
         "n": 30,
-        "p50_ms": 132.2,
-        "p95_ms": 148,
-        "min_ms": 114.8,
-        "max_ms": 200.4
+        "p50_ms": 185.2,
+        "p95_ms": 1358.3,
+        "min_ms": 134.2,
+        "max_ms": 1778.9
       },
       "unavailable_collectors": {
         "baseline": 60,
-        "blocklist": 60,
         "chainabuse": 60,
         "helius": 60,
         "web_reports": 60
@@ -776,34 +775,34 @@
       "iterations": 5,
       "create_hold": {
         "n": 5,
-        "p50_ms": 890,
-        "p95_ms": 1063,
-        "min_ms": 714.1,
-        "max_ms": 1094.8
+        "p50_ms": 839,
+        "p95_ms": 1024.3,
+        "min_ms": 702.7,
+        "max_ms": 1050.7
       },
       "reclaim": {
         "n": 5,
-        "p50_ms": 833.8,
-        "p95_ms": 989,
-        "min_ms": 672.3,
-        "max_ms": 996
+        "p50_ms": 1006.3,
+        "p95_ms": 1619.4,
+        "min_ms": 769.4,
+        "max_ms": 1754
       },
       "funded_lamports": 50000000,
       "returned_lamports": 48980200,
       "signatures": {
         "create_hold": [
-          "3aGDvESNsMebhP2w2xfBgWjBQZB5W3KZ8Xp6umsZbsUFSXFwMFZ7HSqrCD2iavFGNZ4RNYfJ4JG1nX4GBJwFbvVF",
-          "MczwEfYNf649rDejitsknnADuDaB3KS9bMq3bEf5L9fpn4mfHapGp1UqKMvErnhZq8AH9UDFkssfzQo1GvAF7sw",
-          "3nNTprawJDUqMi1kWVUT4rgvNzAPeQgAoap8k4N3GemQWUiF8PDX4Hy1MALKELojJdyS5xgcivg8X1QgZ8sJ5zFp",
-          "xNWokpAJgCtq4qJT4guHKgvy7JSjKjiEARHpFD3u3i9uUPwNHWZaUULySnVQ9kriSqr61gsFZ2y7cWnY2TYmGAE",
-          "4Ngo4t1gwZUZ2yCkcbL6RBTnSiVCtTJoJtEZLtjbbLz9Mc86V8AMyHSMGRvRYqhu3bTDsHXHCSom3XtYniLekUjB"
+          "5rVjc7TsvzDGmPnHDwDkbMmQqas7xk8X8rbHsnmMzL9vGkss5CMEWz2kKEHtetPx8mLY9td4QfKqkLBGWq9cBjq8",
+          "4uZ36Loyi4T6S2D2SRm7Eok9s6Gx8DMJfqsM392Q4r4gZyw1Et3KVfrbYikeHfsanexyTDsDeVNm5KFbEE7sEdrs",
+          "65SXHfC4jRx8CeUnVBWW5YSDKXCqDmt9K9PjP4Y9qYtw89RqnMFT7wNUPBiXNN4S68v5fE6gWvU8TTrm4gX8nnFD",
+          "A5tZGC4qbYzUuNQ7XwCxUC4W4sQ2iWcSTfnvmFosWvSJLEBFXFaG18T1FMfSetYGrbUi6ob4v8gxczZb3rkRqSA",
+          "4FCji7DDw1nCPQE44rFcCGAjU44rXFJxJqw8LobY2yDLbejnBsibXbuBsH1R2F6p2TYk2YVLMk2JT4PTAJmb7rJ1"
         ],
         "reclaim": [
-          "2eMEinaihskTmSa2NhxGrL8Fshchujr6y6ygNXtePsTmWSCw1yEeupHysy2p6mQzMHDz9sKnLM85wZ8XXyXK3G8b",
-          "4eg7YYu56BzoVhuB5PdxVdoH6qEAeycwhymrButqoocNdb6DS6xg29UK7TzMuoQDuJQhFcyNBtuSYA54qnuJRW2p",
-          "34qSR2BFoEY3FxVn2cZfMm5AvwgMK6jXfrWGTEmXX2wmW6G3c3xzRRAcHCCoFvaGytWvoP2awUD7sz5WYPYrBqn",
-          "14YqASjVE62AB2Y6f6hNtzpZq9BXUcwyUWnZ4xE2mKk5ydu16snUbC81fR1WvG5uJfxECDbqaEAdiw8yx8XmbQm",
-          "Lk9tHnGzTk2dpKiQWgBe3CkhQiwu1jXVtYB5uhnB7xK8qbdoCXXNqVKaupXRvVvcekPKcsxgwGj6WFFQWFWc4NE"
+          "2Tik8Htqx9MbavXHXsZNMKcoWx4pAARNR5ABTARLp15mHJCoJHaSDeQ3bhNTRDy8phLktQN7KJ7bnSQyZUokc5DW",
+          "5pmJDajWi6NVuz1edksCsSuRmWhEg2zqfMynKwPFqXmzwyGxMSVftDVz3XdLpMWw7UUU2R1GXUgaURSAy6yFwKkx",
+          "4JBYh8BFeawvzgnd1bvCKtSNDwis568mEeRAE78eFnYoxouWHnaBAqcPuz3WefNc6WnDTVH9peXPRHKLrDybWuoj",
+          "2DqkQ9v6nLZuRLczKnJb5sJGzzxyY4mZs9XYS43jUBxfCBtvbwzqqwxU99Cr1xh1dEnxMf5pC8tunQqRtiiagW2v",
+          "5Ais5gMZHCrPM5JBgS5czHi8mnRyYNL5pmhGYmTSmwEZH4Vq8vPQpuBVU2Kvm8NjbdghjbF3drTXug3WKsERW2Ap"
         ]
       },
       "note": "milliseconds from sendRawTransaction to confirmed commitment; SOL holds, one at a time, with an untimed pause between transactions; any rate-limit retry of the RPC endpoint inside a transaction is included"
@@ -817,7 +816,6 @@
   },
   "limitations": [
     "Collector `baseline` was unavailable in every assessment: no sender history, which only affects the trusted fast path (needs Supabase).",
-    "Collector `blocklist` was unavailable in every assessment: no sanctions-list or scam-list lookup, so listed addresses are not recognised (needs Supabase with the lists loaded).",
     "Collector `chainabuse` was unavailable in every assessment: no abuse-report lookup (needs CHAINABUSE_API_KEY).",
     "Collector `helius` was unavailable in every assessment: no wallet age, history or behaviour heuristics (needs HELIUS_API_KEY).",
     "Collector `web_reports` was unavailable in every assessment: no web search for reports naming the address (needs FIRECRAWL_API_KEY).",
