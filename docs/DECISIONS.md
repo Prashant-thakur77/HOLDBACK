@@ -160,3 +160,20 @@ sends the full policy with `frame-ancestors 'none'`.
   typed confirmation.
 - **Proof-by-transfer needs a minimum balance** of the mint, a transfer from the owner's own
   token account, and a block time inside the challenge window.
+
+## D21. Mobile app
+
+- **Template.** Built from the official Solana Mobile Expo template with web3.js and Mobile
+  Wallet Adapter, so the SDK's instructions are used unchanged.
+- **Push tokens are Expo push tokens**, because the agent sends through the Expo push service.
+- **dApp Store metadata** is `dapp-store/listing.json`, media and a publish script: the
+  current publishing CLI is flag-driven and keeps the listing in the portal.
+- **Pollar accounts** pay in USDC only and cannot trust, report or release early, since each
+  of those needs a wallet signature. A deposit is only the shortfall over the box balance, so
+  a retry never pays in twice.
+- **Chain fallback.** Home, Inbox and Hold read the program directly when the agent cannot be
+  reached, so undo never depends on our servers for a wallet that can sign.
+- **Not built.** Phone verification and "request early release" have no agent endpoint yet;
+  the app stores the phone number locally with a notice and omits the early-release button.
+- **Release build.** arm64 only by default, code shrinking off until a release build has
+  been exercised on a device.

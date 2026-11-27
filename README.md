@@ -185,6 +185,7 @@ devnet as a memo.
 | Webhook and schema | 56 decoder tests; migrations and end-to-end ingest against a local Postgres                        | A hosted project, a real Helius delivery, Realtime                                                                      |
 | MCP server         | 45 tests; binary lists its tools                                                                   | Signing on a real cluster                                                                                               |
 | Web                | 88 tests; Action, Dojo API and headers under the Workers runtime locally                           | Deployment; a wallet in a browser; a Blink client                                                                       |
+| Mobile app         | 137 unit tests; typecheck, lint, `expo-doctor` and prebuild pass; signed arm64 release APK builds  | Any run on a device or emulator: wallet connect and signing, Pollar, voice, push are unexercised                        |
 | Scam Dojo          | 101 tests; a full run over HTTP                                                                    | Upload to Byte; the report collector (needs a Firecrawl key)                                                            |
 
 ## Run it

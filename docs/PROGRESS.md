@@ -28,27 +28,30 @@ Checked items are built, tested and committed.
 ## Phase 3: Supabase
 
 - [x] Schema migration with RLS and Realtime
-- [ ] `helius-webhook`, housekeeping cron, seed
+- [x] `helius-webhook`, housekeeping cron, seed (tested against a local Postgres; no hosted project yet)
 
 ## Phase 4: risk agent
 
-- [ ] Collectors, policy, evidence hash, LLM extraction, oracle, relayer, crank
+- [x] Collectors, policy, evidence hash, LLM extraction, oracle, relayer, crank (221 tests; devnet run under Node)
 
 ## Phase 5: voice
 
-- [ ] Guardian agent (hi, en, es, pt), TTS notes, outbound call, SFX
+- [ ] Guardian agent (hi, en, es, pt), TTS notes, outbound call, SFX: code complete, never run (needs an ElevenLabs key)
 
 ## Phase 6: Seeker app
 
-- [ ] MWA flow, Pollar deposit box, 8 screens, push, Seeker badge, APK
+- [x] MWA flow, Pollar deposit box, 8 screens, push, Seeker badge, signed APK (137 tests)
+- [ ] Run on a device or emulator
 
 ## Phase 7: web
 
-- [ ] Landing, dashboard, receipts, Action/Blink, Dojo watch page
+- [x] Functional layer: Action/Blink, Dojo API, receipt verification, hooks (88 tests)
+- [ ] Visual design and pages
 
 ## Phase 8: Scam Dojo
 
-- [ ] Engine, scenarios, API, memo, `BYTE_GAME.md`
+- [x] Engine, 65 scenarios, API, memo, `BYTE_GAME.md` (101 tests)
+- [ ] Upload to Byte and one recorded run
 
 ## Phase 9: eval and bench
 
@@ -56,4 +59,5 @@ Checked items are built, tested and committed.
 
 ## Phase 10: docs and submission
 
-- [ ] README, architecture, threat model, demo script, submission text
+- [x] README, architecture, threat model, references, demo script, submission text
+- [ ] Deploy (needs a private RPC and a Supabase project), release with APK, videos
