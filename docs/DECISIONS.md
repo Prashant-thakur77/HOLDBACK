@@ -177,3 +177,10 @@ sends the full policy with `frame-ancestors 'none'`.
   the app stores the phone number locally with a notice and omits the early-release button.
 - **Release build.** arm64 only by default, code shrinking off until a release build has
   been exercised on a device.
+
+## D22. The deployed binary comes from the reproducible build
+
+The default `solana-verify` image ships a Cargo too old for one dependency, so the build
+uses the `4.3.0` image. Its output differs from a local `anchor build`, so the devnet program
+was upgraded to the Docker-built binary after it passed the full Rust test suite. The on-chain
+hash now equals the hash anyone gets from the documented command.

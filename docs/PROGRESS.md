@@ -19,7 +19,8 @@ Checked items are built, tested and committed.
 - [x] Devnet deploy: program `26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom`, config `Cz9e3k72qaDnQJNo6deUXVdE823HcFrhkV36Zj92s9tw`
   - deploy tx `4Zw6PJByZcYV5MwWdpnCVJfdqZ8ABXW5wc7Fa7Aasyv4vDbfFriXgc9fGZU5kcBB4H26PfoktKeTzYgk3VrwNVX1`
   - config tx `prJ7uUMMnmhL5qtrkDC2NBN7J945m5QVxrPQL5m1w9HGRrdYKFchhj6u6DXpNX5qfxfjLLbptKUC4XTpomvarF8`
-- [ ] Verified build attempt
+- [x] Reproducible build: Docker-built binary deployed, on-chain hash `37786c06…f22f5` matches
+  - upgrade tx `2smysEgNrDVYgyfeYYrR43PooHW5s9Qu32B1Sksv2LUFBHTgkXbWdzUx9AUL6Rsyrdt2xA8siM5HjWDmZHAgpudg`
 
 ## Phase 2: SDK
 

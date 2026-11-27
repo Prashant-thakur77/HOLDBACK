@@ -99,9 +99,29 @@ Every number below is produced by a script and stored in `eval/results.json`
 
 <!-- results:start -->
 
-The evaluation has not been run on this commit yet. Program property test
-(`eval/program_invariants.json`): 100,000 random cases, 609,726 instructions, 0 invariant
-violations.
+Run of 2026-11-27 at commit `d7b86c5`. Held-out means first published on or after 2026-07-01.
+
+| Metric                                          | Static blocklist                 | HOLDBACK                           |
+| ----------------------------------------------- | -------------------------------- | ---------------------------------- |
+| Recall on held-out scam addresses               | 0/3 (0.0%, 95% CI 0.0% to 56.1%) | 0/3 (0.0%, 95% CI 0.0% to 56.1%)   |
+| False-positive rate on legit addresses          | 0/54 (0.0%, 95% CI 0.0% to 6.6%) | 0/54 (0.0%, 95% CI 0.0% to 6.6%)   |
+| Precision                                       | no rows (n = 0)                  | no rows (n = 0)                    |
+| Scam value still reclaimable, undo after 10 min | 0% (plain transfer)              | 100.0% (3/3 payments)              |
+| Scam value still reclaimable, undo after 1 h    | 0% (plain transfer)              | 0.0% (0/3 payments)                |
+| Scam value still reclaimable, undo after 6 h    | 0% (plain transfer)              | 0.0% (0/3 payments)                |
+| Scam value still reclaimable, undo after 24 h   | 0% (plain transfer)              | 0.0% (0/3 payments)                |
+| Median time to verdict                          | n/a                              | 389 ms (n = 102)                   |
+| `/v1/assess`, first request                     | n/a                              | p50 267 ms, p95 395 ms (n = 30)    |
+| `/v1/assess`, repeat request                    | n/a                              | p50 139 ms, p95 154 ms (n = 30)    |
+| `create_hold` to confirmed, devnet              | n/a                              | p50 845 ms, p95 897 ms (n = 5)     |
+| `reclaim` to confirmed, devnet                  | n/a                              | p50 1,056 ms, p95 2,786 ms (n = 5) |
+
+In this run these evidence collectors were unavailable for every assessment: `baseline`, `blocklist`, `chainabuse`, `helius`, `web_reports`. Dataset sources that could not be used: `chainabuse`. The numbers describe that configuration and nothing more; [`eval/RESULTS.md`](eval/RESULTS.md) lists every limit and the full tables.
+
+**Where it fails.** A wallet created less than a day ago, with no reports and little or no history, gives the Guardian nothing to find. Of 44 such wallets (new mainnet wallets and never-used keypairs, none of them a known scam) it rated 0/44 (0.0%, 95% CI 0.0% to 8.0%) as suspicious or worse. What still helps is the default window: every one of them got 30 min, so a payment to them could still be undone for 44/44 (100.0%) after 10 min, 0/44 (0.0%) after 1 h, 0/44 (0.0%) after 6 h, 0/44 (0.0%) after 24 h. The gap that remains: a victim who notices after the default window has closed gets nothing back, exactly as with a plain transfer.
+
+Program property test: 100,000 random cases, 609,726 instructions, 0 invariant violations.
+
 <!-- results:end -->
 
 ## On-chain program
@@ -128,8 +148,21 @@ Instructions: `initialize_config`, `update_config`, `create_hold`, `create_hold_
 `release_sol`, `release_early_sol`, `set_trust`, `remove_trust`, `flag_subject`, `close_hold`.
 
 Devnet addresses: program `26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom`, config
-`Cz9e3k72qaDnQJNo6deUXVdE823HcFrhkV36Zj92s9tw`. The on-chain program hash equals the hash of
-`anchor build` at the deployed commit (`solana-verify get-program-hash`).
+`Cz9e3k72qaDnQJNo6deUXVdE823HcFrhkV36Zj92s9tw`.
+
+**Reproducible build.** The deployed program is the output of a deterministic Docker build of
+this repository, and anyone can check it:
+
+```bash
+solana-verify build --library-name holdback \
+  --base-image solanafoundation/solana-verifiable-build:4.3.0
+solana-verify get-executable-hash target/deploy/holdback.so
+solana-verify get-program-hash -u devnet 26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom
+# both print 37786c0607f141edcb22f53fa4cb35b12221b428722949056f7dd53f9f0b22f5
+```
+
+The public verification registry only covers mainnet, so on devnet the check is this local
+comparison.
 
 ## What is in this repository
 
