@@ -1,11 +1,21 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram } from "@solana/web3.js";
+import {
+  Connection,
+  Keypair,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  SystemProgram,
+} from "@solana/web3.js";
 import * as fs from "fs";
 import BN from "bn.js";
 
-const HOLDBACK_ID = new PublicKey("BqNSjpGpePKj1hhD1o1UbyLdiYvSY4S3nt5jNe6Ny8vK");
-const PAYMENTS_ID = new PublicKey("HeJN7gDcFwxip6VGoWrniZ4Xb4DjoQNX6aNhLYmewFVw");
+const HOLDBACK_ID = new PublicKey(
+  "BqNSjpGpePKj1hhD1o1UbyLdiYvSY4S3nt5jNe6Ny8vK"
+);
+const PAYMENTS_ID = new PublicKey(
+  "HeJN7gDcFwxip6VGoWrniZ4Xb4DjoQNX6aNhLYmewFVw"
+);
 const MAGIC_ROUTER = "https://devnet-router.magicblock.app/";
 const JOB_SEED = Buffer.from("job");
 const ESCROW_SEED = Buffer.from("escrow");
@@ -39,13 +49,21 @@ async function getDelegationEndpoint(pda: PublicKey): Promise<string | null> {
   return null;
 }
 
-async function waitForDelegation(pda: PublicKey, maxAttempts = 12, delayMs = 5000): Promise<string | null> {
+async function waitForDelegation(
+  pda: PublicKey,
+  maxAttempts = 12,
+  delayMs = 5000
+): Promise<string | null> {
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     const endpoint = await getDelegationEndpoint(pda);
     if (endpoint) {
       return endpoint;
     }
-    console.log(`Delegation not visible yet (${attempt}/${maxAttempts}), waiting ${delayMs / 1000}s...`);
+    console.log(
+      `Delegation not visible yet (${attempt}/${maxAttempts}), waiting ${
+        delayMs / 1000
+      }s...`
+    );
     await new Promise((resolve) => setTimeout(resolve, delayMs));
   }
   return null;
@@ -54,14 +72,23 @@ async function waitForDelegation(pda: PublicKey, maxAttempts = 12, delayMs = 500
 async function main() {
   const keyData = JSON.parse(fs.readFileSync("keys/holdback.json", "utf-8"));
   const wallet = Keypair.fromSecretKey(Uint8Array.from(keyData));
-  const rpcEndpoint = process.env.ANCHOR_PROVIDER_URL || "https://api.devnet.solana.com";
+  const rpcEndpoint =
+    process.env.ANCHOR_PROVIDER_URL || "https://api.devnet.solana.com";
   const connection = new Connection(rpcEndpoint, "confirmed");
-  const provider = new anchor.AnchorProvider(connection, new anchor.Wallet(wallet), {
-    commitment: "confirmed",
-  });
+  const provider = new anchor.AnchorProvider(
+    connection,
+    new anchor.Wallet(wallet),
+    {
+      commitment: "confirmed",
+    }
+  );
 
-  const tfIdl = JSON.parse(fs.readFileSync("target/idl/holdback.json", "utf-8"));
-  const payIdl = JSON.parse(fs.readFileSync("target/idl/holdback_payments.json", "utf-8"));
+  const tfIdl = JSON.parse(
+    fs.readFileSync("target/idl/holdback.json", "utf-8")
+  );
+  const payIdl = JSON.parse(
+    fs.readFileSync("target/idl/holdback_payments.json", "utf-8")
+  );
   const holdback = new Program(tfIdl, provider);
   const payments = new Program(payIdl, provider);
 
@@ -70,7 +97,9 @@ async function main() {
   console.log("Wallet:", wallet.publicKey.toBase58());
   console.log("Balance:", balance / LAMPORTS_PER_SOL, "SOL");
   if (balance < 0.02 * LAMPORTS_PER_SOL) {
-    throw new Error("Devnet wallet balance is too low for the payments delegation smoke test");
+    throw new Error(
+      "Devnet wallet balance is too low for the payments delegation smoke test"
+    );
   }
 
   const jobId = Math.floor(Date.now() / 1000);
@@ -82,7 +111,10 @@ async function main() {
     [JOB_SEED, wallet.publicKey.toBuffer(), jobIdBuf],
     HOLDBACK_ID
   );
-  const [escrowPda] = PublicKey.findProgramAddressSync([ESCROW_SEED, escrowIdBuf], PAYMENTS_ID);
+  const [escrowPda] = PublicKey.findProgramAddressSync(
+    [ESCROW_SEED, escrowIdBuf],
+    PAYMENTS_ID
+  );
 
   console.log("\n--- Step 1: Create and assign job ---");
   console.log("Job PDA:", jobPda.toBase58());
@@ -115,9 +147,15 @@ async function main() {
 
   console.log("\n--- Step 2: Create escrow wrapper ---");
   console.log("Escrow PDA:", escrowPda.toBase58());
-  const sessionIdBytes = Array.from(Buffer.from(`per-${escrowId}`.padEnd(32, "\0").slice(0, 32)));
+  const sessionIdBytes = Array.from(
+    Buffer.from(`per-${escrowId}`.padEnd(32, "\0").slice(0, 32))
+  );
   const escrowTx = await payments.methods
-    .createEscrowWrapper(new BN(escrowId), new BN(0.005 * LAMPORTS_PER_SOL), sessionIdBytes)
+    .createEscrowWrapper(
+      new BN(escrowId),
+      new BN(0.005 * LAMPORTS_PER_SOL),
+      sessionIdBytes
+    )
     .accountsPartial({
       job: jobPda,
       escrow: escrowPda,
@@ -140,7 +178,9 @@ async function main() {
   console.log("\n--- Step 4: Confirm router sees delegation ---");
   const endpoint = await waitForDelegation(escrowPda);
   if (!endpoint) {
-    throw new Error("Delegation transaction landed, but MagicBlock router did not report the escrow as delegated");
+    throw new Error(
+      "Delegation transaction landed, but MagicBlock router did not report the escrow as delegated"
+    );
   }
   console.log("Delegated endpoint:", endpoint);
   console.log("\n=== PAYMENTS PER DELEGATION PASSED ===");

@@ -1,4 +1,4 @@
-export { Holdback, ENVIRONMENT_PRESETS } from './holdback'
+export { Holdback, ENVIRONMENT_PRESETS } from "./holdback";
 export {
   createReceipt,
   createToolCallReceipt,
@@ -7,7 +7,7 @@ export {
   serializeDAG,
   deserializeDAG,
   getReceiptUriHash,
-} from './receipts'
+} from "./receipts";
 export {
   SpecBuilder,
   canonicalizeSpec,
@@ -15,13 +15,9 @@ export {
   hashSpecHex,
   hashVerificationResult,
   validateSpec,
-} from './spec'
-export {
-  getTemplate,
-  listTemplates,
-  applyTemplate,
-} from './templates'
-export type { TemplateId, SpecTemplate } from './templates'
+} from "./spec";
+export { getTemplate, listTemplates, applyTemplate } from "./templates";
+export type { TemplateId, SpecTemplate } from "./templates";
 export type {
   HoldbackSpec,
   AcceptanceCriterion,
@@ -35,7 +31,7 @@ export type {
   CriterionResult,
   SpecVerificationResult,
   SpecValidationError,
-} from './spec'
+} from "./spec";
 export type {
   HoldbackConfig,
   PostTaskOptions,
@@ -66,4 +62,4 @@ export type {
   PosterReputation,
   VerifierVote,
   CastVoteOptions,
-} from './types'
+} from "./types";

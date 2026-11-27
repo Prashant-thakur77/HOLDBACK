@@ -1,4 +1,4 @@
-import { Program, AnchorProvider, BN, type Idl } from '@coral-xyz/anchor'
+import { Program, AnchorProvider, BN, type Idl } from "@coral-xyz/anchor";
 import {
   Connection,
   Ed25519Program,
@@ -8,185 +8,194 @@ import {
   SYSVAR_INSTRUCTIONS_PUBKEY,
   SystemProgram,
   type TransactionInstruction,
-} from '@solana/web3.js'
-export * from './verifier'
+} from "@solana/web3.js";
+export * from "./verifier";
 
-export const DARK_FOREST_PROGRAM_ID = new PublicKey('HeJN7gDcFwxip6VGoWrniZ4Xb4DjoQNX6aNhLYmewFVw')
-export const ESCROW_SEED = Buffer.from('escrow')
-export const SETTLEMENT_SEED = Buffer.from('settlement')
+export const DARK_FOREST_PROGRAM_ID = new PublicKey(
+  "HeJN7gDcFwxip6VGoWrniZ4Xb4DjoQNX6aNhLYmewFVw"
+);
+export const ESCROW_SEED = Buffer.from("escrow");
+export const SETTLEMENT_SEED = Buffer.from("settlement");
 
 export const TEE_VALIDATORS = {
-  mainnet: new PublicKey('MTEWGuqxUpYZGFJQcp8tLN7x5v9BSeoFHYWQQ3n3xzo'),
-  devnet: new PublicKey('HNDKj4XtVBoudGBBbxwsHFKbfNoFCrjL6xrvf7Aq51mX'),
-} as const
+  mainnet: new PublicKey("MTEWGuqxUpYZGFJQcp8tLN7x5v9BSeoFHYWQQ3n3xzo"),
+  devnet: new PublicKey("HNDKj4XtVBoudGBBbxwsHFKbfNoFCrjL6xrvf7Aq51mX"),
+} as const;
 
 export const PER_ENDPOINTS = {
-  mainnet: 'https://mainnet-tee.magicblock.app',
-  devnet: 'https://tee.magicblock.app',
-  devnetRouter: 'https://devnet-router.magicblock.app',
-} as const
+  mainnet: "https://mainnet-tee.magicblock.app",
+  devnet: "https://tee.magicblock.app",
+  devnetRouter: "https://devnet-router.magicblock.app",
+} as const;
 
 export type MppSessionConfig = {
-  agentEndpoint: string
-  token: 'SOL' | 'USDC' | 'PYUSD'
-  budgetLamports: number
-  perEndpoint: string
-}
+  agentEndpoint: string;
+  token: "SOL" | "USDC" | "PYUSD";
+  budgetLamports: number;
+  perEndpoint: string;
+};
 
 export type MppSessionState = {
-  sessionId: string
-  escrowId: number
-  totalPaid: number
-  requestCount: number
-  isActive: boolean
-}
+  sessionId: string;
+  escrowId: number;
+  totalPaid: number;
+  requestCount: number;
+  isActive: boolean;
+};
 
 export interface SessionStore {
-  get(escrowId: number): Promise<MppSessionState | null>
-  set(session: MppSessionState): Promise<void>
-  delete(escrowId: number): Promise<void>
+  get(escrowId: number): Promise<MppSessionState | null>;
+  set(session: MppSessionState): Promise<void>;
+  delete(escrowId: number): Promise<void>;
 }
 
 export class MemorySessionStore implements SessionStore {
-  private sessions = new Map<number, MppSessionState>()
+  private sessions = new Map<number, MppSessionState>();
 
   async get(escrowId: number): Promise<MppSessionState | null> {
-    return this.sessions.get(escrowId) ?? null
+    return this.sessions.get(escrowId) ?? null;
   }
 
   async set(session: MppSessionState): Promise<void> {
-    this.sessions.set(session.escrowId, session)
+    this.sessions.set(session.escrowId, session);
   }
 
   async delete(escrowId: number): Promise<void> {
-    this.sessions.delete(escrowId)
+    this.sessions.delete(escrowId);
   }
 }
 
 export class LocalStorageSessionStore implements SessionStore {
-  constructor(private readonly storage: Storage, private readonly prefix: string = 'holdback:dark-forest:session:') {}
+  constructor(
+    private readonly storage: Storage,
+    private readonly prefix: string = "holdback:dark-forest:session:"
+  ) {}
 
   private key(escrowId: number): string {
-    return `${this.prefix}${escrowId}`
+    return `${this.prefix}${escrowId}`;
   }
 
   async get(escrowId: number): Promise<MppSessionState | null> {
-    const raw = this.storage.getItem(this.key(escrowId))
-    return raw ? JSON.parse(raw) as MppSessionState : null
+    const raw = this.storage.getItem(this.key(escrowId));
+    return raw ? (JSON.parse(raw) as MppSessionState) : null;
   }
 
   async set(session: MppSessionState): Promise<void> {
-    this.storage.setItem(this.key(session.escrowId), JSON.stringify(session))
+    this.storage.setItem(this.key(session.escrowId), JSON.stringify(session));
   }
 
   async delete(escrowId: number): Promise<void> {
-    this.storage.removeItem(this.key(escrowId))
+    this.storage.removeItem(this.key(escrowId));
   }
 }
 
 export interface EscrowState {
-  escrowId: number
-  jobPubkey: PublicKey
-  poster: PublicKey
-  agent: PublicKey
-  deposited: number
-  status: 'Active' | 'Delegated' | 'Settled'
-  teePubkey: number[]
-  teeVerified: boolean
-  mppSessionId: number[]
-  createdAt: number
+  escrowId: number;
+  jobPubkey: PublicKey;
+  poster: PublicKey;
+  agent: PublicKey;
+  deposited: number;
+  status: "Active" | "Delegated" | "Settled";
+  teePubkey: number[];
+  teeVerified: boolean;
+  mppSessionId: number[];
+  createdAt: number;
 }
 
 export interface SettlementState {
-  escrowId: number
-  jobPubkey: PublicKey
-  poster: PublicKey
-  agent: PublicKey
-  totalDeposited: number
-  totalPaid: number
-  settledAt: number
-  settlementHash: number[]
+  escrowId: number;
+  jobPubkey: PublicKey;
+  poster: PublicKey;
+  agent: PublicKey;
+  totalDeposited: number;
+  totalPaid: number;
+  settledAt: number;
+  settlementHash: number[];
 }
 
 export interface TeeAttestationEnvelope {
-  escrowId: number
-  jobPubkey: PublicKey
-  validator: PublicKey
-  teePubkey: number[]
-  mppSessionId: number[]
-  issuedAt: number
-  expiresAt: number
+  escrowId: number;
+  jobPubkey: PublicKey;
+  validator: PublicKey;
+  teePubkey: number[];
+  mppSessionId: number[];
+  issuedAt: number;
+  expiresAt: number;
 }
 
 export interface DarkForestPaymentsOptions {
-  sessionStore?: SessionStore
+  sessionStore?: SessionStore;
 }
 
 function deriveEscrowPda(escrowId: number): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
-    [ESCROW_SEED, new BN(escrowId).toArrayLike(Buffer, 'le', 8)],
-    DARK_FOREST_PROGRAM_ID,
-  )
+    [ESCROW_SEED, new BN(escrowId).toArrayLike(Buffer, "le", 8)],
+    DARK_FOREST_PROGRAM_ID
+  );
 }
 
 function deriveSettlementPda(escrowId: number): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
-    [SETTLEMENT_SEED, new BN(escrowId).toArrayLike(Buffer, 'le', 8)],
-    DARK_FOREST_PROGRAM_ID,
-  )
+    [SETTLEMENT_SEED, new BN(escrowId).toArrayLike(Buffer, "le", 8)],
+    DARK_FOREST_PROGRAM_ID
+  );
 }
 
 export class DarkForestPayments {
-  private program: Program<Idl>
-  private provider: AnchorProvider
-  private sessionStore: SessionStore
+  private program: Program<Idl>;
+  private provider: AnchorProvider;
+  private sessionStore: SessionStore;
 
-  constructor(provider: AnchorProvider, idl: Idl, options: DarkForestPaymentsOptions = {}) {
-    this.provider = provider
-    this.program = new Program(idl, provider)
-    this.sessionStore = options.sessionStore ?? new MemorySessionStore()
+  constructor(
+    provider: AnchorProvider,
+    idl: Idl,
+    options: DarkForestPaymentsOptions = {}
+  ) {
+    this.provider = provider;
+    this.program = new Program(idl, provider);
+    this.sessionStore = options.sessionStore ?? new MemorySessionStore();
   }
 
   connectToPer(endpoint: string = PER_ENDPOINTS.devnet): Connection {
-    return new Connection(endpoint, 'confirmed')
+    return new Connection(endpoint, "confirmed");
   }
 
   static buildAttestationReport(envelope: TeeAttestationEnvelope): Buffer {
     return Buffer.concat([
-      Buffer.from('TFAT'),
+      Buffer.from("TFAT"),
       Buffer.from([1, 0, 0, 0]),
-      new BN(envelope.escrowId).toArrayLike(Buffer, 'le', 8),
+      new BN(envelope.escrowId).toArrayLike(Buffer, "le", 8),
       envelope.jobPubkey.toBuffer(),
       envelope.validator.toBuffer(),
       Buffer.from(envelope.teePubkey),
       Buffer.from(envelope.mppSessionId),
-      new BN(envelope.issuedAt).toTwos(64).toArrayLike(Buffer, 'le', 8),
-      new BN(envelope.expiresAt).toTwos(64).toArrayLike(Buffer, 'le', 8),
-    ])
+      new BN(envelope.issuedAt).toTwos(64).toArrayLike(Buffer, "le", 8),
+      new BN(envelope.expiresAt).toTwos(64).toArrayLike(Buffer, "le", 8),
+    ]);
   }
 
   static buildAttestationSignatureInstruction(
     validatorSigner: Keypair,
-    report: Buffer,
+    report: Buffer
   ): TransactionInstruction {
     return Ed25519Program.createInstructionWithPrivateKey({
       privateKey: validatorSigner.secretKey,
       message: report,
-    })
+    });
   }
 
   async createEscrowWrapper(
     escrowId: number,
     jobPubkey: PublicKey,
     depositSol: number,
-    mppSessionId: number[] = Array(32).fill(0),
+    mppSessionId: number[] = Array(32).fill(0)
   ): Promise<string> {
-    const [escrowPda] = deriveEscrowPda(escrowId)
+    const [escrowPda] = deriveEscrowPda(escrowId);
     return this.program.methods
       .createEscrowWrapper(
         new BN(escrowId),
         new BN(Math.floor(depositSol * LAMPORTS_PER_SOL)),
-        mppSessionId,
+        mppSessionId
       )
       .accounts({
         job: jobPubkey,
@@ -194,15 +203,17 @@ export class DarkForestPayments {
         poster: this.provider.wallet.publicKey,
         systemProgram: SystemProgram.programId,
       })
-      .rpc()
+      .rpc();
   }
 
   async delegateToPer(
     escrowId: number,
-    validator?: PublicKey,
+    validator?: PublicKey
   ): Promise<string> {
-    const DELEGATION_PROGRAM_ID = new PublicKey('DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh')
-    const [escrowPda] = deriveEscrowPda(escrowId)
+    const DELEGATION_PROGRAM_ID = new PublicKey(
+      "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh"
+    );
+    const [escrowPda] = deriveEscrowPda(escrowId);
     const method = this.program.methods
       .delegateToPer(new BN(escrowId))
       .accountsPartial({
@@ -211,23 +222,25 @@ export class DarkForestPayments {
         ownerProgram: DARK_FOREST_PROGRAM_ID,
         delegationProgram: DELEGATION_PROGRAM_ID,
         systemProgram: SystemProgram.programId,
-      })
+      });
 
     if (validator) {
       return method
-        .remainingAccounts([{ pubkey: validator, isSigner: false, isWritable: false }])
-        .rpc()
+        .remainingAccounts([
+          { pubkey: validator, isSigner: false, isWritable: false },
+        ])
+        .rpc();
     }
-    return method.rpc()
+    return method.rpc();
   }
 
   async verifyTeeAttestation(
     escrowId: number,
     attestationReport: Buffer,
     teePubkey: number[],
-    signatureInstruction?: TransactionInstruction,
+    signatureInstruction?: TransactionInstruction
   ): Promise<string> {
-    const [escrowPda] = deriveEscrowPda(escrowId)
+    const [escrowPda] = deriveEscrowPda(escrowId);
     const method = this.program.methods
       .verifyTeeAttestation(new BN(escrowId), attestationReport, teePubkey)
       .accounts({
@@ -235,21 +248,26 @@ export class DarkForestPayments {
         validator: this.provider.wallet.publicKey,
         payer: this.provider.wallet.publicKey,
         instructionsSysvar: SYSVAR_INSTRUCTIONS_PUBKEY,
-      })
+      });
     if (signatureInstruction) {
-      return method.preInstructions([signatureInstruction]).rpc()
+      return method.preInstructions([signatureInstruction]).rpc();
     }
-    return method
-      .rpc()
+    return method.rpc();
   }
 
-  async recordSettlement(escrowId: number, totalPaidSol: number): Promise<string> {
-    const [escrowPda] = deriveEscrowPda(escrowId)
-    const [settlementPda] = deriveSettlementPda(escrowId)
-    const escrow = await this.getEscrow(escrowId)
-    if (!escrow) throw new Error(`Escrow ${escrowId} not found`)
+  async recordSettlement(
+    escrowId: number,
+    totalPaidSol: number
+  ): Promise<string> {
+    const [escrowPda] = deriveEscrowPda(escrowId);
+    const [settlementPda] = deriveSettlementPda(escrowId);
+    const escrow = await this.getEscrow(escrowId);
+    if (!escrow) throw new Error(`Escrow ${escrowId} not found`);
     return this.program.methods
-      .recordSettlement(new BN(escrowId), new BN(Math.floor(totalPaidSol * LAMPORTS_PER_SOL)))
+      .recordSettlement(
+        new BN(escrowId),
+        new BN(Math.floor(totalPaidSol * LAMPORTS_PER_SOL))
+      )
       .accounts({
         escrow: escrowPda,
         settlementRecord: settlementPda,
@@ -258,20 +276,27 @@ export class DarkForestPayments {
         payer: this.provider.wallet.publicKey,
         systemProgram: SystemProgram.programId,
       })
-      .rpc()
+      .rpc();
   }
 
   async startPrivateSession(
     escrowId: number,
     jobPubkey: PublicKey,
-    config: MppSessionConfig,
+    config: MppSessionConfig
   ): Promise<MppSessionState> {
-    const depositSol = config.budgetLamports / LAMPORTS_PER_SOL
-    const sessionId = `dark-${escrowId}-${Date.now()}`
-    const sessionIdBytes = Array.from(Buffer.from(sessionId.padEnd(32, '\0').slice(0, 32)))
+    const depositSol = config.budgetLamports / LAMPORTS_PER_SOL;
+    const sessionId = `dark-${escrowId}-${Date.now()}`;
+    const sessionIdBytes = Array.from(
+      Buffer.from(sessionId.padEnd(32, "\0").slice(0, 32))
+    );
 
-    await this.createEscrowWrapper(escrowId, jobPubkey, depositSol, sessionIdBytes)
-    await this.delegateToPer(escrowId)
+    await this.createEscrowWrapper(
+      escrowId,
+      jobPubkey,
+      depositSol,
+      sessionIdBytes
+    );
+    await this.delegateToPer(escrowId);
 
     const session: MppSessionState = {
       sessionId,
@@ -279,17 +304,21 @@ export class DarkForestPayments {
       totalPaid: 0,
       requestCount: 0,
       isActive: true,
-    }
-    await this.sessionStore.set(session)
+    };
+    await this.sessionStore.set(session);
 
-    return session
+    return session;
   }
 
-  async recordPayment(escrowId: number, amountLamports: number): Promise<string> {
-    const session = await this.sessionStore.get(escrowId)
-    if (!session || !session.isActive) throw new Error('No active session for this escrow')
+  async recordPayment(
+    escrowId: number,
+    amountLamports: number
+  ): Promise<string> {
+    const session = await this.sessionStore.get(escrowId);
+    if (!session || !session.isActive)
+      throw new Error("No active session for this escrow");
 
-    const [escrowPda] = deriveEscrowPda(escrowId)
+    const [escrowPda] = deriveEscrowPda(escrowId);
 
     // On-chain enforced metering — budget check + caller auth happens on-chain
     const tx = await this.program.methods
@@ -298,60 +327,84 @@ export class DarkForestPayments {
         escrow: escrowPda,
         caller: this.provider.wallet.publicKey,
       })
-      .rpc()
+      .rpc();
 
     // Update local session store for fast reads
     await this.sessionStore.set({
       ...session,
       totalPaid: session.totalPaid + amountLamports,
       requestCount: session.requestCount + 1,
-    })
+    });
 
-    return tx
+    return tx;
   }
 
   async closeSession(escrowId: number): Promise<string> {
-    const session = await this.sessionStore.get(escrowId)
-    if (!session) throw new Error('No session for this escrow')
+    const session = await this.sessionStore.get(escrowId);
+    if (!session) throw new Error("No session for this escrow");
 
-    await this.sessionStore.set({ ...session, isActive: false })
-    const totalPaidSol = session.totalPaid / LAMPORTS_PER_SOL
+    await this.sessionStore.set({ ...session, isActive: false });
+    const totalPaidSol = session.totalPaid / LAMPORTS_PER_SOL;
 
-    const tx = await this.recordSettlement(escrowId, totalPaidSol)
-    await this.sessionStore.delete(escrowId)
-    return tx
+    const tx = await this.recordSettlement(escrowId, totalPaidSol);
+    await this.sessionStore.delete(escrowId);
+    return tx;
   }
 
-  async getActiveSession(escrowId: number): Promise<MppSessionState | undefined> {
-    return (await this.sessionStore.get(escrowId)) ?? undefined
+  async getActiveSession(
+    escrowId: number
+  ): Promise<MppSessionState | undefined> {
+    return (await this.sessionStore.get(escrowId)) ?? undefined;
   }
 
   async getEscrow(escrowId: number): Promise<EscrowState | null> {
-    const [escrowPda] = deriveEscrowPda(escrowId)
+    const [escrowPda] = deriveEscrowPda(escrowId);
     try {
-      const account = await (this.program.account as Record<string, { fetch: (key: PublicKey) => Promise<Record<string, unknown>> }>).escrowWrapper.fetch(escrowPda)
-      const statusMap: Record<number, EscrowState['status']> = { 0: 'Active', 1: 'Delegated', 2: 'Settled' }
+      const account = await (
+        this.program.account as Record<
+          string,
+          { fetch: (key: PublicKey) => Promise<Record<string, unknown>> }
+        >
+      ).escrowWrapper.fetch(escrowPda);
+      const statusMap: Record<number, EscrowState["status"]> = {
+        0: "Active",
+        1: "Delegated",
+        2: "Settled",
+      };
       return {
         escrowId: (account.escrowId as BN).toNumber(),
         jobPubkey: account.jobPubkey as PublicKey,
         poster: account.poster as PublicKey,
         agent: account.agent as PublicKey,
         deposited: (account.deposited as BN).toNumber(),
-        status: statusMap[(account.status as { active?: unknown }).active !== undefined ? 0 : (account.status as { delegated?: unknown }).delegated !== undefined ? 1 : 2] ?? 'Active',
+        status:
+          statusMap[
+            (account.status as { active?: unknown }).active !== undefined
+              ? 0
+              : (account.status as { delegated?: unknown }).delegated !==
+                undefined
+              ? 1
+              : 2
+          ] ?? "Active",
         teePubkey: account.teePubkey as number[],
         teeVerified: account.teeVerified as boolean,
         mppSessionId: account.mppSessionId as number[],
         createdAt: (account.createdAt as BN).toNumber(),
-      }
+      };
     } catch {
-      return null
+      return null;
     }
   }
 
   async getSettlement(escrowId: number): Promise<SettlementState | null> {
-    const [settlementPda] = deriveSettlementPda(escrowId)
+    const [settlementPda] = deriveSettlementPda(escrowId);
     try {
-      const account = await (this.program.account as Record<string, { fetch: (key: PublicKey) => Promise<Record<string, unknown>> }>).settlementRecord.fetch(settlementPda)
+      const account = await (
+        this.program.account as Record<
+          string,
+          { fetch: (key: PublicKey) => Promise<Record<string, unknown>> }
+        >
+      ).settlementRecord.fetch(settlementPda);
       return {
         escrowId: (account.escrowId as BN).toNumber(),
         jobPubkey: account.jobPubkey as PublicKey,
@@ -361,17 +414,17 @@ export class DarkForestPayments {
         totalPaid: (account.totalPaid as BN).toNumber(),
         settledAt: (account.settledAt as BN).toNumber(),
         settlementHash: account.settlementHash as number[],
-      }
+      };
     } catch {
-      return null
+      return null;
     }
   }
 
   static escrowPda(escrowId: number): PublicKey {
-    return deriveEscrowPda(escrowId)[0]
+    return deriveEscrowPda(escrowId)[0];
   }
 
   static settlementPda(escrowId: number): PublicKey {
-    return deriveSettlementPda(escrowId)[0]
+    return deriveSettlementPda(escrowId)[0];
   }
 }

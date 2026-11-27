@@ -1,10 +1,20 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { PublicKey, SystemProgram, LAMPORTS_PER_SOL, Keypair, Connection } from "@solana/web3.js";
+import {
+  PublicKey,
+  SystemProgram,
+  LAMPORTS_PER_SOL,
+  Keypair,
+  Connection,
+} from "@solana/web3.js";
 import * as fs from "fs";
 
-const HOLDBACK_ID = new PublicKey("BqNSjpGpePKj1hhD1o1UbyLdiYvSY4S3nt5jNe6Ny8vK");
-const PAYMENTS_ID = new PublicKey("HeJN7gDcFwxip6VGoWrniZ4Xb4DjoQNX6aNhLYmewFVw");
+const HOLDBACK_ID = new PublicKey(
+  "BqNSjpGpePKj1hhD1o1UbyLdiYvSY4S3nt5jNe6Ny8vK"
+);
+const PAYMENTS_ID = new PublicKey(
+  "HeJN7gDcFwxip6VGoWrniZ4Xb4DjoQNX6aNhLYmewFVw"
+);
 const JOB_SEED = Buffer.from("job");
 const ESCROW_SEED = Buffer.from("escrow");
 const SETTLEMENT_SEED = Buffer.from("settlement");
@@ -14,7 +24,10 @@ async function main() {
   const wallet = Keypair.fromSecretKey(Uint8Array.from(keyData));
   console.log("Wallet:", wallet.publicKey.toBase58());
 
-  const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+  const connection = new Connection(
+    "https://api.devnet.solana.com",
+    "confirmed"
+  );
   const balance = await connection.getBalance(wallet.publicKey);
   console.log("Balance:", balance / LAMPORTS_PER_SOL, "SOL");
 
@@ -24,8 +37,12 @@ async function main() {
     { commitment: "confirmed" }
   );
 
-  const tfIdl = JSON.parse(fs.readFileSync("target/idl/holdback.json", "utf-8"));
-  const payIdl = JSON.parse(fs.readFileSync("target/idl/holdback_payments.json", "utf-8"));
+  const tfIdl = JSON.parse(
+    fs.readFileSync("target/idl/holdback.json", "utf-8")
+  );
+  const payIdl = JSON.parse(
+    fs.readFileSync("target/idl/holdback_payments.json", "utf-8")
+  );
   const holdback = new Program(tfIdl, provider);
   const payments = new Program(payIdl, provider);
 
@@ -62,7 +79,7 @@ async function main() {
         Array.from({ length: 32 }, () => 0),
         1,
         0,
-        0,
+        0
       )
       .accountsPartial({ job: jobPda, poster: wallet.publicKey })
       .rpc();
@@ -75,7 +92,14 @@ async function main() {
     console.log("Assign TX:", assignTx);
 
     const jobAccount = await connection.getAccountInfo(jobPda);
-    console.log("Job exists:", !!jobAccount, "size:", jobAccount?.data.length, "owner:", jobAccount?.owner.toBase58());
+    console.log(
+      "Job exists:",
+      !!jobAccount,
+      "size:",
+      jobAccount?.data.length,
+      "owner:",
+      jobAccount?.owner.toBase58()
+    );
   } catch (e: any) {
     console.error("Job creation failed:", e.message || JSON.stringify(e));
     return;
@@ -83,20 +107,31 @@ async function main() {
 
   console.log("\n--- Step 2: Create Escrow ---");
   console.log("Escrow PDA:", escrowPda.toBase58());
-  const sessionIdBytes = Array.from(Buffer.from(`demo-${escrowId}`.padEnd(32, "\0").slice(0, 32)));
+  const sessionIdBytes = Array.from(
+    Buffer.from(`demo-${escrowId}`.padEnd(32, "\0").slice(0, 32))
+  );
   try {
     const escrowTx = await payments.methods
       .createEscrowWrapper(
         new anchor.BN(escrowId),
         new anchor.BN(0.005 * LAMPORTS_PER_SOL),
-        sessionIdBytes,
+        sessionIdBytes
       )
-      .accountsPartial({ job: jobPda, escrow: escrowPda, poster: wallet.publicKey })
+      .accountsPartial({
+        job: jobPda,
+        escrow: escrowPda,
+        poster: wallet.publicKey,
+      })
       .rpc();
     console.log("Escrow TX:", escrowTx);
 
     const escrowAccount = await connection.getAccountInfo(escrowPda);
-    console.log("Escrow exists:", !!escrowAccount, "size:", escrowAccount?.data.length);
+    console.log(
+      "Escrow exists:",
+      !!escrowAccount,
+      "size:",
+      escrowAccount?.data.length
+    );
   } catch (e: any) {
     console.error("Escrow creation failed:", e.message || JSON.stringify(e));
     return;
@@ -107,14 +142,24 @@ async function main() {
     const settleTx = await payments.methods
       .recordSettlement(
         new anchor.BN(escrowId),
-        new anchor.BN(0.003 * LAMPORTS_PER_SOL),
+        new anchor.BN(0.003 * LAMPORTS_PER_SOL)
       )
-      .accountsPartial({ escrow: escrowPda, poster: wallet.publicKey, agent: wallet.publicKey, payer: wallet.publicKey })
+      .accountsPartial({
+        escrow: escrowPda,
+        poster: wallet.publicKey,
+        agent: wallet.publicKey,
+        payer: wallet.publicKey,
+      })
       .rpc();
     console.log("Settlement TX:", settleTx);
 
     const settlementAccount = await connection.getAccountInfo(settlementPda);
-    console.log("Settlement exists:", !!settlementAccount, "size:", settlementAccount?.data.length);
+    console.log(
+      "Settlement exists:",
+      !!settlementAccount,
+      "size:",
+      settlementAccount?.data.length
+    );
   } catch (e: any) {
     console.error("Settlement failed:", e.message || JSON.stringify(e));
     return;

@@ -2,7 +2,12 @@ import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { Holdback } from "../target/types/holdback";
 import { expect } from "chai";
-import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram } from "@solana/web3.js";
+import {
+  Keypair,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  SystemProgram,
+} from "@solana/web3.js";
 import BN from "bn.js";
 
 describe("holdback core", () => {
@@ -49,7 +54,10 @@ describe("holdback core", () => {
   }
 
   async function airdrop(kp: Keypair, sol = 3): Promise<void> {
-    const sig = await provider.connection.requestAirdrop(kp.publicKey, sol * LAMPORTS_PER_SOL);
+    const sig = await provider.connection.requestAirdrop(
+      kp.publicKey,
+      sol * LAMPORTS_PER_SOL
+    );
     const latest = await provider.connection.getLatestBlockhash("confirmed");
     await provider.connection.confirmTransaction(
       {
@@ -61,7 +69,11 @@ describe("holdback core", () => {
     );
   }
 
-  async function initJob(jobId: BN, deadline: BN, verificationLevel = 0): Promise<PublicKey> {
+  async function initJob(
+    jobId: BN,
+    deadline: BN,
+    verificationLevel = 0
+  ): Promise<PublicKey> {
     const job = pdaJob(poster.publicKey, jobId);
     await program.methods
       .initializeJob(

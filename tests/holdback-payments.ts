@@ -3,7 +3,15 @@ import { Program } from "@coral-xyz/anchor";
 import { Holdback } from "../target/types/holdback";
 import { HoldbackPayments } from "../target/types/holdback_payments";
 import { expect } from "chai";
-import { Ed25519Program, Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, SYSVAR_INSTRUCTIONS_PUBKEY, Transaction } from "@solana/web3.js";
+import {
+  Ed25519Program,
+  Keypair,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  SystemProgram,
+  SYSVAR_INSTRUCTIONS_PUBKEY,
+  Transaction,
+} from "@solana/web3.js";
 import BN from "bn.js";
 
 describe("holdback-payments", () => {
@@ -11,7 +19,8 @@ describe("holdback-payments", () => {
   anchor.setProvider(provider);
 
   const coreProgram = anchor.workspace.Holdback as Program<Holdback>;
-  const paymentsProgram = anchor.workspace.HoldbackPayments as Program<HoldbackPayments>;
+  const paymentsProgram = anchor.workspace
+    .HoldbackPayments as Program<HoldbackPayments>;
   const poster = provider.wallet;
   const localValidator = provider.wallet;
   let idCounter = Date.now();
@@ -26,7 +35,11 @@ describe("holdback-payments", () => {
 
   function pdaJob(posterKey: PublicKey, jobId: BN): PublicKey {
     return PublicKey.findProgramAddressSync(
-      [Buffer.from("job"), posterKey.toBuffer(), jobId.toArrayLike(Buffer, "le", 8)],
+      [
+        Buffer.from("job"),
+        posterKey.toBuffer(),
+        jobId.toArrayLike(Buffer, "le", 8),
+      ],
       coreProgram.programId
     )[0];
   }
@@ -58,7 +71,10 @@ describe("holdback-payments", () => {
   }
 
   async function airdrop(kp: Keypair, sol = 3): Promise<void> {
-    const sig = await provider.connection.requestAirdrop(kp.publicKey, sol * LAMPORTS_PER_SOL);
+    const sig = await provider.connection.requestAirdrop(
+      kp.publicKey,
+      sol * LAMPORTS_PER_SOL
+    );
     const latest = await provider.connection.getLatestBlockhash("confirmed");
     await provider.connection.confirmTransaction(
       {
@@ -70,7 +86,10 @@ describe("holdback-payments", () => {
     );
   }
 
-  async function initializeAssignedJob(jobId: BN, agent: PublicKey): Promise<PublicKey> {
+  async function initializeAssignedJob(
+    jobId: BN,
+    agent: PublicKey
+  ): Promise<PublicKey> {
     const job = pdaJob(poster.publicKey, jobId);
     await coreProgram.methods
       .initializeJob(
@@ -142,7 +161,11 @@ describe("holdback-payments", () => {
     const deposit = 1_500_000;
 
     await paymentsProgram.methods
-      .createEscrowWrapper(escrowId, new BN(deposit), sessionIdBytes("mpp-8001"))
+      .createEscrowWrapper(
+        escrowId,
+        new BN(deposit),
+        sessionIdBytes("mpp-8001")
+      )
       .accountsPartial({
         job,
         escrow,
@@ -172,7 +195,11 @@ describe("holdback-payments", () => {
 
     try {
       await paymentsProgram.methods
-        .createEscrowWrapper(escrowId, new BN(1_000_000), sessionIdBytes("mpp-8002"))
+        .createEscrowWrapper(
+          escrowId,
+          new BN(1_000_000),
+          sessionIdBytes("mpp-8002")
+        )
         .accountsPartial({
           job,
           escrow,
@@ -194,7 +221,11 @@ describe("holdback-payments", () => {
     const escrow = pdaEscrow(escrowId);
 
     await paymentsProgram.methods
-      .createEscrowWrapper(escrowId, new BN(750_000), sessionIdBytes("mpp-8003"))
+      .createEscrowWrapper(
+        escrowId,
+        new BN(750_000),
+        sessionIdBytes("mpp-8003")
+      )
       .accountsPartial({
         job,
         escrow,
@@ -210,7 +241,13 @@ describe("holdback-payments", () => {
           pda: escrow,
           payer: poster.publicKey,
         })
-        .remainingAccounts([{ pubkey: localValidator.publicKey, isSigner: false, isWritable: false }])
+        .remainingAccounts([
+          {
+            pubkey: localValidator.publicKey,
+            isSigner: false,
+            isWritable: false,
+          },
+        ])
         .rpc();
       expect.fail("expected local light-validator delegate_to_per limitation");
     } catch (err: unknown) {
@@ -226,7 +263,11 @@ describe("holdback-payments", () => {
     const escrow = pdaEscrow(escrowId);
 
     await paymentsProgram.methods
-      .createEscrowWrapper(escrowId, new BN(800_000), sessionIdBytes("mpp-8004"))
+      .createEscrowWrapper(
+        escrowId,
+        new BN(800_000),
+        sessionIdBytes("mpp-8004")
+      )
       .accountsPartial({
         job,
         escrow,
@@ -258,7 +299,11 @@ describe("holdback-payments", () => {
     const escrow = pdaEscrow(escrowId);
 
     await paymentsProgram.methods
-      .createEscrowWrapper(escrowId, new BN(800_000), sessionIdBytes("mpp-8005"))
+      .createEscrowWrapper(
+        escrowId,
+        new BN(800_000),
+        sessionIdBytes("mpp-8005")
+      )
       .accountsPartial({
         job,
         escrow,
@@ -333,7 +378,9 @@ describe("holdback-payments", () => {
     const escrow = pdaEscrow(escrowId);
     const teePubkey = hash32(10);
     const sessionId = sessionIdBytes("mpp-8007");
-    const validatorSigner = (provider.wallet as anchor.Wallet & { payer: Keypair }).payer;
+    const validatorSigner = (
+      provider.wallet as anchor.Wallet & { payer: Keypair }
+    ).payer;
     const report = buildAttestationReport({
       escrowId,
       job,
@@ -372,7 +419,9 @@ describe("holdback-payments", () => {
     const fetched = await paymentsProgram.account.escrowWrapper.fetch(escrow);
     expect(fetched.teeVerified).to.eq(true);
     expect(Array.from(fetched.teePubkey)).to.deep.eq(teePubkey);
-    expect(fetched.validator.toBase58()).to.eq(localValidator.publicKey.toBase58());
+    expect(fetched.validator.toBase58()).to.eq(
+      localValidator.publicKey.toBase58()
+    );
     expect(JSON.stringify(fetched.status)).to.include("delegated");
   });
 
@@ -385,10 +434,16 @@ describe("holdback-payments", () => {
     const settlement = pdaSettlement(escrowId);
     const deposited = 1_200_000;
     const totalPaid = 450_000;
-    const agentBalanceBefore = await provider.connection.getBalance(agent.publicKey);
+    const agentBalanceBefore = await provider.connection.getBalance(
+      agent.publicKey
+    );
 
     await paymentsProgram.methods
-      .createEscrowWrapper(escrowId, new BN(deposited), sessionIdBytes("mpp-8008"))
+      .createEscrowWrapper(
+        escrowId,
+        new BN(deposited),
+        sessionIdBytes("mpp-8008")
+      )
       .accountsPartial({
         job,
         escrow,
@@ -409,17 +464,27 @@ describe("holdback-payments", () => {
       })
       .rpc();
 
-    const fetchedEscrow = await paymentsProgram.account.escrowWrapper.fetch(escrow);
-    const fetchedSettlement = await paymentsProgram.account.settlementRecord.fetch(settlement);
+    const fetchedEscrow = await paymentsProgram.account.escrowWrapper.fetch(
+      escrow
+    );
+    const fetchedSettlement =
+      await paymentsProgram.account.settlementRecord.fetch(settlement);
     const escrowAccount = await provider.connection.getAccountInfo(escrow);
     const escrowLamports = await provider.connection.getBalance(escrow);
-    const agentBalanceAfter = await provider.connection.getBalance(agent.publicKey);
-    const rentFloor = await provider.connection.getMinimumBalanceForRentExemption(escrowAccount!.data.length);
+    const agentBalanceAfter = await provider.connection.getBalance(
+      agent.publicKey
+    );
+    const rentFloor =
+      await provider.connection.getMinimumBalanceForRentExemption(
+        escrowAccount!.data.length
+      );
 
     expect(JSON.stringify(fetchedEscrow.status)).to.include("settled");
     expect(fetchedSettlement.escrowId.toString()).to.eq(escrowId.toString());
     expect(fetchedSettlement.jobPubkey.toBase58()).to.eq(job.toBase58());
-    expect(fetchedSettlement.totalDeposited.toString()).to.eq(deposited.toString());
+    expect(fetchedSettlement.totalDeposited.toString()).to.eq(
+      deposited.toString()
+    );
     expect(fetchedSettlement.totalPaid.toString()).to.eq(totalPaid.toString());
     expect(fetchedSettlement.settlementHash.length).to.eq(32);
     expect(escrowLamports).to.eq(rentFloor);

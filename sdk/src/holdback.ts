@@ -5,11 +5,11 @@ import {
   SystemProgram,
   Transaction,
   LAMPORTS_PER_SOL,
-} from '@solana/web3.js'
-import * as anchor from '@coral-xyz/anchor'
-import nacl from 'tweetnacl'
-import { createHash } from 'crypto'
-import { hashSpec } from './spec'
+} from "@solana/web3.js";
+import * as anchor from "@coral-xyz/anchor";
+import nacl from "tweetnacl";
+import { createHash } from "crypto";
+import { hashSpec } from "./spec";
 
 import {
   HoldbackConfig,
@@ -35,49 +35,52 @@ import {
   PosterReputation,
   VerifierVote,
   CastVoteOptions,
-} from './types'
+} from "./types";
 
 // Load IDL from compiled artifact
-import idl from '../../target/idl/holdback.json'
+import idl from "../../target/idl/holdback.json";
 
-const DEFAULT_PROGRAM_ID = 'BqNSjpGpePKj1hhD1o1UbyLdiYvSY4S3nt5jNe6Ny8vK'
+const DEFAULT_PROGRAM_ID = "BqNSjpGpePKj1hhD1o1UbyLdiYvSY4S3nt5jNe6Ny8vK";
 
 /** Pre-configured environment presets */
 export const ENVIRONMENT_PRESETS = {
   devnet: {
-    rpc: 'https://api.devnet.solana.com',
-    network: 'devnet' as const,
+    rpc: "https://api.devnet.solana.com",
+    network: "devnet" as const,
     programId: DEFAULT_PROGRAM_ID,
   },
-  'mainnet-beta': {
-    rpc: 'https://api.mainnet-beta.solana.com',
-    network: 'mainnet-beta' as const,
+  "mainnet-beta": {
+    rpc: "https://api.mainnet-beta.solana.com",
+    network: "mainnet-beta" as const,
     programId: DEFAULT_PROGRAM_ID,
   },
-} satisfies Record<string, Omit<HoldbackConfig, 'wallet'>>
+} satisfies Record<string, Omit<HoldbackConfig, "wallet">>;
 
 const STATUS_LABELS: Record<number, string> = {
-  0: 'open',
-  1: 'claimed',
-  2: 'staked',
-  3: 'submitted',
-  4: 'settled',
-  5: 'failed',
-  6: 'wip',
-  7: 'verified',
-}
+  0: "open",
+  1: "claimed",
+  2: "staked",
+  3: "submitted",
+  4: "settled",
+  5: "failed",
+  6: "wip",
+  7: "verified",
+};
 
 const PRIVACY_MAP: Record<PrivacyLevel, number> = {
   public: 0,
   encrypted: 1,
   per: 2,
-}
+};
 
-const VERIFICATION_MODE_MAP: Record<'poster_review' | 'test_suite' | 'judge', number> = {
+const VERIFICATION_MODE_MAP: Record<
+  "poster_review" | "test_suite" | "judge",
+  number
+> = {
   poster_review: 0,
   test_suite: 1,
   judge: 2,
-}
+};
 
 /**
  * Holdback SDK — interact with the Holdback protocol on Solana.
@@ -91,36 +94,36 @@ const VERIFICATION_MODE_MAP: Record<'poster_review' | 'test_suite' | 'judge', nu
  * ```
  */
 export class Holdback {
-  private connection: Connection
-  private wallet: Keypair
-  private programId: PublicKey
-  private program: anchor.Program
-  private network: string
-  private encryptionKeypair: nacl.BoxKeyPair
+  private connection: Connection;
+  private wallet: Keypair;
+  private programId: PublicKey;
+  private program: anchor.Program;
+  private network: string;
+  private encryptionKeypair: nacl.BoxKeyPair;
 
   constructor(config: HoldbackConfig) {
-    this.connection = new Connection(config.rpc, 'confirmed')
-    this.wallet = config.wallet
-    this.network = config.network || 'devnet'
-    this.programId = new PublicKey(config.programId || DEFAULT_PROGRAM_ID)
-    this.encryptionKeypair = nacl.box.keyPair()
+    this.connection = new Connection(config.rpc, "confirmed");
+    this.wallet = config.wallet;
+    this.network = config.network || "devnet";
+    this.programId = new PublicKey(config.programId || DEFAULT_PROGRAM_ID);
+    this.encryptionKeypair = nacl.box.keyPair();
 
     const provider = new anchor.AnchorProvider(
       this.connection,
       {
         publicKey: this.wallet.publicKey,
         signTransaction: async (tx: any) => {
-          tx.partialSign(this.wallet)
-          return tx
+          tx.partialSign(this.wallet);
+          return tx;
         },
         signAllTransactions: async (txs: any) => {
-          txs.forEach((tx: any) => tx.partialSign(this.wallet))
-          return txs
+          txs.forEach((tx: any) => tx.partialSign(this.wallet));
+          return txs;
         },
       } as any,
-      { commitment: 'confirmed' }
-    )
-    this.program = new anchor.Program(idl as any, provider)
+      { commitment: "confirmed" }
+    );
+    this.program = new anchor.Program(idl as any, provider);
   }
 
   static devnet(wallet: Keypair, rpcOverride?: string): Holdback {
@@ -128,56 +131,57 @@ export class Holdback {
       ...ENVIRONMENT_PRESETS.devnet,
       wallet,
       ...(rpcOverride ? { rpc: rpcOverride } : {}),
-    })
+    });
   }
 
   static mainnet(wallet: Keypair, rpcOverride?: string): Holdback {
     return new Holdback({
-      ...ENVIRONMENT_PRESETS['mainnet-beta'],
+      ...ENVIRONMENT_PRESETS["mainnet-beta"],
       wallet,
       ...(rpcOverride ? { rpc: rpcOverride } : {}),
-    })
+    });
   }
 
   // ─── Job PDA Derivation ─────────────────────────────────────
   private getJobPDA(jobId: number): [PublicKey, number] {
-    const idBuf = Buffer.alloc(8)
-    idBuf.writeBigUInt64LE(BigInt(jobId))
+    const idBuf = Buffer.alloc(8);
+    idBuf.writeBigUInt64LE(BigInt(jobId));
     return PublicKey.findProgramAddressSync(
-      [Buffer.from('job'), this.wallet.publicKey.toBuffer(), idBuf],
+      [Buffer.from("job"), this.wallet.publicKey.toBuffer(), idBuf],
       this.programId
-    )
+    );
   }
 
   // ─── Hashing ────────────────────────────────────────────────
   private hashData(data: any): number[] {
-    const hash = createHash('sha256')
-      .update(JSON.stringify(data))
-      .digest()
-    return Array.from(hash)
+    const hash = createHash("sha256").update(JSON.stringify(data)).digest();
+    return Array.from(hash);
   }
 
   private parseDeadline(deadline: string | number): number {
-    if (typeof deadline === 'number') {
-      return Math.floor(Date.now() / 1000) + deadline
+    if (typeof deadline === "number") {
+      return Math.floor(Date.now() / 1000) + deadline;
     }
-    const match = deadline.match(/^(\d+)(h|d|m|w)$/)
-    if (!match) throw new Error(`Invalid deadline format: ${deadline}. Use '2h', '1d', '30m', or '1w'`)
-    const value = parseInt(match[1])
-    const unit = match[2]
-    const multiplier = { m: 60, h: 3600, d: 86400, w: 604800 }[unit] || 3600
-    return Math.floor(Date.now() / 1000) + value * multiplier
+    const match = deadline.match(/^(\d+)(h|d|m|w)$/);
+    if (!match)
+      throw new Error(
+        `Invalid deadline format: ${deadline}. Use '2h', '1d', '30m', or '1w'`
+      );
+    const value = parseInt(match[1]);
+    const unit = match[2];
+    const multiplier = { m: 60, h: 3600, d: 86400, w: 604800 }[unit] || 3600;
+    return Math.floor(Date.now() / 1000) + value * multiplier;
   }
 
   // ─── Send Transaction Helper ────────────────────────────────
   private async sendTx(tx: Transaction): Promise<string> {
-    const { blockhash } = await this.connection.getLatestBlockhash('confirmed')
-    tx.recentBlockhash = blockhash
-    tx.feePayer = this.wallet.publicKey
-    tx.sign(this.wallet)
-    const sig = await this.connection.sendRawTransaction(tx.serialize())
-    await this.connection.confirmTransaction(sig, 'confirmed')
-    return sig
+    const { blockhash } = await this.connection.getLatestBlockhash("confirmed");
+    tx.recentBlockhash = blockhash;
+    tx.feePayer = this.wallet.publicKey;
+    tx.sign(this.wallet);
+    const sig = await this.connection.sendRawTransaction(tx.serialize());
+    await this.connection.confirmTransaction(sig, "confirmed");
+    return sig;
   }
 
   // ─── Post Task ──────────────────────────────────────────────
@@ -204,20 +208,32 @@ export class Holdback {
    * })
    * ```
    */
-  async postTask(opts: PostTaskOptions): Promise<{ jobId: number; pubkey: PublicKey; signature: string }> {
-    const jobId = Math.floor(Math.random() * 2 ** 32)
-    const [jobPDA] = this.getJobPDA(jobId)
-    const rewardLamports = Math.floor(opts.reward * LAMPORTS_PER_SOL)
-    const deadlineSec = this.parseDeadline(opts.deadline)
-    const privacyLevel = PRIVACY_MAP[opts.privacy || 'public']
-    const specHash = opts.specHash ?? (opts.spec ? hashSpec(opts.spec) : this.hashData({ title: opts.title, ...opts.input }))
-    const ttdHash = opts.ttd ? this.hashData(opts.ttd) : Array.from({ length: 32 }, () => 0)
-    const encryptionPubkey = privacyLevel > 0
-      ? Array.from(this.encryptionKeypair.publicKey)
-      : Array.from({ length: 32 }, () => 0)
-    const assignmentMode = opts.assignmentMode === 'auto-match' ? 1 : 0
-    const verificationLevel = opts.verificationLevel ?? 0
-    const verificationMode = VERIFICATION_MODE_MAP[opts.verificationMode ?? opts.spec?.verification.mode ?? 'poster_review']
+  async postTask(
+    opts: PostTaskOptions
+  ): Promise<{ jobId: number; pubkey: PublicKey; signature: string }> {
+    const jobId = Math.floor(Math.random() * 2 ** 32);
+    const [jobPDA] = this.getJobPDA(jobId);
+    const rewardLamports = Math.floor(opts.reward * LAMPORTS_PER_SOL);
+    const deadlineSec = this.parseDeadline(opts.deadline);
+    const privacyLevel = PRIVACY_MAP[opts.privacy || "public"];
+    const specHash =
+      opts.specHash ??
+      (opts.spec
+        ? hashSpec(opts.spec)
+        : this.hashData({ title: opts.title, ...opts.input }));
+    const ttdHash = opts.ttd
+      ? this.hashData(opts.ttd)
+      : Array.from({ length: 32 }, () => 0);
+    const encryptionPubkey =
+      privacyLevel > 0
+        ? Array.from(this.encryptionKeypair.publicKey)
+        : Array.from({ length: 32 }, () => 0);
+    const assignmentMode = opts.assignmentMode === "auto-match" ? 1 : 0;
+    const verificationLevel = opts.verificationLevel ?? 0;
+    const verificationMode =
+      VERIFICATION_MODE_MAP[
+        opts.verificationMode ?? opts.spec?.verification.mode ?? "poster_review"
+      ];
 
     // Batch init + delegate into 1 tx (1 signature)
     const initIx = await (this.program.methods as any)
@@ -233,18 +249,22 @@ export class Holdback {
         verificationLevel,
         verificationMode
       )
-      .accounts({ job: jobPDA, poster: this.wallet.publicKey, systemProgram: SystemProgram.programId })
-      .instruction()
+      .accounts({
+        job: jobPDA,
+        poster: this.wallet.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .instruction();
 
     const delegateIx = await (this.program.methods as any)
       .delegateJob()
       .accounts({ payer: this.wallet.publicKey, job: jobPDA })
-      .instruction()
+      .instruction();
 
-    const tx = new Transaction().add(initIx).add(delegateIx)
-    const sig = await this.sendTx(tx)
+    const tx = new Transaction().add(initIx).add(delegateIx);
+    const sig = await this.sendTx(tx);
 
-    return { jobId, pubkey: jobPDA, signature: sig }
+    return { jobId, pubkey: jobPDA, signature: sig };
   }
 
   // ─── Search Tasks ───────────────────────────────────────────
@@ -258,26 +278,39 @@ export class Holdback {
   async searchTasks(filter?: TaskFilter): Promise<Job[]> {
     // Fetch all job accounts (v1=222, v2=254, v3=351 bytes)
     const [v1, v2, v3] = await Promise.all([
-      this.connection.getProgramAccounts(this.programId, { filters: [{ dataSize: 222 }] }),
-      this.connection.getProgramAccounts(this.programId, { filters: [{ dataSize: 254 }] }),
-      this.connection.getProgramAccounts(this.programId, { filters: [{ dataSize: 351 }] }),
-    ])
-    const accounts = [...v1, ...v2, ...v3]
+      this.connection.getProgramAccounts(this.programId, {
+        filters: [{ dataSize: 222 }],
+      }),
+      this.connection.getProgramAccounts(this.programId, {
+        filters: [{ dataSize: 254 }],
+      }),
+      this.connection.getProgramAccounts(this.programId, {
+        filters: [{ dataSize: 351 }],
+      }),
+    ]);
+    const accounts = [...v1, ...v2, ...v3];
 
-    const jobs: Job[] = []
+    const jobs: Job[] = [];
     for (const { pubkey, account } of accounts) {
       try {
-        const decoded = (this.program as any).coder.accounts.decode('job', account.data)
+        const decoded = (this.program as any).coder.accounts.decode(
+          "job",
+          account.data
+        );
         const job: Job = {
           pubkey,
           jobId: decoded.jobId?.toNumber?.() ?? Number(decoded.jobId),
           poster: decoded.poster,
           worker: decoded.claimer,
-          rewardLamports: decoded.rewardLamports?.toNumber?.() ?? Number(decoded.rewardLamports),
-          reward: (decoded.rewardLamports?.toNumber?.() ?? Number(decoded.rewardLamports)) / LAMPORTS_PER_SOL,
+          rewardLamports:
+            decoded.rewardLamports?.toNumber?.() ??
+            Number(decoded.rewardLamports),
+          reward:
+            (decoded.rewardLamports?.toNumber?.() ??
+              Number(decoded.rewardLamports)) / LAMPORTS_PER_SOL,
           deadline: decoded.deadline?.toNumber?.() ?? Number(decoded.deadline),
           status: decoded.status,
-          statusLabel: STATUS_LABELS[decoded.status] || 'unknown',
+          statusLabel: STATUS_LABELS[decoded.status] || "unknown",
           proofHash: decoded.proofHash || [],
           privacyLevel: decoded.privacyLevel ?? 0,
           specHash: decoded.specHash || [],
@@ -294,20 +327,27 @@ export class Holdback {
           receiptUri: decoded.receiptUri || [],
           attestationHash: decoded.attestationHash || [],
           disputeWindowEnd: decoded.disputeWindowEnd?.toNumber?.() ?? 0,
-        }
+        };
 
         // Apply filters
         if (filter?.status) {
-          const statusMap: Record<string, number> = { open: 0, claimed: 1, staked: 2, submitted: 3 }
-          if (job.status !== statusMap[filter.status]) continue
+          const statusMap: Record<string, number> = {
+            open: 0,
+            claimed: 1,
+            staked: 2,
+            submitted: 3,
+          };
+          if (job.status !== statusMap[filter.status]) continue;
         }
-        if (filter?.minReward && job.reward < filter.minReward) continue
+        if (filter?.minReward && job.reward < filter.minReward) continue;
 
-        jobs.push(job)
-      } catch { /* skip malformed */ }
+        jobs.push(job);
+      } catch {
+        /* skip malformed */
+      }
     }
 
-    return jobs.sort((a, b) => b.jobId - a.jobId)
+    return jobs.sort((a, b) => b.jobId - a.jobId);
   }
 
   // ─── Get Task Details ───────────────────────────────────────
@@ -316,9 +356,12 @@ export class Holdback {
    */
   async getTask(jobPubkey: PublicKey): Promise<Job | null> {
     try {
-      const account = await this.connection.getAccountInfo(jobPubkey)
-      if (!account) return null
-      const decoded = (this.program as any).coder.accounts.decode('job', account.data)
+      const account = await this.connection.getAccountInfo(jobPubkey);
+      if (!account) return null;
+      const decoded = (this.program as any).coder.accounts.decode(
+        "job",
+        account.data
+      );
       return {
         pubkey: jobPubkey,
         jobId: decoded.jobId?.toNumber?.() ?? Number(decoded.jobId),
@@ -328,10 +371,10 @@ export class Holdback {
         reward: (decoded.rewardLamports?.toNumber?.() ?? 0) / LAMPORTS_PER_SOL,
         deadline: decoded.deadline?.toNumber?.() ?? 0,
         status: decoded.status,
-        statusLabel: STATUS_LABELS[decoded.status] || 'unknown',
+        statusLabel: STATUS_LABELS[decoded.status] || "unknown",
         proofHash: decoded.proofHash || [],
         privacyLevel: decoded.privacyLevel ?? 0,
-          specHash: decoded.specHash || [],
+        specHash: decoded.specHash || [],
         ttdHash: decoded.ttdHash || [],
         claimerStake: decoded.claimerStake?.toNumber?.() ?? 0,
         bestBidStake: decoded.bestBidStake?.toNumber?.() ?? 0,
@@ -345,9 +388,9 @@ export class Holdback {
         receiptUri: decoded.receiptUri || [],
         attestationHash: decoded.attestationHash || [],
         disputeWindowEnd: decoded.disputeWindowEnd?.toNumber?.() ?? 0,
-      }
+      };
     } catch {
-      return null
+      return null;
     }
   }
 
@@ -360,12 +403,12 @@ export class Holdback {
    * ```
    */
   async bid(jobPubkey: PublicKey, opts: BidOptions): Promise<string> {
-    const stakeLamports = Math.floor(opts.stake * LAMPORTS_PER_SOL)
+    const stakeLamports = Math.floor(opts.stake * LAMPORTS_PER_SOL);
     const tx = await (this.program.methods as any)
       .placeBid(new anchor.BN(stakeLamports))
       .accounts({ bidder: this.wallet.publicKey, job: jobPubkey })
-      .transaction()
-    return this.sendTx(tx)
+      .transaction();
+    return this.sendTx(tx);
   }
 
   // ─── Lock Stake ─────────────────────────────────────────────
@@ -375,9 +418,13 @@ export class Holdback {
   async lockStake(jobPubkey: PublicKey): Promise<string> {
     const tx = await (this.program.methods as any)
       .lockStake()
-      .accounts({ worker: this.wallet.publicKey, job: jobPubkey, systemProgram: SystemProgram.programId })
-      .transaction()
-    return this.sendTx(tx)
+      .accounts({
+        worker: this.wallet.publicKey,
+        job: jobPubkey,
+        systemProgram: SystemProgram.programId,
+      })
+      .transaction();
+    return this.sendTx(tx);
   }
 
   // ─── Batched: Stake + Prove (1 tx, 1 sign) ─────────────────
@@ -389,20 +436,24 @@ export class Holdback {
    * ```
    */
   async stakeAndProve(jobPubkey: PublicKey, result: any): Promise<string> {
-    const proofHash = this.hashData(result)
+    const proofHash = this.hashData(result);
 
     const stakeIx = await (this.program.methods as any)
       .lockStake()
-      .accounts({ job: jobPubkey, claimer: this.wallet.publicKey, systemProgram: SystemProgram.programId })
-      .instruction()
+      .accounts({
+        job: jobPubkey,
+        claimer: this.wallet.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .instruction();
 
     const proveIx = await (this.program.methods as any)
       .submitProof(proofHash)
       .accounts({ job: jobPubkey, submitter: this.wallet.publicKey })
-      .instruction()
+      .instruction();
 
-    const tx = new Transaction().add(stakeIx).add(proveIx)
-    return this.sendTx(tx)
+    const tx = new Transaction().add(stakeIx).add(proveIx);
+    return this.sendTx(tx);
   }
 
   // ─── Submit Proof ───────────────────────────────────────────
@@ -414,12 +465,12 @@ export class Holdback {
    * ```
    */
   async submitProof(jobPubkey: PublicKey, result: any): Promise<string> {
-    const proofHash = this.hashData(result)
+    const proofHash = this.hashData(result);
     const tx = await (this.program.methods as any)
       .submitProof(proofHash)
       .accounts({ worker: this.wallet.publicKey, job: jobPubkey })
-      .transaction()
-    return this.sendTx(tx)
+      .transaction();
+    return this.sendTx(tx);
   }
 
   // ─── Submit Encrypted Proof ─────────────────────────────────
@@ -429,15 +480,18 @@ export class Holdback {
   async submitEncryptedProof(
     jobPubkey: PublicKey,
     result: any,
-    encryptedInputHash: number[],
+    encryptedInputHash: number[]
   ): Promise<string> {
-    const proofHash = this.hashData(result)
-    const encryptedOutputHash = this.hashData({ encrypted: true, output: result })
+    const proofHash = this.hashData(result);
+    const encryptedOutputHash = this.hashData({
+      encrypted: true,
+      output: result,
+    });
     const tx = await (this.program.methods as any)
       .submitEncryptedProof(proofHash, encryptedInputHash, encryptedOutputHash)
       .accounts({ worker: this.wallet.publicKey, job: jobPubkey })
-      .transaction()
-    return this.sendTx(tx)
+      .transaction();
+    return this.sendTx(tx);
   }
 
   // ─── Settle Job ─────────────────────────────────────────────
@@ -445,14 +499,18 @@ export class Holdback {
    * Settle a job (poster only). Verdict: 1 = pass, 2 = fail.
    */
   async settle(jobPubkey: PublicKey, pass: boolean): Promise<string> {
-    const verdict = pass ? 1 : 2
-    const job = await this.getTask(jobPubkey)
-    if (!job) throw new Error('Job not found')
+    const verdict = pass ? 1 : 2;
+    const job = await this.getTask(jobPubkey);
+    if (!job) throw new Error("Job not found");
     const tx = await (this.program.methods as any)
       .settleJob(verdict)
-      .accounts({ poster: this.wallet.publicKey, job: jobPubkey, worker: job.worker })
-      .transaction()
-    return this.sendTx(tx)
+      .accounts({
+        poster: this.wallet.publicKey,
+        job: jobPubkey,
+        worker: job.worker,
+      })
+      .transaction();
+    return this.sendTx(tx);
   }
 
   // ─── Archive Settlement ─────────────────────────────────────
@@ -461,9 +519,9 @@ export class Holdback {
    */
   async archiveSettlement(jobPubkey: PublicKey): Promise<string> {
     const [archivePDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('archive'), jobPubkey.toBuffer()],
+      [Buffer.from("archive"), jobPubkey.toBuffer()],
       this.programId
-    )
+    );
     const tx = await (this.program.methods as any)
       .archiveSettlement()
       .accounts({
@@ -472,8 +530,8 @@ export class Holdback {
         archive: archivePDA,
         systemProgram: SystemProgram.programId,
       })
-      .transaction()
-    return this.sendTx(tx)
+      .transaction();
+    return this.sendTx(tx);
   }
 
   // ─── Batched: Settle + Archive (1 tx, 1 sign) ──────────────
@@ -485,19 +543,23 @@ export class Holdback {
    * ```
    */
   async settleAndArchive(jobPubkey: PublicKey, pass: boolean): Promise<string> {
-    const verdict = pass ? 1 : 2
-    const job = await this.getTask(jobPubkey)
-    if (!job) throw new Error('Job not found')
+    const verdict = pass ? 1 : 2;
+    const job = await this.getTask(jobPubkey);
+    if (!job) throw new Error("Job not found");
 
     const [archivePDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('archive'), jobPubkey.toBuffer()],
+      [Buffer.from("archive"), jobPubkey.toBuffer()],
       this.programId
-    )
+    );
 
     const settleIx = await (this.program.methods as any)
       .settleJob(verdict)
-      .accounts({ poster: this.wallet.publicKey, job: jobPubkey, worker: job.worker })
-      .instruction()
+      .accounts({
+        poster: this.wallet.publicKey,
+        job: jobPubkey,
+        worker: job.worker,
+      })
+      .instruction();
 
     const archiveIx = await (this.program.methods as any)
       .archiveSettlement()
@@ -507,10 +569,10 @@ export class Holdback {
         archive: archivePDA,
         systemProgram: SystemProgram.programId,
       })
-      .instruction()
+      .instruction();
 
-    const tx = new Transaction().add(settleIx).add(archiveIx)
-    return this.sendTx(tx)
+    const tx = new Transaction().add(settleIx).add(archiveIx);
+    return this.sendTx(tx);
   }
 
   // ─── Compress Finished Job (ZK) ─────────────────────────────
@@ -522,19 +584,22 @@ export class Holdback {
     const tx = await (this.program.methods as any)
       .compressFinishedJob()
       .accounts({ poster: this.wallet.publicKey, job: jobPubkey })
-      .transaction()
-    return this.sendTx(tx)
+      .transaction();
+    return this.sendTx(tx);
   }
 
   // ─── Store Credential ──────────────────────────────────────
   /**
    * Store encrypted credential in the on-chain vault.
    */
-  async storeCredential(jobPubkey: PublicKey, data: Uint8Array): Promise<string> {
+  async storeCredential(
+    jobPubkey: PublicKey,
+    data: Uint8Array
+  ): Promise<string> {
     const [vaultPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('vault'), jobPubkey.toBuffer()],
+      [Buffer.from("vault"), jobPubkey.toBuffer()],
       this.programId
-    )
+    );
     const tx = await (this.program.methods as any)
       .storeCredential(Array.from(data))
       .accounts({
@@ -543,8 +608,8 @@ export class Holdback {
         vault: vaultPDA,
         systemProgram: SystemProgram.programId,
       })
-      .transaction()
-    return this.sendTx(tx)
+      .transaction();
+    return this.sendTx(tx);
   }
 
   // ─── Watch Tasks (onTask) ───────────────────────────────────
@@ -558,85 +623,119 @@ export class Holdback {
    * })
    * ```
    */
-  onTask(filter: TaskFilter, handler: (ctx: TaskContext) => Promise<void>): { stop: () => void } {
-    let running = true
-    const seen = new Set<string>()
+  onTask(
+    filter: TaskFilter,
+    handler: (ctx: TaskContext) => Promise<void>
+  ): { stop: () => void } {
+    let running = true;
+    const seen = new Set<string>();
 
     const poll = async () => {
       while (running) {
         try {
-          const jobs = await this.searchTasks({ ...filter, status: 'open' })
+          const jobs = await this.searchTasks({ ...filter, status: "open" });
           for (const job of jobs) {
-            const key = job.pubkey.toBase58()
-            if (seen.has(key)) continue
-            seen.add(key)
+            const key = job.pubkey.toBase58();
+            if (seen.has(key)) continue;
+            seen.add(key);
 
             const ctx: TaskContext = {
               job,
               getInput: async () => {
                 // In a real implementation, fetch + decrypt off-chain metadata
-                return { jobId: job.jobId, reward: job.reward }
+                return { jobId: job.jobId, reward: job.reward };
               },
               submitProof: async (result: any) => {
-                return this.submitProof(job.pubkey, result)
+                return this.submitProof(job.pubkey, result);
               },
-            }
-            handler(ctx).catch(console.error)
+            };
+            handler(ctx).catch(console.error);
           }
         } catch (e) {
-          console.error('Holdback poll error:', e)
+          console.error("Holdback poll error:", e);
         }
         // Poll every 10 seconds
-        await new Promise(r => setTimeout(r, 10_000))
+        await new Promise((r) => setTimeout(r, 10_000));
       }
-    }
-    poll()
+    };
+    poll();
 
-    return { stop: () => { running = false } }
+    return {
+      stop: () => {
+        running = false;
+      },
+    };
   }
 
   // ─── Encrypt / Decrypt ──────────────────────────────────────
   /**
    * Encrypt data with the recipient's public key.
    */
-  encrypt(data: Uint8Array, recipientPubkey: Uint8Array): { encrypted: Uint8Array; nonce: Uint8Array } {
-    const nonce = nacl.randomBytes(nacl.box.nonceLength)
-    const encrypted = nacl.box(data, nonce, recipientPubkey, this.encryptionKeypair.secretKey)
-    if (!encrypted) throw new Error('Encryption failed')
-    return { encrypted, nonce }
+  encrypt(
+    data: Uint8Array,
+    recipientPubkey: Uint8Array
+  ): { encrypted: Uint8Array; nonce: Uint8Array } {
+    const nonce = nacl.randomBytes(nacl.box.nonceLength);
+    const encrypted = nacl.box(
+      data,
+      nonce,
+      recipientPubkey,
+      this.encryptionKeypair.secretKey
+    );
+    if (!encrypted) throw new Error("Encryption failed");
+    return { encrypted, nonce };
   }
 
   /**
    * Decrypt data from a sender's public key.
    */
-  decrypt(encrypted: Uint8Array, nonce: Uint8Array, senderPubkey: Uint8Array): Uint8Array {
-    const decrypted = nacl.box.open(encrypted, nonce, senderPubkey, this.encryptionKeypair.secretKey)
-    if (!decrypted) throw new Error('Decryption failed')
-    return decrypted
+  decrypt(
+    encrypted: Uint8Array,
+    nonce: Uint8Array,
+    senderPubkey: Uint8Array
+  ): Uint8Array {
+    const decrypted = nacl.box.open(
+      encrypted,
+      nonce,
+      senderPubkey,
+      this.encryptionKeypair.secretKey
+    );
+    if (!decrypted) throw new Error("Decryption failed");
+    return decrypted;
   }
 
   // ─── Utilities ──────────────────────────────────────────────
   /** Get the program ID */
-  getProgramId(): PublicKey { return this.programId }
+  getProgramId(): PublicKey {
+    return this.programId;
+  }
 
   /** Get the wallet's public key */
-  getPublicKey(): PublicKey { return this.wallet.publicKey }
+  getPublicKey(): PublicKey {
+    return this.wallet.publicKey;
+  }
 
   /** Get the encryption public key */
-  getEncryptionPublicKey(): Uint8Array { return this.encryptionKeypair.publicKey }
+  getEncryptionPublicKey(): Uint8Array {
+    return this.encryptionKeypair.publicKey;
+  }
 
   /** Get SOL balance */
   async getBalance(): Promise<number> {
-    const lamports = await this.connection.getBalance(this.wallet.publicKey)
-    return lamports / LAMPORTS_PER_SOL
+    const lamports = await this.connection.getBalance(this.wallet.publicKey);
+    return lamports / LAMPORTS_PER_SOL;
   }
 
   /** Request devnet airdrop */
   async airdrop(sol: number = 1): Promise<string> {
-    if (this.network !== 'devnet') throw new Error('Airdrop only available on devnet')
-    const sig = await this.connection.requestAirdrop(this.wallet.publicKey, sol * LAMPORTS_PER_SOL)
-    await this.connection.confirmTransaction(sig, 'confirmed')
-    return sig
+    if (this.network !== "devnet")
+      throw new Error("Airdrop only available on devnet");
+    const sig = await this.connection.requestAirdrop(
+      this.wallet.publicKey,
+      sol * LAMPORTS_PER_SOL
+    );
+    await this.connection.confirmTransaction(sig, "confirmed");
+    return sig;
   }
 
   // ─── The Grove: Agent Registry ──────────────────────────────
@@ -654,20 +753,22 @@ export class Holdback {
    * })
    * ```
    */
-  async registerAgent(opts: RegisterAgentOptions): Promise<{ pubkey: PublicKey; signature: string }> {
-    const stakeLamports = Math.floor(opts.stakeAmount * LAMPORTS_PER_SOL)
+  async registerAgent(
+    opts: RegisterAgentOptions
+  ): Promise<{ pubkey: PublicKey; signature: string }> {
+    const stakeLamports = Math.floor(opts.stakeAmount * LAMPORTS_PER_SOL);
     const profileHash = this.hashData({
       name: opts.name,
       description: opts.description,
       ttds: opts.ttds,
       priceMin: opts.priceMin,
       priceMax: opts.priceMax,
-    })
+    });
 
     const [agentPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('agent'), this.wallet.publicKey.toBuffer()],
+      [Buffer.from("agent"), this.wallet.publicKey.toBuffer()],
       this.programId
-    )
+    );
 
     const tx = await (this.program.methods as any)
       .registerAgent(profileHash, new anchor.BN(stakeLamports))
@@ -676,10 +777,10 @@ export class Holdback {
         owner: this.wallet.publicKey,
         systemProgram: SystemProgram.programId,
       })
-      .transaction()
+      .transaction();
 
-    const sig = await this.sendTx(tx)
-    return { pubkey: agentPDA, signature: sig }
+    const sig = await this.sendTx(tx);
+    return { pubkey: agentPDA, signature: sig };
   }
 
   /**
@@ -690,33 +791,37 @@ export class Holdback {
    * ```
    */
   async getAgent(walletAddress: string): Promise<GroveAgent | null> {
-    const walletPubkey = new PublicKey(walletAddress)
+    const walletPubkey = new PublicKey(walletAddress);
     const [agentPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('agent'), walletPubkey.toBuffer()],
+      [Buffer.from("agent"), walletPubkey.toBuffer()],
       this.programId
-    )
+    );
 
     try {
-      const account = await this.connection.getAccountInfo(agentPDA)
-      if (!account) return null
-      const decoded = (this.program as any).coder.accounts.decode('agentProfile', account.data)
+      const account = await this.connection.getAccountInfo(agentPDA);
+      if (!account) return null;
+      const decoded = (this.program as any).coder.accounts.decode(
+        "agentProfile",
+        account.data
+      );
       return {
         pubkey: walletAddress,
-        name: decoded.name || '',
-        description: decoded.description || '',
+        name: decoded.name || "",
+        description: decoded.description || "",
         ttds: decoded.ttds || [],
         priceMin: (decoded.priceMin?.toNumber?.() ?? 0) / LAMPORTS_PER_SOL,
         priceMax: (decoded.priceMax?.toNumber?.() ?? 0) / LAMPORTS_PER_SOL,
         reputation: decoded.reputation ?? 0,
         totalJobs: decoded.totalJobs ?? 0,
         successRate: decoded.successRate ?? 0,
-        stakeAmount: (decoded.stakeAmount?.toNumber?.() ?? 0) / LAMPORTS_PER_SOL,
+        stakeAmount:
+          (decoded.stakeAmount?.toNumber?.() ?? 0) / LAMPORTS_PER_SOL,
         registeredAt: decoded.registeredAt?.toNumber?.() ?? 0,
         lastActive: decoded.lastActive?.toNumber?.() ?? 0,
         compressed: decoded.compressed ?? false,
-      }
+      };
     } catch {
-      return null
+      return null;
     }
   }
 
@@ -727,52 +832,67 @@ export class Holdback {
    * const agents = await tf.searchAgents({ ttds: ['code-review-v1'], maxPrice: 0.5 })
    * ```
    */
-  async searchAgents(filter?: { ttds?: string[]; maxPrice?: number; minReputation?: number }): Promise<GroveAgent[]> {
+  async searchAgents(filter?: {
+    ttds?: string[];
+    maxPrice?: number;
+    minReputation?: number;
+  }): Promise<GroveAgent[]> {
     // Fetch all agent profile accounts
     const accounts = await this.connection.getProgramAccounts(this.programId, {
-      filters: [{ memcmp: { offset: 0, bytes: 'agent' } }],
-    })
+      filters: [{ memcmp: { offset: 0, bytes: "agent" } }],
+    });
 
-    const agents: GroveAgent[] = []
+    const agents: GroveAgent[] = [];
     for (const { account } of accounts) {
       try {
-        const decoded = (this.program as any).coder.accounts.decode('agentProfile', account.data)
+        const decoded = (this.program as any).coder.accounts.decode(
+          "agentProfile",
+          account.data
+        );
         const agent: GroveAgent = {
-          pubkey: decoded.owner?.toBase58?.() ?? '',
-          name: decoded.name || '',
-          description: decoded.description || '',
+          pubkey: decoded.owner?.toBase58?.() ?? "",
+          name: decoded.name || "",
+          description: decoded.description || "",
           ttds: decoded.ttds || [],
           priceMin: (decoded.priceMin?.toNumber?.() ?? 0) / LAMPORTS_PER_SOL,
           priceMax: (decoded.priceMax?.toNumber?.() ?? 0) / LAMPORTS_PER_SOL,
           reputation: decoded.reputation ?? 0,
           totalJobs: decoded.totalJobs ?? 0,
           successRate: decoded.successRate ?? 0,
-          stakeAmount: (decoded.stakeAmount?.toNumber?.() ?? 0) / LAMPORTS_PER_SOL,
+          stakeAmount:
+            (decoded.stakeAmount?.toNumber?.() ?? 0) / LAMPORTS_PER_SOL,
           registeredAt: decoded.registeredAt?.toNumber?.() ?? 0,
           lastActive: decoded.lastActive?.toNumber?.() ?? 0,
           compressed: decoded.compressed ?? false,
-        }
+        };
 
         // Apply filters
-        if (filter?.ttds && !agent.ttds.some(t => filter.ttds!.includes(t))) continue
-        if (filter?.maxPrice && agent.priceMin > filter.maxPrice) continue
-        if (filter?.minReputation && agent.reputation < filter.minReputation) continue
+        if (filter?.ttds && !agent.ttds.some((t) => filter.ttds!.includes(t)))
+          continue;
+        if (filter?.maxPrice && agent.priceMin > filter.maxPrice) continue;
+        if (filter?.minReputation && agent.reputation < filter.minReputation)
+          continue;
 
-        agents.push(agent)
-      } catch { /* skip malformed */ }
+        agents.push(agent);
+      } catch {
+        /* skip malformed */
+      }
     }
 
-    return agents.sort((a, b) => b.reputation - a.reputation)
+    return agents.sort((a, b) => b.reputation - a.reputation);
   }
 
   /**
    * Update an agent's reputation after job completion (called internally by settle).
    */
-  async updateAgentReputation(agentWallet: PublicKey, passed: boolean): Promise<string> {
+  async updateAgentReputation(
+    agentWallet: PublicKey,
+    passed: boolean
+  ): Promise<string> {
     const [agentPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('agent'), agentWallet.toBuffer()],
+      [Buffer.from("agent"), agentWallet.toBuffer()],
       this.programId
-    )
+    );
 
     const tx = await (this.program.methods as any)
       .updateReputation(passed)
@@ -780,9 +900,9 @@ export class Holdback {
         agent: agentPDA,
         authority: this.wallet.publicKey,
       })
-      .transaction()
+      .transaction();
 
-    return this.sendTx(tx)
+    return this.sendTx(tx);
   }
 
   // ─── Auto-Assign Job (Router) ────────────────────────────────
@@ -790,21 +910,23 @@ export class Holdback {
     const tx = await (this.program.methods as any)
       .autoAssignJob(opts.assignedAgent)
       .accounts({ job: opts.jobPubkey, poster: this.wallet.publicKey })
-      .transaction()
-    return this.sendTx(tx)
+      .transaction();
+    return this.sendTx(tx);
   }
 
   // ─── Create Sub-Job ────────────────────────────────────────
-  async createSubJob(opts: CreateSubJobOptions): Promise<{ subJobPubkey: PublicKey; signature: string }> {
-    const idBuf = Buffer.alloc(8)
-    idBuf.writeBigUInt64LE(BigInt(opts.subJobId))
-    const posterKey = (await this.getTask(opts.parentJobPubkey))?.poster
-    if (!posterKey) throw new Error('Parent job not found')
+  async createSubJob(
+    opts: CreateSubJobOptions
+  ): Promise<{ subJobPubkey: PublicKey; signature: string }> {
+    const idBuf = Buffer.alloc(8);
+    idBuf.writeBigUInt64LE(BigInt(opts.subJobId));
+    const posterKey = (await this.getTask(opts.parentJobPubkey))?.poster;
+    if (!posterKey) throw new Error("Parent job not found");
 
     const [subJobPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('job'), posterKey.toBuffer(), idBuf],
-      this.programId,
-    )
+      [Buffer.from("job"), posterKey.toBuffer(), idBuf],
+      this.programId
+    );
 
     const tx = await (this.program.methods as any)
       .createSubJob(
@@ -812,7 +934,7 @@ export class Holdback {
         opts.assignedAgent,
         new anchor.BN(opts.rewardLamports),
         new anchor.BN(opts.deadline),
-        opts.ttdHash,
+        opts.ttdHash
       )
       .accounts({
         parentJob: opts.parentJobPubkey,
@@ -820,10 +942,10 @@ export class Holdback {
         orchestrator: this.wallet.publicKey,
         systemProgram: SystemProgram.programId,
       })
-      .transaction()
+      .transaction();
 
-    const sig = await this.sendTx(tx)
-    return { subJobPubkey: subJobPDA, signature: sig }
+    const sig = await this.sendTx(tx);
+    return { subJobPubkey: subJobPDA, signature: sig };
   }
 
   // ─── Submit Verified Proof ─────────────────────────────────
@@ -833,11 +955,11 @@ export class Holdback {
         opts.proofHash,
         opts.receiptRoot,
         opts.receiptUri,
-        opts.attestationHash,
+        opts.attestationHash
       )
       .accounts({ job: opts.jobPubkey, submitter: this.wallet.publicKey })
-      .transaction()
-    return this.sendTx(tx)
+      .transaction();
+    return this.sendTx(tx);
   }
 
   // ─── Auto-Settle (dispute window expired) ──────────────────
@@ -845,25 +967,27 @@ export class Holdback {
     const tx = await (this.program.methods as any)
       .autoSettle()
       .accounts({ job: jobPubkey, claimer: this.wallet.publicKey })
-      .transaction()
-    return this.sendTx(tx)
+      .transaction();
+    return this.sendTx(tx);
   }
 
   // ─── Open Dispute ───────────────────────────────────────────
-  async openDispute(opts: OpenDisputeOptions): Promise<{ disputePubkey: PublicKey; signature: string }> {
-    const threadBuf = Buffer.alloc(4)
-    threadBuf.writeUInt32LE(opts.disputedThread)
+  async openDispute(
+    opts: OpenDisputeOptions
+  ): Promise<{ disputePubkey: PublicKey; signature: string }> {
+    const threadBuf = Buffer.alloc(4);
+    threadBuf.writeUInt32LE(opts.disputedThread);
 
     const [disputePDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('dispute'), opts.jobPubkey.toBuffer(), threadBuf],
-      this.programId,
-    )
+      [Buffer.from("dispute"), opts.jobPubkey.toBuffer(), threadBuf],
+      this.programId
+    );
 
     const tx = await (this.program.methods as any)
       .openDispute(
         opts.disputedThread,
         opts.challengerReceiptHash,
-        opts.evidenceUri,
+        opts.evidenceUri
       )
       .accounts({
         job: opts.jobPubkey,
@@ -871,10 +995,10 @@ export class Holdback {
         challenger: this.wallet.publicKey,
         systemProgram: SystemProgram.programId,
       })
-      .transaction()
+      .transaction();
 
-    const sig = await this.sendTx(tx)
-    return { disputePubkey: disputePDA, signature: sig }
+    const sig = await this.sendTx(tx);
+    return { disputePubkey: disputePDA, signature: sig };
   }
 
   // ─── Resolve Dispute ──────────────────────────────────────
@@ -887,24 +1011,30 @@ export class Holdback {
         resolver: this.wallet.publicKey,
         challengerAccount: opts.challengerPubkey,
       })
-      .transaction()
-    return this.sendTx(tx)
+      .transaction();
+    return this.sendTx(tx);
   }
 
   // ─── Get Dispute ──────────────────────────────────────────
-  async getDispute(jobPubkey: PublicKey, threadId: number): Promise<DisputeRecord | null> {
-    const threadBuf = Buffer.alloc(4)
-    threadBuf.writeUInt32LE(threadId)
+  async getDispute(
+    jobPubkey: PublicKey,
+    threadId: number
+  ): Promise<DisputeRecord | null> {
+    const threadBuf = Buffer.alloc(4);
+    threadBuf.writeUInt32LE(threadId);
 
     const [disputePDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('dispute'), jobPubkey.toBuffer(), threadBuf],
-      this.programId,
-    )
+      [Buffer.from("dispute"), jobPubkey.toBuffer(), threadBuf],
+      this.programId
+    );
 
     try {
-      const account = await this.connection.getAccountInfo(disputePDA)
-      if (!account) return null
-      const decoded = (this.program as any).coder.accounts.decode('disputeRecord', account.data)
+      const account = await this.connection.getAccountInfo(disputePDA);
+      if (!account) return null;
+      const decoded = (this.program as any).coder.accounts.decode(
+        "disputeRecord",
+        account.data
+      );
       return {
         pubkey: disputePDA,
         job: decoded.job,
@@ -918,18 +1048,24 @@ export class Holdback {
         evidenceUri: decoded.evidenceUri || [],
         openedAt: decoded.openedAt?.toNumber?.() ?? 0,
         resolvedAt: decoded.resolvedAt?.toNumber?.() ?? 0,
-      }
+      };
     } catch {
-      return null
+      return null;
     }
   }
 
   // ─── Cast Panel Vote ────────────────────────────────────────
-  async castVote(opts: CastVoteOptions): Promise<{ votePubkey: PublicKey; signature: string }> {
+  async castVote(
+    opts: CastVoteOptions
+  ): Promise<{ votePubkey: PublicKey; signature: string }> {
     const [votePDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('vote'), opts.disputePubkey.toBuffer(), this.wallet.publicKey.toBuffer()],
-      this.programId,
-    )
+      [
+        Buffer.from("vote"),
+        opts.disputePubkey.toBuffer(),
+        this.wallet.publicKey.toBuffer(),
+      ],
+      this.programId
+    );
 
     const tx = await (this.program.methods as any)
       .castVote(opts.verdict)
@@ -939,10 +1075,10 @@ export class Holdback {
         verifier: this.wallet.publicKey,
         systemProgram: SystemProgram.programId,
       })
-      .transaction()
+      .transaction();
 
-    const sig = await this.sendTx(tx)
-    return { votePubkey: votePDA, signature: sig }
+    const sig = await this.sendTx(tx);
+    return { votePubkey: votePDA, signature: sig };
   }
 
   // ─── Tally Panel ──────────────────────────────────────────
@@ -950,7 +1086,7 @@ export class Holdback {
     jobPubkey: PublicKey,
     disputePubkey: PublicKey,
     challengerPubkey: PublicKey,
-    votePubkeys: PublicKey[],
+    votePubkeys: PublicKey[]
   ): Promise<string> {
     const tx = await (this.program.methods as any)
       .tallyPanel()
@@ -961,10 +1097,14 @@ export class Holdback {
         challengerAccount: challengerPubkey,
       })
       .remainingAccounts(
-        votePubkeys.map((pk) => ({ pubkey: pk, isWritable: false, isSigner: false })),
+        votePubkeys.map((pk) => ({
+          pubkey: pk,
+          isWritable: false,
+          isSigner: false,
+        }))
       )
-      .transaction()
-    return this.sendTx(tx)
+      .transaction();
+    return this.sendTx(tx);
   }
 
   // ─── Hire Agent (end-to-end) ──────────────────────────────────
@@ -986,14 +1126,14 @@ export class Holdback {
     const agents = await this.searchAgents({
       ttds: opts.ttd ? [opts.ttd] : undefined,
       maxPrice: opts.maxBudget,
-    })
+    });
 
     if (agents.length === 0) {
-      throw new Error('No agents found matching your requirements and budget')
+      throw new Error("No agents found matching your requirements and budget");
     }
 
     // 2. Pick best match (highest reputation within budget)
-    const bestAgent = agents[0] // Already sorted by reputation
+    const bestAgent = agents[0]; // Already sorted by reputation
 
     // 3. Post the task with escrow
     const job = await this.postTask({
@@ -1003,7 +1143,7 @@ export class Holdback {
       reward: Math.min(opts.maxBudget, bestAgent.priceMax),
       deadline: opts.deadline,
       privacy: opts.privacy,
-    })
+    });
 
     return {
       jobId: job.jobId,
@@ -1011,6 +1151,6 @@ export class Holdback {
       agent: bestAgent,
       escrowedSol: Math.min(opts.maxBudget, bestAgent.priceMax),
       signature: job.signature,
-    }
+    };
   }
 }

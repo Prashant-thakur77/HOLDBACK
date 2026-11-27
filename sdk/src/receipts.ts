@@ -1,9 +1,9 @@
-import { createHash } from 'crypto'
-import type { ExecutionReceipt, ToolCallReceipt, ReceiptDAG } from './types'
+import { createHash } from "crypto";
+import type { ExecutionReceipt, ToolCallReceipt, ReceiptDAG } from "./types";
 
 function sha256(data: Uint8Array | string): number[] {
-  const input = typeof data === 'string' ? data : Buffer.from(data)
-  return Array.from(createHash('sha256').update(input).digest())
+  const input = typeof data === "string" ? data : Buffer.from(data);
+  return Array.from(createHash("sha256").update(input).digest());
 }
 
 function hashReceipt(receipt: ExecutionReceipt): number[] {
@@ -16,32 +16,32 @@ function hashReceipt(receipt: ExecutionReceipt): number[] {
     startedAt: receipt.startedAt,
     completedAt: receipt.completedAt,
     toolCalls: receipt.toolCalls,
-  })
-  return sha256(payload)
+  });
+  return sha256(payload);
 }
 
 function combineHashes(left: number[], right: number[]): number[] {
-  const combined = new Uint8Array(64)
-  combined.set(new Uint8Array(left), 0)
-  combined.set(new Uint8Array(right), 32)
-  return sha256(combined)
+  const combined = new Uint8Array(64);
+  combined.set(new Uint8Array(left), 0);
+  combined.set(new Uint8Array(right), 32);
+  return sha256(combined);
 }
 
 function computeMerkleRoot(dag: ReceiptDAG): number[] {
-  const selfHash = hashReceipt(dag.root)
+  const selfHash = hashReceipt(dag.root);
 
   if (dag.children.length === 0) {
-    return selfHash
+    return selfHash;
   }
 
-  const childRoots = dag.children.map(computeMerkleRoot)
+  const childRoots = dag.children.map(computeMerkleRoot);
 
-  let currentHash = selfHash
+  let currentHash = selfHash;
   for (const childRoot of childRoots) {
-    currentHash = combineHashes(currentHash, childRoot)
+    currentHash = combineHashes(currentHash, childRoot);
   }
 
-  return currentHash
+  return currentHash;
 }
 
 export function createReceipt(
@@ -50,7 +50,7 @@ export function createReceipt(
   inputData: unknown,
   outputData: unknown,
   toolCalls: ToolCallReceipt[],
-  parentThreadId?: number,
+  parentThreadId?: number
 ): ExecutionReceipt {
   return {
     threadId,
@@ -61,45 +61,45 @@ export function createReceipt(
     startedAt: 0,
     completedAt: 0,
     toolCalls,
-  }
+  };
 }
 
 export function createToolCallReceipt(
   tool: string,
   input: unknown,
   output: unknown,
-  durationMs: number,
+  durationMs: number
 ): ToolCallReceipt {
   return {
     tool,
     input_hash: sha256(JSON.stringify(input)),
     output_hash: sha256(JSON.stringify(output)),
     duration_ms: durationMs,
-  }
+  };
 }
 
 export function buildDAG(
   root: ExecutionReceipt,
-  children: ReceiptDAG[] = [],
+  children: ReceiptDAG[] = []
 ): ReceiptDAG {
-  const merkleRoot = computeMerkleRoot({ root, children, merkleRoot: [] })
-  return { root, children, merkleRoot }
+  const merkleRoot = computeMerkleRoot({ root, children, merkleRoot: [] });
+  return { root, children, merkleRoot };
 }
 
 export function getMerkleRoot(dag: ReceiptDAG): number[] {
-  return computeMerkleRoot(dag)
+  return computeMerkleRoot(dag);
 }
 
 export function serializeDAG(dag: ReceiptDAG): string {
-  return JSON.stringify(dag)
+  return JSON.stringify(dag);
 }
 
 export function deserializeDAG(json: string): ReceiptDAG {
-  const parsed = JSON.parse(json) as ReceiptDAG
-  parsed.merkleRoot = computeMerkleRoot(parsed)
-  return parsed
+  const parsed = JSON.parse(json) as ReceiptDAG;
+  parsed.merkleRoot = computeMerkleRoot(parsed);
+  return parsed;
 }
 
 export function getReceiptUriHash(uri: string): number[] {
-  return sha256(uri)
+  return sha256(uri);
 }

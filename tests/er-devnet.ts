@@ -89,7 +89,9 @@ describe("holdback — Devnet ER Integration", () => {
     if (existing) {
       console.log("  Job PDA already exists, skipping init");
       const job = await program.account.job.fetch(jobPDA);
-      console.log(`  status=${job.status} reward=${job.rewardLamports.toNumber()}`);
+      console.log(
+        `  status=${job.status} reward=${job.rewardLamports.toNumber()}`
+      );
       return;
     }
 
@@ -116,7 +118,9 @@ describe("holdback — Devnet ER Integration", () => {
     const endpoint = await getDelegationEndpoint(jobPDA);
     if (endpoint) {
       console.log(`  Already delegated → ${endpoint}`);
-      erConnection = new Connection(endpoint, { wsEndpoint: endpoint.replace("https://", "wss://") });
+      erConnection = new Connection(endpoint, {
+        wsEndpoint: endpoint.replace("https://", "wss://"),
+      });
       erProvider = new anchor.AnchorProvider(erConnection, wallet);
       erProgram = new anchor.Program(program.idl, erProvider);
       return;
@@ -148,7 +152,9 @@ describe("holdback — Devnet ER Integration", () => {
     const erEndpoint = await getDelegationEndpoint(jobPDA);
     if (erEndpoint) {
       console.log(`  ✔ DELEGATED → ${erEndpoint}`);
-      erConnection = new Connection(erEndpoint, { wsEndpoint: erEndpoint.replace("https://", "wss://") });
+      erConnection = new Connection(erEndpoint, {
+        wsEndpoint: erEndpoint.replace("https://", "wss://"),
+      });
       erProvider = new anchor.AnchorProvider(erConnection, wallet);
       erProgram = new anchor.Program(program.idl, erProvider);
     } else {
@@ -193,7 +199,9 @@ describe("holdback — Devnet ER Integration", () => {
     await new Promise((r) => setTimeout(r, 10000));
 
     const job = await program.account.job.fetch(jobPDA);
-    console.log(`  status=${job.status} claimer=${job.claimer.toString().slice(0, 8)}...`);
+    console.log(
+      `  status=${job.status} claimer=${job.claimer.toString().slice(0, 8)}...`
+    );
   });
 
   it("Step 5: Submit proof on L1", async () => {
@@ -249,7 +257,9 @@ describe("holdback — Devnet ER Integration", () => {
 
     // Verify archive fields
     const archive = await program.account.settlementArchive.fetch(archivePDA);
-    console.log(`  verdict=${archive.verdict} reward=${archive.rewardLamports.toNumber()}`);
+    console.log(
+      `  verdict=${archive.verdict} reward=${archive.rewardLamports.toNumber()}`
+    );
     console.log(`  poster=${archive.poster.toString().slice(0, 8)}...`);
     console.log(`  claimer=${archive.claimer.toString().slice(0, 8)}...`);
     console.log(`  🗄️ Full lifecycle + archive complete!`);

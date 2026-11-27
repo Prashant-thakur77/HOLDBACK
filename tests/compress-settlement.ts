@@ -3,7 +3,11 @@ import { Program } from "@coral-xyz/anchor";
 import { Holdback } from "../target/types/holdback";
 import { HoldbackPayments } from "../target/types/holdback_payments";
 import { expect } from "chai";
-import { ComputeBudgetProgram, PublicKey, SystemProgram } from "@solana/web3.js";
+import {
+  ComputeBudgetProgram,
+  PublicKey,
+  SystemProgram,
+} from "@solana/web3.js";
 import BN from "bn.js";
 import {
   accountCompressionProgram,
@@ -24,7 +28,8 @@ describe("holdback-payments compression", () => {
   anchor.setProvider(provider);
 
   const coreProgram = anchor.workspace.Holdback as Program<Holdback>;
-  const paymentsProgram = anchor.workspace.HoldbackPayments as Program<HoldbackPayments>;
+  const paymentsProgram = anchor.workspace
+    .HoldbackPayments as Program<HoldbackPayments>;
   const poster = provider.wallet;
   let idCounter = Date.now();
 
@@ -43,7 +48,11 @@ describe("holdback-payments compression", () => {
 
   function pdaJob(posterKey: PublicKey, jobId: BN): PublicKey {
     return PublicKey.findProgramAddressSync(
-      [Buffer.from("job"), posterKey.toBuffer(), jobId.toArrayLike(Buffer, "le", 8)],
+      [
+        Buffer.from("job"),
+        posterKey.toBuffer(),
+        jobId.toArrayLike(Buffer, "le", 8),
+      ],
       coreProgram.programId
     )[0];
   }
@@ -55,7 +64,10 @@ describe("holdback-payments compression", () => {
     )[0];
   }
 
-  async function initializeAssignedJob(jobId: BN, agent: PublicKey): Promise<PublicKey> {
+  async function initializeAssignedJob(
+    jobId: BN,
+    agent: PublicKey
+  ): Promise<PublicKey> {
     const job = pdaJob(poster.publicKey, jobId);
     await coreProgram.methods
       .initializeJob(
@@ -92,9 +104,14 @@ describe("holdback-payments compression", () => {
   it("compress_settlement writes a compressed settlement leaf", async function () {
     this.timeout(120000);
 
-    const rpc = createRpc("http://127.0.0.1:8899", "http://127.0.0.1:8784", "http://127.0.0.1:3001", {
-      commitment: "confirmed",
-    });
+    const rpc = createRpc(
+      "http://127.0.0.1:8899",
+      "http://127.0.0.1:8784",
+      "http://127.0.0.1:3001",
+      {
+        commitment: "confirmed",
+      }
+    );
     const agent = poster.publicKey;
     const escrowId = nextId();
     const job = await initializeAssignedJob(nextId(), agent);
@@ -103,7 +120,11 @@ describe("holdback-payments compression", () => {
     const totalPaid = 600_000;
 
     await paymentsProgram.methods
-      .createEscrowWrapper(escrowId, new BN(deposit), sessionIdBytes("mpp-compress"))
+      .createEscrowWrapper(
+        escrowId,
+        new BN(deposit),
+        sessionIdBytes("mpp-compress")
+      )
       .accountsPartial({
         job,
         escrow,
@@ -114,7 +135,9 @@ describe("holdback-payments compression", () => {
 
     const escrowInfo = await provider.connection.getAccountInfo(escrow);
     expect(escrowInfo).to.not.eq(null);
-    expect(escrowInfo!.owner.toBase58()).to.eq(paymentsProgram.programId.toBase58());
+    expect(escrowInfo!.owner.toBase58()).to.eq(
+      paymentsProgram.programId.toBase58()
+    );
 
     const outputStateTree = defaultTestStateTreeAccounts().merkleTree;
     const addressTree = defaultTestStateTreeAccounts().addressTree;
@@ -125,13 +148,16 @@ describe("holdback-payments compression", () => {
       paymentsProgram.programId
     );
     const compressedAddress = deriveAddress(seed, addressTree);
-    const proofRpcResult = await rpc.getValidityProofV0([], [
-      {
-        tree: addressTree,
-        queue: addressQueue,
-        address: bn(compressedAddress.toBytes()),
-      },
-    ]);
+    const proofRpcResult = await rpc.getValidityProofV0(
+      [],
+      [
+        {
+          tree: addressTree,
+          queue: addressQueue,
+          address: bn(compressedAddress.toBytes()),
+        },
+      ]
+    );
 
     const cpiAuthority = PublicKey.findProgramAddressSync(
       [Buffer.from("cpi_authority")],
@@ -141,11 +167,23 @@ describe("holdback-payments compression", () => {
     const addressMerkleTreePubkeyIndex = 1;
     const addressQueuePubkeyIndex = 2;
     const remainingAccountMetas = [
-      { pubkey: new PublicKey(lightSystemProgram), isSigner: false, isWritable: false },
+      {
+        pubkey: new PublicKey(lightSystemProgram),
+        isSigner: false,
+        isWritable: false,
+      },
       { pubkey: cpiAuthority, isSigner: false, isWritable: false },
       { pubkey: getRegisteredProgramPda(), isSigner: false, isWritable: false },
-      { pubkey: getAccountCompressionAuthority(), isSigner: false, isWritable: false },
-      { pubkey: new PublicKey(accountCompressionProgram), isSigner: false, isWritable: false },
+      {
+        pubkey: getAccountCompressionAuthority(),
+        isSigner: false,
+        isWritable: false,
+      },
+      {
+        pubkey: new PublicKey(accountCompressionProgram),
+        isSigner: false,
+        isWritable: false,
+      },
       { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       { pubkey: outputStateTree, isSigner: false, isWritable: true },
       { pubkey: addressTree, isSigner: false, isWritable: true },
@@ -158,7 +196,12 @@ describe("holdback-payments compression", () => {
     };
 
     const tx = await paymentsProgram.methods
-      .compressSettlement({ 0: proofRpcResult.compressedProof }, packedAddressTreeInfo, outputStateTreeIndex, new BN(totalPaid))
+      .compressSettlement(
+        { 0: proofRpcResult.compressedProof },
+        packedAddressTreeInfo,
+        outputStateTreeIndex,
+        new BN(totalPaid)
+      )
       .accountsPartial({
         escrow,
         signer: poster.publicKey,
@@ -175,7 +218,9 @@ describe("holdback-payments compression", () => {
     await confirmTx(rpc, signature);
     await sleep(1500);
 
-    const compressedAccount = await rpc.getCompressedAccount(bn(compressedAddress.toBytes()));
+    const compressedAccount = await rpc.getCompressedAccount(
+      bn(compressedAddress.toBytes())
+    );
     expect(compressedAccount).to.not.eq(null);
     expect(compressedAccount.data.data.length).to.be.greaterThan(0);
   });
