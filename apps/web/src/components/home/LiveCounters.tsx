@@ -37,12 +37,20 @@ export function LiveCounters({ initial }: { initial: LiveStatsResult | null }) {
   }, []);
 
   const stats = result?.stats ?? null;
-  const cells: { label: string; value: string }[] = stats
+  const cells: { label: string; value: string; raw: number }[] = stats
     ? [
-        { label: 'Holds opened', value: whole.format(stats.holdsCreated) },
-        { label: 'Taken back', value: whole.format(stats.holdsReclaimed) },
-        { label: 'Released', value: whole.format(stats.holdsReleased) },
-        { label: 'Value held, USD', value: usd.format(stats.valueProtectedUsd) },
+        { label: 'Holds opened', value: whole.format(stats.holdsCreated), raw: stats.holdsCreated },
+        {
+          label: 'Taken back',
+          value: whole.format(stats.holdsReclaimed),
+          raw: stats.holdsReclaimed,
+        },
+        { label: 'Released', value: whole.format(stats.holdsReleased), raw: stats.holdsReleased },
+        {
+          label: 'Value held, USD',
+          value: usd.format(stats.valueProtectedUsd),
+          raw: Math.round(stats.valueProtectedUsd),
+        },
       ]
     : [];
   const empty = stats !== null && stats.holdsCreated === 0;
@@ -68,7 +76,9 @@ export function LiveCounters({ initial }: { initial: LiveStatsResult | null }) {
           {cells.map((cell) => (
             <div className="ledger__cell" key={cell.label}>
               <dt className="label">{cell.label}</dt>
-              <dd className="num">{cell.value}</dd>
+              <dd className="num" data-count={cell.raw}>
+                {cell.value}
+              </dd>
             </div>
           ))}
         </dl>

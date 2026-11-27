@@ -155,6 +155,18 @@ to the policy in `src/lib/security-headers.ts`, or the browser will block it.
 | not found, errors     | `not-found.tsx`, `error.tsx`, `global-error.tsx` | Designed dead ends                                                   |
 
 The shell (header, contents sheet, footer, scroll reveals, page turn) is `src/components/site`.
+
+Motion comes in two layers. The first is CSS and works everywhere: reveals, drawings that draw
+themselves, the opening ticket, the page turn. The second is for the story pages only
+(`src/components/motion`): GSAP (ScrollTrigger, SplitText) and Lenis are imported inside effects,
+after the page is interactive, for split headings, counting figures, leaning buttons, smooth
+scroll and the scroll story on `/how-it-works`. `isStoryRoute` in `src/lib/site.ts` keeps all of
+it off `/app`, `/h/*`, `/pay` and the spectator page, and with reduced motion none of it loads.
+
+Things a visitor can do: lift the bowl and drag its clock (`home/BowlDemo.tsx`), mark three real
+Dojo scenarios (`home/SpotTheScam.tsx`), recompute any hold's evidence hash in the browser
+(`site/VerifyAny.tsx`), punch an hour in the footer (`site/PunchRow.tsx`), and turn on the
+synthesised punch, stamp and gong sounds (`src/lib/sound.ts`; off by default, no audio files).
 Interface copy in the four languages is `src/lib/i18n.ts`; the server renders English and the
 reader's saved choice is applied after hydration.
 

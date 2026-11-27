@@ -73,3 +73,22 @@ export const CONFIG_ADDRESS = 'Cz9e3k72qaDnQJNo6deUXVdE823HcFrhkV36Zj92s9tw';
 export function isBareRoute(pathname: string): boolean {
   return pathname.startsWith('/dojo/watch/');
 }
+
+/**
+ * A real hold on devnet, opened while the system was tested end to end. It
+ * gives a first-time visitor a receipt to open and a hash to recompute
+ * without owning a wallet. If it is ever closed, its receipt still renders
+ * from the recorded copy and says so.
+ */
+export const EXAMPLE_HOLD = 'GAVEL3zT8wQDsS1LimSsaABMu4m8w4skmsmsz4fhgWrg';
+
+/** Story pages get the richer motion; app screens stay calm. */
+export function isStoryRoute(pathname: string): boolean {
+  return !['/app', '/h/', '/pay', '/dojo/watch/'].some(
+    (prefix) => pathname === prefix || pathname.startsWith(prefix),
+  );
+}
+
+export function pageFor(pathname: string): SitePage | null {
+  return SITE_PAGES.find((page) => page.href === pathname) ?? null;
+}

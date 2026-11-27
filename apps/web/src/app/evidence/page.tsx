@@ -2,9 +2,10 @@ import type { Metadata } from 'next';
 
 import { DateStamp } from '@/components/art/Stamps';
 import { KeyTable, PageOpener, SectionHead } from '@/components/site/blocks';
-import { OpenReceipt } from '@/components/site/OpenReceipt';
+import { VerifyAny } from '@/components/site/VerifyAny';
 import { COLLECTORS, INVARIANTS } from '@/content/product';
 import { programInvariants } from '@/lib/results';
+import { EXAMPLE_HOLD } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Evidence and trust model',
@@ -45,9 +46,10 @@ export default function EvidencePage() {
         word="Evidence"
         ink="magenta"
         page={3}
+        motif="stamp"
         lead="A verdict you cannot check is just an opinion. Every undo window here comes with the evidence that set it, and a hash on-chain that proves the evidence has not been changed."
       >
-        <OpenReceipt />
+        <VerifyAny example={EXAMPLE_HOLD} />
       </PageOpener>
 
       <section className="section wrap" aria-labelledby="hash">

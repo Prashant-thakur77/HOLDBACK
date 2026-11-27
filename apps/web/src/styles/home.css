@@ -199,9 +199,6 @@
   .demo {
     padding: var(--s3);
   }
-  .demo__stage {
-    gap: var(--s3);
-  }
   .demo__seg {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -346,11 +343,17 @@
 
 /* ---------- Tier tickets and steps ---------- */
 
+/* Each ticket keeps at least 246 px, the width at which its smallest text is 12 px. */
 .tier-strip {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--s4);
+  grid-template-columns: repeat(5, minmax(246px, 1fr));
+  gap: var(--s3);
   margin-block: var(--s5) var(--s6);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+}
+.tier-strip {
+  padding-top: 6px;
 }
 .tier-strip li {
   min-width: 0;
@@ -366,12 +369,9 @@
   font-weight: 700;
   line-height: 1.25;
 }
-@media (max-width: 1020px) {
+@media (max-width: 1380px) {
   /* A row to swipe, with the next ticket showing so the row reads as a row. */
   .tier-strip {
-    grid-template-columns: repeat(5, minmax(210px, 1fr));
-    overflow-x: auto;
-    scroll-snap-type: x proximity;
     margin-inline: calc(var(--gutter) * -1);
     padding-inline: var(--gutter);
     padding-bottom: var(--s3);
@@ -509,6 +509,10 @@
   margin-bottom: var(--s4);
 }
 .integrations li {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: var(--s3);
+  align-items: center;
   padding: var(--s4) var(--s4) var(--s4) 0;
   border-bottom: 1px solid var(--ink);
 }
@@ -550,4 +554,334 @@
 .results-teaser {
   margin-block: var(--s4) var(--s2);
   max-width: 70ch;
+}
+
+/* ---------- The opening: one large ticket, punched, and the hole becomes the page ---------- */
+
+@property --intro-hole {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+.intro {
+  display: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html.intro-run .intro {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    display: grid;
+    place-items: center;
+    padding: var(--gutter);
+    background: var(--card);
+    pointer-events: none;
+    -webkit-mask-image: radial-gradient(
+      circle at 50% 50%,
+      transparent var(--intro-hole),
+      #000 calc(var(--intro-hole) + 1px)
+    );
+    mask-image: radial-gradient(
+      circle at 50% 50%,
+      transparent var(--intro-hole),
+      #000 calc(var(--intro-hole) + 1px)
+    );
+    animation:
+      intro-punch 1500ms linear both,
+      intro-leave 240ms linear 1360ms both;
+  }
+  /* Down fast, held, then the hole opens until nothing of the ticket is left. */
+  @keyframes intro-punch {
+    0%,
+    28% {
+      --intro-hole: 0px;
+    }
+    33%,
+    52% {
+      --intro-hole: 34px;
+    }
+    100% {
+      --intro-hole: 150vmax;
+    }
+  }
+  /* The hero's own entrance waits for the hole to open, so it is seen. */
+  html.intro-run .hero__line:first-child > span {
+    animation-delay: 820ms;
+  }
+  html.intro-run .hero__slab {
+    animation-delay: 960ms;
+  }
+  @keyframes intro-leave {
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+}
+/* Head and foot are the same height, so the grid's middle cell sits at the
+   centre of the screen, which is where the hole is punched. */
+.intro__ticket {
+  width: min(100%, 1040px);
+  padding: 0 var(--s4);
+  border: 3px solid var(--ink);
+}
+.intro__head,
+.intro__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+.intro__head {
+  font-size: clamp(26px, 5vw, 44px);
+}
+.intro__grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border-top: 2px solid var(--ink);
+  border-left: 2px solid var(--ink);
+}
+.intro__grid li {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 5 / 3;
+  border-right: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  font-size: clamp(20px, 4.4vw, 48px);
+  font-weight: 800;
+  font-stretch: 80%;
+}
+@media (max-height: 760px) and (min-width: 900px) {
+  .intro__grid li {
+    aspect-ratio: 2 / 1;
+  }
+}
+
+/* ---------- Hero additions ---------- */
+
+.hero__status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2) var(--s5);
+}
+
+.demo__slider {
+  margin-top: var(--s4);
+}
+.demo__slider.is-off {
+  opacity: 0.55;
+}
+.demo__slider input {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 44px;
+  margin: 2px 0 0;
+  background: transparent;
+  cursor: grab;
+}
+.demo__slider input:disabled {
+  cursor: not-allowed;
+}
+/* The track is the drain: water up to the thumb, and a mark where the window ends. */
+.demo__slider input::-webkit-slider-runnable-track {
+  height: 12px;
+  border: 1px solid var(--ink);
+  background:
+    linear-gradient(var(--ink), var(--ink)) 80% 0 / 2px 100% no-repeat,
+    linear-gradient(to right, var(--water) var(--at, 0%), var(--stock) var(--at, 0%));
+}
+.demo__slider input::-moz-range-track {
+  height: 12px;
+  border: 1px solid var(--ink);
+  background:
+    linear-gradient(var(--ink), var(--ink)) 80% 0 / 2px 100% no-repeat,
+    linear-gradient(to right, var(--water) var(--at, 0%), var(--stock) var(--at, 0%));
+}
+.demo__slider input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 30px;
+  margin-top: -10px;
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  background: var(--copper);
+}
+.demo__slider input::-moz-range-thumb {
+  width: 18px;
+  height: 26px;
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  background: var(--copper);
+}
+.demo__slider input:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+.demo__slider-read {
+  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px var(--s4);
+  min-height: 1.5em;
+}
+.demo__note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0 var(--s4);
+}
+
+/* Narrow panels: the ticket takes the full width, so its small print stays 12 px or more. */
+@media (max-width: 620px) {
+  .demo__stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .demo__stage .ticket {
+    max-width: 360px;
+    justify-self: center;
+  }
+  .demo__clock {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 150px;
+    align-items: center;
+    text-align: left;
+    column-gap: var(--s3);
+  }
+  .demo__clock .bowl {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+  .demo__time {
+    font-size: 38px;
+    align-self: end;
+  }
+  .demo__left {
+    align-self: start;
+  }
+}
+
+/* ---------- Spot the scam ---------- */
+
+.spot {
+  margin-top: var(--s5);
+}
+.spot__list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 3px solid var(--ink);
+  border-left: 1px solid var(--ink);
+}
+.spot__case {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding: var(--s4);
+  border-right: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  background: var(--stock);
+}
+.spot__from {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.spot__lines {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+}
+.spot__lines p {
+  padding: 8px 12px;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  font-size: 17px;
+  line-height: 1.4;
+}
+.spot__ask {
+  font-size: 16px;
+  line-height: 1.4;
+}
+.spot__choice {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s2);
+  margin-top: auto;
+}
+.spot__reveal {
+  display: grid;
+  gap: var(--s2);
+  justify-items: start;
+  margin-top: auto;
+  padding-top: var(--s3);
+  border-top: 1px dashed var(--ink);
+}
+.spot__verdict {
+  font-weight: 600;
+  line-height: 1.4;
+}
+.spot__tells {
+  display: grid;
+  gap: 4px;
+  padding-left: 1.1em;
+  list-style: square;
+  font-size: 15.5px;
+  line-height: 1.4;
+}
+.spot__foot {
+  display: grid;
+  gap: var(--s3);
+  padding-top: var(--s4);
+  min-height: 5em;
+}
+.spot__score {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s2) var(--s4);
+  max-width: 70ch;
+}
+.dojo-teaser__rules {
+  margin-top: var(--s2);
+  max-width: 70ch;
+}
+@media (max-width: 900px) {
+  .spot__list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Verify any receipt ---------- */
+
+.verify-any {
+  margin-top: var(--s5);
+  max-width: 680px;
+}
+.verify-any__example {
+  padding: 10px 0;
+  border: 0;
+  background: none;
+  font-weight: 700;
+}
+.verify-any__out {
+  margin-top: var(--s3);
+}
+.verify-any__result {
+  display: grid;
+  gap: var(--s3);
+  justify-items: start;
+  padding: var(--s4);
+  border: 2px solid var(--ink);
+  background: var(--stock);
+}
+.verify-any__result .kv {
+  width: 100%;
 }

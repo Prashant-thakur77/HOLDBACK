@@ -5,6 +5,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
+import { Bowl } from '@/components/art/Bowl';
 import { T, useLang } from '@/components/LangProvider';
 import { useCountdown } from '@/hooks/useCountdown';
 import { useHoldActions } from '@/hooks/useHoldActions';
@@ -230,18 +231,24 @@ export function HoldsPanel({ role }: { role: 'sender' | 'recipient' }) {
         </p>
       ) : null}
       {!publicKey ? (
-        <p className="holds__empty quiet">Connect a wallet to see its holds.</p>
+        <div className="holds__empty">
+          <Bowl fill={0.2} state="lifted" title="" still className="holds__art" />
+          <p className="quiet">Connect a wallet to see its holds.</p>
+        </div>
       ) : list.status === 'unavailable' ? (
         <p className="holds__empty notice" data-ink="ochre">
           The list is unavailable: neither the risk agent nor the database is configured for this
           site.
         </p>
       ) : list.holds.length === 0 && list.status !== 'loading' ? (
-        <p className="holds__empty quiet">
-          {role === 'sender'
-            ? 'Nothing here yet. A payment you send appears here with its clock, and stays undoable until the window ends.'
-            : 'Nothing is on its way to this wallet. A payment sent to you appears here while its window runs.'}
-        </p>
+        <div className="holds__empty">
+          <Bowl fill={0.2} state="lifted" title="" still className="holds__art" />
+          <p className="quiet">
+            {role === 'sender'
+              ? 'Nothing here yet. A payment you send appears here with its clock, and stays undoable until the window ends.'
+              : 'Nothing is on its way to this wallet. A payment sent to you appears here while its window runs.'}
+          </p>
+        </div>
       ) : (
         <ul className="holds__list">
           {list.holds.map((hold) => (

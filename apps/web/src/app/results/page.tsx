@@ -65,6 +65,7 @@ function EvaluationView({ run, rows }: { run: Evaluation; rows: ResultRow[] }) {
   const heldout = run.splits.find((split) => split.name === 'heldout') ?? run.splits[0] ?? null;
   const ms = (value: number | null) =>
     value === null ? 'not reported' : `${Math.round(value)} ms`;
+  const pair = (rate: Rate | null) => (rate ? `${rate.successes} of ${rate.n}` : '–');
   return (
     <div className="stack">
       {run.unavailableCollectors.length > 0 ? (
@@ -78,30 +79,22 @@ function EvaluationView({ run, rows }: { run: Evaluation; rows: ResultRow[] }) {
         </p>
       ) : null}
 
-      <dl className="ledger" style={{ ['--cols' as string]: 3 }}>
+      <dl className="ledger" style={{ ['--cols' as string]: 4 }}>
         <div className="ledger__cell">
-          <dt className="label">Known scam addresses raised above the default, held-out set</dt>
-          <dd className="num">
-            {heldout?.holdback.recall
-              ? `${heldout.holdback.recall.successes} of ${heldout.holdback.recall.n}`
-              : '–'}
-          </dd>
+          <dt className="label">Known scam addresses caught, held-out set</dt>
+          <dd className="num">{pair(heldout?.holdback.recall ?? null)}</dd>
         </div>
         <div className="ledger__cell">
-          <dt className="label">Honest addresses wrongly raised</dt>
-          <dd className="num">
-            {heldout?.holdback.falsePositive
-              ? `${heldout.holdback.falsePositive.successes} of ${heldout.holdback.falsePositive.n}`
-              : '–'}
-          </dd>
+          <dt className="label">Caught without the list the label came from</dt>
+          <dd className="num">{pair(heldout?.independentRecall ?? null)}</dd>
         </div>
         <div className="ledger__cell">
-          <dt className="label">Fresh wallets raised above the default</dt>
-          <dd className="num">
-            {run.negative?.caught
-              ? `${run.negative.caught.successes} of ${run.negative.caught.n}`
-              : '–'}
-          </dd>
+          <dt className="label">Honest addresses wrongly caught</dt>
+          <dd className="num">{pair(heldout?.holdback.falsePositive ?? null)}</dd>
+        </div>
+        <div className="ledger__cell">
+          <dt className="label">Fresh wallets caught</dt>
+          <dd className="num">{pair(run.negative?.caught ?? null)}</dd>
         </div>
       </dl>
       <p className="small quiet">
@@ -119,70 +112,79 @@ function EvaluationView({ run, rows }: { run: Evaluation; rows: ResultRow[] }) {
         {run.uncommittedChanges ? ', from a working tree with uncommitted changes' : ''}.
       </p>
 
-      {run.negative?.caught ? (
-        <div className="negative">
-          <h3 className="h3">The negative result</h3>
-          <p className="prose">
-            A wallet created minutes ago, with no history and no report against it, is what a
-            scammer&apos;s next address looks like. The evaluation tried {run.negative.caught.n} of
-            them and the policy raised {run.negative.caught.successes} above the default tier.
-            Evidence cannot see an address nobody has reported yet. What such a payment still gets
-            is the default window
-            {run.negative.windowsSecs[0]
-              ? ` of ${Math.round(run.negative.windowsSecs[0] / 60)} minutes`
-              : ''}
-            , and the table below shows how much that is worth.
-          </p>
-        </div>
-      ) : null}
+      <div className="results__pair">
+        {run.negative?.caught ? (
+          <div className="negative">
+            <h3 className="h3">The negative result</h3>
+            <p className="prose">
+              A wallet created minutes ago, with no history and no report against it, is what a
+              scammer&apos;s next address looks like. The evaluation tried {run.negative.caught.n}{' '}
+              of them and the policy raised {run.negative.caught.successes} above the default tier.
+              Evidence cannot see an address nobody has reported yet. What such a payment still gets
+              is the default window
+              {run.negative.windowsSecs[0]
+                ? ` of ${Math.round(run.negative.windowsSecs[0] / 60)} minutes`
+                : ''}
+              , and the replay below shows how much that is worth.
+            </p>
+          </div>
+        ) : null}
 
-      {run.splits.length > 0 ? (
-        <div className="table-scroll">
-          <table className="table">
-            <caption className="visually-hidden">
-              Detection, HOLDBACK against a static blocklist
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col">Set</th>
-                <th scope="col">Measure</th>
-                <th scope="col">HOLDBACK</th>
-                <th scope="col">Static blocklist</th>
-              </tr>
-            </thead>
-            <tbody>
-              {run.splits.flatMap((split) =>
-                (
-                  [
-                    ['Scam addresses caught', split.holdback.recall, split.baseline.recall],
-                    [
-                      'Honest addresses wrongly caught',
-                      split.holdback.falsePositive,
-                      split.baseline.falsePositive,
-                    ],
-                  ] as const
-                ).map(([measure, ours, theirs]) => (
-                  <tr key={`${split.name}-${measure}`}>
-                    <td>
-                      <span className="mono">{split.name}</span>
-                    </td>
-                    <td>{measure}</td>
-                    <td>
-                      <RateCell rate={ours} />
-                    </td>
-                    <td>
-                      <RateCell rate={theirs} />
-                    </td>
+        {run.splits.length > 0 ? (
+          <div className="results__compare">
+            <div className="table-scroll">
+              <table className="table table--stack">
+                <caption className="visually-hidden">
+                  Detection, HOLDBACK against a static blocklist
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Set</th>
+                    <th scope="col">Measure</th>
+                    <th scope="col">HOLDBACK</th>
+                    <th scope="col">Static blocklist</th>
                   </tr>
-                )),
-              )}
-            </tbody>
-          </table>
-        </div>
-      ) : null}
-      {run.baselineMethod ? (
-        <p className="small quiet">Blocklist baseline: {run.baselineMethod}.</p>
-      ) : null}
+                </thead>
+                <tbody>
+                  {run.splits.flatMap((split) =>
+                    (
+                      [
+                        ['Scam addresses caught', split.holdback.recall, split.baseline.recall],
+                        [
+                          'Caught without the list the label came from',
+                          split.independentRecall,
+                          null,
+                        ],
+                        [
+                          'Honest addresses wrongly caught',
+                          split.holdback.falsePositive,
+                          split.baseline.falsePositive,
+                        ],
+                      ] as const
+                    ).map(([measure, ours, theirs]) => (
+                      <tr key={`${split.name}-${measure}`}>
+                        <td data-label="Set">
+                          <span className="mono">{split.name}</span>
+                        </td>
+                        <td>{measure}</td>
+                        <td data-label="HOLDBACK">
+                          <RateCell rate={ours} />
+                        </td>
+                        <td data-label="Static blocklist">
+                          {theirs === null ? 'does not apply' : <RateCell rate={theirs} />}
+                        </td>
+                      </tr>
+                    )),
+                  )}
+                </tbody>
+              </table>
+            </div>
+            {run.baselineMethod ? (
+              <p className="small quiet">Blocklist baseline: {run.baselineMethod}.</p>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
 
       {run.replay.length > 0 ? (
         <>
@@ -190,7 +192,7 @@ function EvaluationView({ run, rows }: { run: Evaluation; rows: ResultRow[] }) {
             If the fraud is noticed later, what can still be taken back
           </h3>
           <div className="table-scroll">
-            <table className="table">
+            <table className="table table--stack">
               <thead>
                 <tr>
                   <th scope="col">Payments</th>
@@ -204,13 +206,13 @@ function EvaluationView({ run, rows }: { run: Evaluation; rows: ResultRow[] }) {
                   table.rows.map((row) => (
                     <tr key={`${table.label}-${row.delay}`}>
                       <td>{table.label}</td>
-                      <td>{row.delay}</td>
-                      <td>
+                      <td data-label="Noticed after">{row.delay}</td>
+                      <td data-label="Still undoable with a hold">
                         <strong>
                           {row.reclaimable} of {row.payments}
                         </strong>
                       </td>
-                      <td>
+                      <td data-label="With a plain transfer">
                         {row.plainTransferShare === null
                           ? 'not reported'
                           : row.plainTransferShare === 0
@@ -281,7 +283,7 @@ function EvaluationView({ run, rows }: { run: Evaluation; rows: ResultRow[] }) {
       {run.limitations.length > 0 ? (
         <>
           <h3 className="h3 results__sub">Limitations, as the evaluation states them</h3>
-          <ol className="limits">
+          <ol className="limits limits--cols">
             {run.limitations.map((limitation, index) => (
               <li key={limitation}>
                 <span className="mono">{String(index + 1).padStart(2, '0')}</span>
@@ -297,7 +299,7 @@ function EvaluationView({ run, rows }: { run: Evaluation; rows: ResultRow[] }) {
       <details className="results__all">
         <summary>Every value in eval/results.json ({rows.length} rows)</summary>
         <div className="table-scroll results-rows">
-          <table className="table">
+          <table className="table table--stack">
             <thead>
               <tr>
                 <th scope="col">Path in the file</th>
@@ -328,37 +330,37 @@ const STATUS: { part: string; verified: string; notYet: string }[] = [
   {
     part: 'Program',
     verified:
-      '30 Rust tests, a 100,000-case property test, 13 localnet scenarios; deployed and exercised on devnet',
-    notYet: 'Audit; reproducible Docker build',
+      '30 Rust tests, a 100,000-case property test, 13 localnet scenarios; deployed on devnet; the on-chain hash equals the reproducible Docker build',
+    notYet: 'Audit; mainnet',
   },
-  { part: 'SDK', verified: '27 unit tests; used by every other package', notYet: '' },
+  {
+    part: 'Live stack',
+    verified:
+      'Assess, create hold, webhook mirror, evidence hash check, undo and the receipt page, all on the deployed services; crank release and close inside Workers; a full Dojo run with its memo',
+    notYet: 'A device run of the Android app',
+  },
   {
     part: 'Risk agent',
-    verified:
-      '221 tests; create, oracle extend, crank release and close, and a Dojo memo on devnet under Node',
-    notYet:
-      'Inside the Workers runtime with a private RPC; live calls to Helius, Chainabuse, Firecrawl, ElevenLabs; a real database',
+    verified: '248 tests; deployed on Workers with rate limits and one cron trigger',
+    notYet: 'The outbound phone call (needs a phone number)',
   },
   {
     part: 'Webhook and schema',
-    verified: '56 decoder tests; migrations and end-to-end ingest against a local Postgres',
-    notYet: 'A hosted project, a real Helius delivery, Realtime',
-  },
-  {
-    part: 'MCP server',
-    verified: '45 tests; the binary lists its tools',
-    notYet: 'Signing on a real cluster',
+    verified: '56 decoder tests; deployed; mirrors live holds',
+    notYet: 'Realtime from the apps',
   },
   {
     part: 'Web',
-    verified: 'Action, Dojo API and headers under the Workers runtime locally',
-    notYet: 'Deployment; a wallet in a browser; a Blink client',
+    verified: 'Unit tests for the Action, the Dojo API, receipts and headers; deployed',
+    notYet: 'A Blink unfurl in a third-party client',
   },
   {
-    part: 'Scam Dojo',
-    verified: '101 tests; a full run over HTTP',
-    notYet: 'Upload to Byte; the report collector (needs a Firecrawl key)',
+    part: 'Mobile app',
+    verified: '137 tests; signed release build against the live services',
+    notYet: 'Any run on a device or emulator',
   },
+  { part: 'MCP server', verified: '45 tests', notYet: 'Signing on a real cluster' },
+  { part: 'Scam Dojo', verified: '101 tests; a live run with its memo', notYet: 'Upload to Byte' },
 ];
 
 export default function ResultsPage() {
@@ -372,6 +374,7 @@ export default function ResultsPage() {
         word="Results"
         ink="green"
         page={4}
+        motif="ledger"
         lead="Numbers on this page are read from files that scripts write. If a script has not been run, the page says so instead of showing a figure."
       />
 
@@ -430,7 +433,7 @@ export default function ResultsPage() {
                 line1="NOT RUN"
                 line2="ON THIS BUILD"
                 ink="green"
-                size={150}
+                size={170}
               />
             </span>
             <div className="prose">
@@ -449,7 +452,7 @@ export default function ResultsPage() {
       <section className="section wrap" aria-labelledby="status">
         <SectionHead id="status" title="What has run where" ink="green" />
         <div className="table-scroll status-table">
-          <table className="table">
+          <table className="table table--stack">
             <thead>
               <tr>
                 <th scope="col">Part</th>
@@ -461,8 +464,8 @@ export default function ResultsPage() {
               {STATUS.map((row) => (
                 <tr key={row.part}>
                   <td>{row.part}</td>
-                  <td>{row.verified}</td>
-                  <td>{row.notYet || 'Nothing outstanding'}</td>
+                  <td data-label="Verified">{row.verified}</td>
+                  <td data-label="Not yet">{row.notYet || 'Nothing outstanding'}</td>
                 </tr>
               ))}
             </tbody>

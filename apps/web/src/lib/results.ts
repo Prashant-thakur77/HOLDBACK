@@ -120,6 +120,11 @@ export interface Rate {
 
 export interface SplitScores {
   name: string;
+  /**
+   * Recall counted without evidence from the same public lists the scam
+   * labels come from. Catching a listed address with the list proves little.
+   */
+  independentRecall: Rate | null;
   holdback: { recall: Rate | null; falsePositive: Rate | null; precision: Rate | null };
   baseline: { recall: Rate | null; falsePositive: Rate | null; precision: Rate | null };
 }
@@ -252,6 +257,7 @@ export function readEvaluation(text: string | undefined): Evaluation | null {
   const splits = splitNames
     .map((name) => ({
       name,
+      independentRecall: asRate(dig(file, 'holdback', 'splits', name, 'independent_recall')),
       holdback: scores(dig(file, 'holdback', 'splits', name)),
       baseline: scores(dig(file, 'baseline', 'splits', name)),
     }))

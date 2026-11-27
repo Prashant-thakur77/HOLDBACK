@@ -3,20 +3,40 @@ import Link from 'next/link';
 import { Bowl } from '@/components/art/Bowl';
 import { Wordmark } from '@/components/art/Mark';
 import { T } from '@/components/LangProvider';
+import { TIER_FACTS } from '@/content/product';
 import { explorerUrl } from '@/lib/cluster';
 import { publicEnv } from '@/lib/env';
 import { PROGRAM_ID, SITE_PAGES } from '@/lib/site';
 
+import { PunchRow } from './PunchRow';
+import { SoundToggle } from './SoundToggle';
+
 /**
- * The footer: the small print set as short notices (each one a status a
- * careful reader would ask about), the page list, and the wordmark with its
- * O punched out, which closes the page the way the mark opened it.
+ * The footer closes the page the way the hero opened it: a row of hours to
+ * punch, the small print set as short notices (each one a status a careful
+ * reader would ask about), the page list, and the wordmark with its O
+ * punched out. App screens and dead ends get the slim form: the small print
+ * and the page list, nothing to play with.
  */
-export function Footer() {
+export function Footer({ slim = false }: { slim?: boolean }) {
   return (
-    <footer className="site-footer">
+    <footer className={slim ? 'site-footer site-footer--slim' : 'site-footer'}>
       <div className="wrap">
         <hr className="rule" data-reveal="rule" />
+        {slim ? null : (
+          <section className="site-footer__play" aria-labelledby="punch-title">
+            <h2 id="punch-title" className="h3" data-split>
+              How long would you want to change your mind?
+            </h2>
+            <PunchRow
+              windows={TIER_FACTS.map((fact) => ({
+                plain: fact.plain,
+                windowSecs: fact.windowSecs,
+              }))}
+            />
+          </section>
+        )}
+
         <div className="site-footer__top">
           <section className="notices" aria-labelledby="small-print">
             <h2 id="small-print" className="notices__head label">
@@ -80,16 +100,21 @@ export function Footer() {
             </ul>
           </nav>
 
-          <div className="site-footer__bowl" aria-hidden="true">
-            <Bowl fill={0.35} state="floating" title="" />
-          </div>
+          {slim ? null : (
+            <div className="site-footer__bowl" aria-hidden="true">
+              <Bowl fill={0.35} state="floating" title="" />
+            </div>
+          )}
         </div>
 
-        <p className="site-footer__mark" data-reveal="rise">
-          <Wordmark punched />
-        </p>
+        {slim ? null : (
+          <p className="site-footer__mark" data-reveal="rise">
+            <Wordmark punched />
+          </p>
+        )}
         <div className="site-footer__line small">
           <span>Every claim carries its receipt.</span>
+          {slim ? null : <SoundToggle />}
           <span>MIT licence</span>
           <span className="mono">
             {publicEnv.cluster} · build {publicEnv.build.commit}

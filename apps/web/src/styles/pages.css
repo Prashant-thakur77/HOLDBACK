@@ -679,3 +679,345 @@
     padding-block: var(--s5) var(--s7);
   }
 }
+
+/* ---------- Page opener row: the word, and the drawing that identifies the page ---------- */
+
+.opener-block__row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s5);
+}
+.opener-block__motif {
+  flex: none;
+  margin-bottom: var(--s3);
+}
+@media (max-width: 1100px) {
+  .opener-block__motif .motif {
+    width: 130px;
+    height: 130px;
+  }
+}
+@media (max-width: 760px) {
+  .opener-block__motif .motif {
+    width: 84px;
+    height: 84px;
+  }
+}
+@media (max-width: 460px) {
+  .opener-block__motif {
+    display: none;
+  }
+}
+
+/* ---------- The scroll story on "How it works" ---------- */
+
+/* Without scripts, on phones, or with reduced motion, the plain list below it is the content. */
+.story {
+  display: none;
+}
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+  html.js .story {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: var(--s7);
+    border-top: 3px solid var(--ink);
+  }
+  html.js .story + .journey {
+    display: none;
+  }
+}
+/* Inactive stages stay fully readable; the active one is marked by a rule and its ink. */
+.story__step {
+  min-height: 56vh;
+  padding: var(--s6) 0 var(--s6) var(--s4);
+  border-bottom: 1px solid var(--ink);
+  border-left: 6px solid transparent;
+  color: var(--quiet);
+  transition:
+    color var(--t-slide) linear,
+    border-color var(--t-slide) linear;
+}
+.story__step:last-child {
+  min-height: 78vh;
+  border-bottom: 0;
+}
+.story__step.is-active {
+  color: var(--ink);
+  border-left-color: var(--blue);
+}
+.story__step:not(.is-active) .story__n {
+  color: var(--quiet);
+}
+.story__n {
+  display: block;
+  color: var(--blue-ink);
+  font-size: clamp(56px, 6vw, 96px);
+}
+.story__step .prose {
+  font-size: 19px;
+  line-height: 1.5;
+}
+.story__name {
+  font-size: clamp(30px, 3.2vw, 46px);
+  font-weight: 800;
+  font-stretch: 80%;
+  line-height: 1;
+  margin-block: var(--s2) var(--s3);
+}
+.story__stage {
+  position: sticky;
+  top: calc(var(--header-h) + 20px);
+  align-self: start;
+  height: calc(100vh - var(--header-h) - 40px);
+  min-height: 520px;
+  display: grid;
+  align-items: center;
+}
+.story__frame {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  gap: var(--s5);
+  align-items: center;
+  padding: var(--s6);
+  border: 2px solid var(--ink);
+  background: var(--inset);
+}
+.story__slips {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 72px;
+  align-content: flex-start;
+}
+.story__slips li {
+  padding: 5px 9px;
+  border: 1.5px solid var(--ink);
+  background: var(--stock);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  transition:
+    transform var(--t-slide) var(--e-paper),
+    opacity var(--t-lift) linear;
+  transition-delay: calc(var(--i, 0) * 45ms);
+}
+/* Once the verdict is in, the slips are filed: they stay, quieter. */
+.story:not([data-step='0']) .story__slips li {
+  opacity: 0.5;
+  transform: translateY(4px);
+}
+.story__ticket {
+  position: relative;
+  max-width: 420px;
+  width: 100%;
+  justify-self: center;
+}
+.story__crossing {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.story__crossing path {
+  fill: none;
+  stroke: var(--blue-ink);
+  stroke-width: 5;
+  stroke-linecap: square;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 520ms var(--e-paper);
+}
+.story__crossing path + path {
+  transition-delay: 120ms;
+}
+.story[data-step='3'] .story__crossing path {
+  stroke-dashoffset: 0;
+}
+.story__hash {
+  position: absolute;
+  right: -34px;
+  top: -30px;
+  opacity: 0;
+  transform: scale(1.4) rotate(-9deg);
+}
+.story[data-step='2'] .story__hash,
+.story[data-step='3'] .story__hash,
+.story[data-step='4'] .story__hash {
+  opacity: 1;
+  transform: rotate(-9deg);
+  transition:
+    opacity var(--t-press) linear,
+    transform var(--t-press) var(--e-press);
+}
+.story__bowl {
+  opacity: 0.25;
+  transition: opacity var(--t-slide) linear;
+}
+.story[data-step='3'] .story__bowl,
+.story[data-step='4'] .story__bowl {
+  opacity: 1;
+}
+/* The fill follows the scroll through the "hold" stage (set by the script). */
+.story__bowl .bowl {
+  --fill: var(--story-fill, 0.15) !important;
+}
+.story__caption {
+  grid-column: 1 / -1;
+  padding-top: var(--s3);
+  border-top: 1px dashed var(--ink);
+}
+
+/* ---------- Integrations: who works at the counter ---------- */
+
+.counter-scene {
+  padding-block: var(--s4) var(--s7);
+}
+.counter-scene > .label {
+  margin-bottom: var(--s4);
+}
+.counter-scene__row {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+.counter-scene__row li {
+  min-width: 0;
+}
+.counter-scene__row a {
+  display: grid;
+  justify-items: center;
+  height: 100%;
+  text-decoration: none;
+}
+.counter-scene__row .motif {
+  width: min(132px, 80%);
+  height: auto;
+  transition: transform var(--t-lift) var(--e-paper);
+}
+.counter-scene__row a:hover .motif,
+.counter-scene__row a:focus-visible .motif {
+  transform: translateY(-6px);
+}
+/* The counter top runs under every object; the plates hang from it. */
+.counter-scene__plate {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  align-self: start;
+  padding: var(--s3) var(--s2) var(--s3) 0;
+  border-top: 5px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  font-size: 15px;
+  line-height: 1.3;
+}
+.counter-scene__plate b {
+  font-size: 18px;
+  font-stretch: 88%;
+}
+.counter-scene__plate span {
+  color: var(--quiet);
+}
+.counter-scene__row a:hover b {
+  text-decoration: underline;
+}
+@media (max-width: 1000px) {
+  .counter-scene__row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: var(--s5);
+  }
+}
+@media (max-width: 520px) {
+  .counter-scene__row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.integration__motif {
+  display: block;
+  margin-top: var(--s4);
+}
+@media (max-width: 760px) {
+  .integration__motif {
+    display: none;
+  }
+}
+
+/* ---------- Results: use the width ---------- */
+
+.results__pair {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: var(--s5) var(--s6);
+  align-items: start;
+}
+.results__compare > .small {
+  margin-top: var(--s2);
+}
+.limits--cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--s6);
+}
+.limits--cols li {
+  max-width: none;
+}
+@media (max-width: 900px) {
+  .results__pair,
+  .limits--cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* On a phone the request can be longer than the screen: the decision row stays in reach. */
+@media (max-width: 760px) {
+  .dojo-request .dojo-moves fieldset:last-child {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin-inline: calc(var(--s4) * -1);
+    padding: var(--s2) var(--s4) var(--s3);
+    border-top: 2px solid var(--ink);
+    background: var(--stock);
+  }
+}
+
+/* ---------- Tables that become cards on a phone ---------- */
+
+.table--stack td:first-child .mono {
+  overflow-wrap: normal;
+  white-space: nowrap;
+}
+@media (max-width: 620px) {
+  .table--stack thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .table--stack,
+  .table--stack tbody,
+  .table--stack tr,
+  .table--stack td {
+    display: block;
+  }
+  .table--stack {
+    font-size: 16px;
+  }
+  .table--stack tr {
+    padding-block: var(--s3);
+    border-bottom: 1px solid var(--ink);
+  }
+  .table--stack td {
+    padding: 2px 0;
+    border: 0;
+  }
+  .table--stack td[data-label]::before {
+    content: attr(data-label) ': ';
+    color: var(--quiet);
+    font-size: 14px;
+  }
+}

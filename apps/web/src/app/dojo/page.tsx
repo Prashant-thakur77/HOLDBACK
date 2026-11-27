@@ -37,6 +37,7 @@ export default function DojoPage() {
         word="Scam Dojo"
         ink="red"
         page={6}
+        motif="slips"
         lead="A game about one question: should I pay this? Eight requests. Some are honest, some are scams. Look closer, decide, and learn the tells after every round."
       />
 

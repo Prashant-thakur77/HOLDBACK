@@ -611,3 +611,18 @@ kbd {
 [data-reveal='stamp'] {
   transform: rotate(var(--rot, -6deg));
 }
+
+/* ---------- Hover moves (fine pointers): ink sweeps in from the left like a roller ---------- */
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .btn--ghost {
+    background: linear-gradient(var(--ink), var(--ink)) left / 0% 100% no-repeat;
+    transition:
+      background-size 260ms var(--e-paper),
+      color var(--t-lift) linear,
+      transform var(--t-lift) var(--e-paper);
+  }
+  .btn--ghost:hover:not([disabled]) {
+    background: linear-gradient(var(--ink), var(--ink)) left / 100% 100% no-repeat;
+  }
+}

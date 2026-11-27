@@ -37,9 +37,10 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-// Marks the document as scripted before first paint, so reveal start states
-// never apply to a page whose scripts did not run.
-const MARK_SCRIPTED = "document.documentElement.classList.add('js')";
+// Runs before first paint. Marks the document as scripted, so reveal start
+// states never apply to a page whose scripts did not run, and marks the first
+// page of a visit, so the intro plays once and is skipped on repeat views.
+const MARK_SCRIPTED = `(function(d){d.classList.add('js');try{if(!sessionStorage.getItem('hb-intro')){sessionStorage.setItem('hb-intro','1');d.classList.add('intro-run')}}catch(e){}})(document.documentElement)`;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -56,7 +57,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <LangProvider>
-          <SiteChrome header={<Header />} footer={<Footer />}>
+          <SiteChrome header={<Header />} footer={<Footer />} slimFooter={<Footer slim />}>
             {children}
           </SiteChrome>
         </LangProvider>

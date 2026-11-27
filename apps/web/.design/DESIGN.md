@@ -164,6 +164,61 @@ section. Nothing imitates a real ticket, emblem or postal mark.
 | Switch language | header                  | the ticket's numerals change with the script |
 | Open a receipt  | paste a hold address    | every hold is public and checkable           |
 
+## Second pass: more motion, art and play
+
+Everything below sits on top of the system above and obeys the same taste. Story pages may be
+lively; app screens (`/app`, `/h/*`, `/pay`, the spectator page) stay calm and load none of it.
+
+### Motion, by region
+
+| Region           | What moves                                                                                                     | How it is built                                                     |
+| ---------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Opening          | One large ticket fills the screen, a hole is punched, and the hole grows until only the hero is left (1.5 s)   | CSS only (`@property` on a mask radius); first page of a visit only |
+| Hero             | Headline line rises from a mask, the slab slides in; bowl bobs; the clock runs or is dragged                   | CSS and the demo's own state                                        |
+| Section headings | Each line rises out of its own mask when the heading arrives                                                   | GSAP SplitText, lazy                                                |
+| Figures          | Count up to the value already printed in the page                                                              | GSAP, lazy; the printed value is restored at the end                |
+| Drawings         | Every motif draws itself in, stroke by stroke, then its accent appears                                         | CSS on `pathLength="1"` strokes                                     |
+| How it works     | Five stages scroll on the left; one drawing stays put on the right and changes with them                       | CSS sticky + GSAP ScrollTrigger; only the bowl's fill is scrubbed   |
+| Buttons          | Primary buttons lean toward a fine pointer and settle without a bounce; outline buttons take ink from the left | GSAP (lean), CSS (ink)                                              |
+| Page turn        | A sheet of paper with the next page's patch, number and name slides up, then away                              | CSS; the next page's opener then rises                              |
+| Scroll           | Smooth scroll on wide pointer screens only; phones keep native scrolling                                       | Lenis, lazy                                                         |
+| Footer           | A row of hours to punch; the wordmark arrives and its O is punched                                             | CSS                                                                 |
+
+Rules that did not change: decisive marks (punch, stamp, lift) land at once and are never
+scrubbed slowly; nothing bounces; nothing that is being read moves; with reduced motion none of
+the libraries load and every state is still shown.
+
+### Art
+
+- **Illustration set** (`src/components/art/Motifs.tsx`): punch, rubber stamp, ledger, phone,
+  counter, speaker, report, deposit box, message slips, ticket pad. One ink line of even weight,
+  flat accents in the page's ink, paper fills to hide lines behind. Each page opener carries one.
+- **The counter scene** (Integrations): six objects standing on one counter top, each with a
+  plate that names who it is and what it does, each a link to its section.
+- **Ticket, two settings:** the full ticket carries its small print and is drawn 290 px wide or
+  more; the compact ticket drops the small print and enlarges the rest for narrow places. No
+  text on any ticket is drawn under 12 px.
+
+### Play
+
+| Thing to do        | Physical action    | Where          | Teaches                                                     |
+| ------------------ | ------------------ | -------------- | ----------------------------------------------------------- |
+| Lift the bowl      | lift it out        | hero           | undo is one action                                          |
+| Drag the time      | watch the bowl     | hero           | at which hour an undo is still possible, and when it is not |
+| Spot the scam      | mark a box         | home           | the tells, on three real Dojo scenarios; one is honest      |
+| Verify any receipt | strike a stamp     | home, evidence | the hash is recomputed by the visitor's own browser         |
+| Punch an hour      | punch              | footer         | the tier table read backwards, from time to reason          |
+| Sound              | punch, stamp, gong | hero, footer   | off by default; synthesised, no audio files                 |
+
+Each one works by touch, mouse and keyboard, answers at once, and can be reset.
+
+### Where the lively parts stop
+
+The seven public pages get the full footer (the row of hours, the punched wordmark). App screens
+and dead ends (`/app`, `/h/*`, `/pay`, 404) get the slim footer: small print and the page list.
+Under 620 px, wide tables become labelled cards, the hero ticket takes the full width above the
+bowl, and the Dojo's decision row stays at the bottom of the screen.
+
 ## Components
 
 Header with ink-patch nav and language switch; contents sheet (focus trapped, Esc closes, page

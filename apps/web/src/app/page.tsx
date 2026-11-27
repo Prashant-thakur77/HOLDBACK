@@ -1,18 +1,21 @@
 import { Tier, WINDOW_SECS_BY_TIER } from '@holdback/sdk';
-import { RULES } from '@holdback/dojo';
+import { RULES, SCENARIOS, findScenario } from '@holdback/dojo';
 import Link from 'next/link';
 
-import { BoxStamp, DateStamp } from '@/components/art/Stamps';
+import { Motif, type MotifName } from '@/components/art/Motifs';
+import { DateStamp } from '@/components/art/Stamps';
 import { T } from '@/components/LangProvider';
 import { HomeHero } from '@/components/home/HomeHero';
+import { Intro } from '@/components/home/Intro';
 import { LiveCounters } from '@/components/home/LiveCounters';
+import { SpotTheScam, type QuickCase } from '@/components/home/SpotTheScam';
 import { Continued, KeyTable, SectionHead, TierTickets } from '@/components/site/blocks';
-import { OpenReceipt } from '@/components/site/OpenReceipt';
+import { VerifyAny } from '@/components/site/VerifyAny';
 import { STEPS } from '@/content/product';
 import { PRECEDENTS, PROBLEM_FIGURES } from '@/content/references';
 import { explorerUrl } from '@/lib/cluster';
 import { evaluation, programInvariants } from '@/lib/results';
-import { PROGRAM_ID } from '@/lib/site';
+import { EXAMPLE_HOLD, PROGRAM_ID } from '@/lib/site';
 import { loadLiveStats } from '@/lib/stats.server';
 
 // The counters are read per request; nothing here is cached.
@@ -20,17 +23,70 @@ export const dynamic = 'force-dynamic';
 
 const count = new Intl.NumberFormat('en-US');
 
-const INTEGRATIONS: { name: string; text: string }[] = [
+const INTEGRATIONS: { name: string; motif: MotifName; text: string }[] = [
   {
     name: 'Solana Mobile / Seeker',
+    motif: 'phone',
     text: 'A native Android app that signs holds through Mobile Wallet Adapter.',
   },
-  { name: 'Pollar', text: 'Wallets that can only make transfers pay into their own deposit box.' },
-  { name: 'ElevenLabs', text: 'A voice that explains the evidence in four languages.' },
-  { name: 'Firecrawl', text: 'Web reports that count only if they contain the exact address.' },
-  { name: 'Supabase', text: 'Evidence documents and a live mirror of holds for countdowns.' },
-  { name: 'Byte', text: 'Scam Dojo, playable by people and by agents.' },
+  {
+    name: 'Pollar',
+    motif: 'box',
+    text: 'Wallets that can only make transfers pay into their own deposit box.',
+  },
+  {
+    name: 'ElevenLabs',
+    motif: 'speaker',
+    text: 'A voice that explains the evidence in four languages.',
+  },
+  {
+    name: 'Firecrawl',
+    motif: 'report',
+    text: 'Web reports that count only if they contain the exact address.',
+  },
+  {
+    name: 'Supabase',
+    motif: 'ledger',
+    text: 'Evidence documents and a live mirror of holds for countdowns.',
+  },
+  { name: 'Byte', motif: 'slips', text: 'Scam Dojo, playable by people and by agents.' },
 ];
+
+/**
+ * Three written scenarios for the mini-game: two scams and one honest request
+ * whose urgency is real. Named by id; if one is ever removed from the corpus,
+ * the first scenarios of the right kind stand in.
+ */
+const QUICK_IDS = [
+  'giveaway-send-to-double',
+  'landlord-rent-overdue',
+  'address-poisoning-contractor',
+];
+
+function quickCases(): QuickCase[] {
+  const fallback = [
+    SCENARIOS.find((item) => item.truth === 'scam'),
+    SCENARIOS.find((item) => item.truth === 'legitimate'),
+    [...SCENARIOS].reverse().find((item) => item.truth === 'scam'),
+  ];
+  return QUICK_IDS.flatMap((id, index) => {
+    const scenario = findScenario(id) ?? fallback[index];
+    if (!scenario) return [];
+    return [
+      {
+        id: scenario.id,
+        scam: scenario.truth === 'scam',
+        channel: scenario.channel,
+        from: scenario.from,
+        transcript: scenario.transcript,
+        amount: scenario.ask.amount,
+        purpose: scenario.ask.purpose,
+        tells: scenario.tells,
+        lesson: scenario.lesson,
+      },
+    ];
+  });
+}
 
 export default async function HomePage() {
   const live = await loadLiveStats();
@@ -46,6 +102,7 @@ export default async function HomePage() {
 
   return (
     <main className="home">
+      <Intro />
       <div className="wrap">
         <p className="edition small">
           <span>{today}</span>
@@ -61,6 +118,7 @@ export default async function HomePage() {
       </div>
 
       <HomeHero
+        exampleHold={EXAMPLE_HOLD}
         windows={{
           TRUSTED: WINDOW_SECS_BY_TIER[Tier.TRUSTED],
           UNKNOWN: WINDOW_SECS_BY_TIER[Tier.UNKNOWN],
@@ -95,7 +153,9 @@ export default async function HomePage() {
           </ul>
           <div className="problem__point">
             <div>
-              <p className="h2 problem__say">The last figure is the point.</p>
+              <p className="h2 problem__say" data-split>
+                The last figure is the point.
+              </p>
               <p className="prose">
                 Where a payment can still be stopped, money comes back. On-chain there is no such
                 moment. HOLDBACK adds one, and makes it exactly as long as the evidence about the
@@ -154,14 +214,14 @@ export default async function HomePage() {
               If the two match, the window was set from exactly that evidence by exactly that policy
               version, and nobody can have changed it afterwards.
             </p>
-            <OpenReceipt />
+            <VerifyAny example={EXAMPLE_HOLD} />
           </div>
           <div className="verify__stamp" aria-hidden="true">
             <DateStamp
               top="EVIDENCE · SHA-256"
               bottom="RECOMPUTED IN YOUR BROWSER"
-              line1="MATCH"
-              line2="OR MISMATCH"
+              line1="CHECK IT"
+              line2="YOURSELF"
               ink="magenta"
               size={220}
             />
@@ -185,15 +245,21 @@ export default async function HomePage() {
             <dl className="ledger" style={{ ['--cols' as string]: 3 }}>
               <div className="ledger__cell">
                 <dt className="label">Random cases in the property test</dt>
-                <dd className="num">{count.format(invariants.cases)}</dd>
+                <dd className="num" data-count={invariants.cases}>
+                  {count.format(invariants.cases)}
+                </dd>
               </div>
               <div className="ledger__cell">
                 <dt className="label">Instructions executed</dt>
-                <dd className="num">{count.format(invariants.instructions)}</dd>
+                <dd className="num" data-count={invariants.instructions}>
+                  {count.format(invariants.instructions)}
+                </dd>
               </div>
               <div className="ledger__cell">
                 <dt className="label">Invariant violations</dt>
-                <dd className="num">{count.format(invariants.violations)}</dd>
+                <dd className="num" data-count={invariants.violations}>
+                  {count.format(invariants.violations)}
+                </dd>
               </div>
             </dl>
             <p className="ledger__note">
@@ -220,57 +286,28 @@ export default async function HomePage() {
 
       <section className="section wrap dojo-teaser" aria-labelledby="dojo">
         <SectionHead id="dojo" title="Should you pay this?" ink="red" tag="Page 6" />
-        <div className="dojo-teaser__grid">
-          <div>
-            <p className="lead">
-              Scam Dojo is {RULES.maxRounds} payment requests. Some are honest: rent, a bill, a
-              friend splitting dinner. Some are scams. Ask, verify, check the address with the real
-              risk agent, then decide.
-            </p>
-            <dl className="ledger dojo-teaser__ledger" style={{ ['--cols' as string]: 3 }}>
-              <div className="ledger__cell">
-                <dt className="label">Rounds</dt>
-                <dd className="num">{RULES.maxRounds}</dd>
-              </div>
-              <div className="ledger__cell">
-                <dt className="label">Lives</dt>
-                <dd className="num">{RULES.startingLives}</dd>
-              </div>
-              <div className="ledger__cell">
-                <dt className="label">Practice USDC</dt>
-                <dd className="num">{count.format(RULES.startingWallet)}</dd>
-              </div>
-            </dl>
-            <div className="btn-row">
-              <Link href="/dojo" className="btn">
-                <T k="cta.dojo" />
-              </Link>
-            </div>
-          </div>
-          <div className="dojo-teaser__stamps" aria-hidden="true">
-            <span data-reveal="stamp" style={{ ['--rot' as string]: '-7deg' }}>
-              <BoxStamp text="Refuse" ink="red" rotate={0} size={64} />
-            </span>
-            <span data-reveal="stamp" style={{ ['--rot' as string]: '4deg', ['--i' as string]: 2 }}>
-              <BoxStamp text="Pay with a hold" ink="blue" rotate={0} size={64} />
-            </span>
-            <span
-              data-reveal="stamp"
-              style={{ ['--rot' as string]: '-3deg', ['--i' as string]: 4 }}
-            >
-              <BoxStamp text="Pay" ink="green" rotate={0} size={64} />
-            </span>
-          </div>
-        </div>
+        <p className="lead">
+          Three real requests from Scam Dojo. Some are honest: rent, a bill, a friend splitting
+          dinner. Some are scams. Mark each one, then see the tells.
+        </p>
+        <SpotTheScam cases={quickCases()} />
+        <p className="small quiet dojo-teaser__rules">
+          The full game is {RULES.maxRounds} rounds with {RULES.startingLives} lives and a practice
+          wallet of {count.format(RULES.startingWallet)} USDC, and its address check runs the real
+          risk agent.
+        </p>
       </section>
 
       <section className="section wrap" aria-labelledby="integrations">
         <SectionHead id="integrations" title="Built with" ink="copper" tag="Page 5" />
-        <ul className="integrations">
-          {INTEGRATIONS.map((item) => (
-            <li key={item.name}>
-              <h3 className="h3">{item.name}</h3>
-              <p>{item.text}</p>
+        <ul className="integrations" data-ink="copper">
+          {INTEGRATIONS.map((item, index) => (
+            <li key={item.name} data-reveal="draw" style={{ ['--i' as string]: index }}>
+              <Motif name={item.motif} size={84} />
+              <div>
+                <h3 className="h3">{item.name}</h3>
+                <p>{item.text}</p>
+              </div>
             </li>
           ))}
         </ul>
@@ -282,7 +319,7 @@ export default async function HomePage() {
       <section className="closing wrap" aria-labelledby="closing">
         <hr className="rule" data-reveal="rule" />
         <div className="closing__grid">
-          <h2 id="closing" className="h2 closing__title">
+          <h2 id="closing" className="h2 closing__title" data-split>
             Nobody honest needs your money this minute.
           </h2>
           <div>
@@ -291,7 +328,7 @@ export default async function HomePage() {
               to change your mind.
             </p>
             <div className="btn-row closing__actions">
-              <Link href="/app" className="btn">
+              <Link href="/app" className="btn" data-magnetic>
                 <T k="cta.send" />
               </Link>
               <Link href="/docs" className="btn btn--ghost">

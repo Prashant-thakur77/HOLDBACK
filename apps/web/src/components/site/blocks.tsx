@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 import { Arrow } from '@/components/art/Mark';
+import { Motif, type MotifName } from '@/components/art/Motifs';
 import { Ticket } from '@/components/art/Ticket';
 import { KEY_LIMITS, TIER_FACTS } from '@/content/product';
 import { TIER_INK, windowLabel } from '@/lib/i18n';
@@ -23,7 +24,7 @@ export function SectionHead({
     <>
       <hr className="rule" data-reveal="rule" />
       <div className="sec-head" data-ink={ink}>
-        <h2 id={id} className="h2">
+        <h2 id={id} className="h2" data-split>
           {title}
         </h2>
         {tag ? (
@@ -61,12 +62,15 @@ export function PageOpener({
   ink,
   page,
   lead,
+  motif,
   children,
 }: {
   word: string;
   ink: SitePage['ink'];
   page: number;
   lead: string;
+  /** The drawing that identifies this page. */
+  motif: MotifName;
   children?: ReactNode;
 }) {
   return (
@@ -75,9 +79,14 @@ export function PageOpener({
         <i className="patch" aria-hidden="true" />
         Page {page}
       </p>
-      <h1 className="opener" data-reveal="rise">
-        <span>{word}</span>
-      </h1>
+      <div className="opener-block__row">
+        <h1 className="opener" data-reveal="rise">
+          <span>{word}</span>
+        </h1>
+        <span className="opener-block__motif" data-reveal="draw">
+          <Motif name={motif} size={196} />
+        </span>
+      </div>
       <hr className="rule" data-reveal="rule" />
       <div className="opener-block__lead">
         <p className="lead">{lead}</p>
@@ -100,16 +109,14 @@ export function TierTickets() {
         return (
           <li key={fact.tier} data-reveal="slide" style={{ ['--i' as string]: index }}>
             <Ticket
+              compact
               ink={TIER_INK[fact.tier]}
               windowSecs={fact.windowSecs}
               serial={`Tier ${index}`}
               amount={figure ?? '0'}
               unit={fact.windowSecs === 0 ? 'WAIT' : unit.join(' ').toUpperCase()}
-              blockNote="Undo window"
-              gridLabel="Hours you can take it back"
               tierLabel={fact.tier}
               windowText={text}
-              footLine={fact.extra ? `72 hours ${fact.extra}.` : 'Set by policy, not by a person.'}
               title={`${fact.plain} (${fact.tier}): ${text}${fact.extra ? `, ${fact.extra}` : ''}`}
             />
             <p className="tier-strip__plain">{fact.plain}</p>

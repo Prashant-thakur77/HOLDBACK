@@ -1,14 +1,22 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { Ticket } from '@/components/art/Ticket';
 import { describePayAction } from '@/lib/actions/pay';
 import { ActionFailure } from '@/lib/actions/spec';
 import { publicEnv } from '@/lib/env';
+import { shortAddress } from '@/lib/format';
 import { serverGuardian } from '@/lib/guardian.server';
 import { serverConnection } from '@/lib/solana.server';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Pay' };
+
+/** What the request is in: SOL unless a mint is named; devnet USDC is known by name. */
+function payUnit(mint: string | null): string {
+  if (!mint || mint === 'SOL') return 'SOL';
+  return mint === 'USDC' ? 'USDC' : 'TOKEN';
+}
 
 interface Props {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -27,6 +35,7 @@ export default async function PayPage({ searchParams }: Props) {
   }
   const url = new URL(`/pay?${query.toString()}`, publicEnv.siteUrl);
   const to = query.get('to');
+  const amount = query.get('amount');
 
   try {
     const action = await describePayAction(url, {
@@ -36,6 +45,23 @@ export default async function PayPage({ searchParams }: Props) {
     });
     return (
       <main className="pay wrap">
+        {to ? (
+          <div className="pay__ticket" aria-hidden="true">
+            <Ticket
+              ink="blue"
+              windowSecs={0}
+              serial={shortAddress(to)}
+              amount={/^\d+(\.\d+)?$/.test(amount ?? '') ? (amount as string) : '?'}
+              unit={payUnit(query.get('mint'))}
+              blockNote="Requested"
+              gridLabel="Hours you can take it back"
+              tierLabel="Not punched yet"
+              windowText="Set when you pay"
+              footLine="The risk agent punches it when you review."
+              title=""
+            />
+          </div>
+        ) : null}
         <div className="slip">
           <p className="label slip__kicker">Payment request</p>
           <h1 className="h2">{action.title}</h1>

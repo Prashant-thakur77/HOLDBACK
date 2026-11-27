@@ -60,7 +60,7 @@
 }
 .receipt__top {
   display: grid;
-  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  grid-template-columns: minmax(300px, 4fr) minmax(0, 8fr);
   gap: var(--s6);
   padding-block: var(--s5) var(--s6);
   align-items: start;
@@ -280,7 +280,7 @@
 }
 .presign__grid {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-columns: 250px minmax(0, 1fr);
   gap: var(--s5);
   align-items: start;
 }
@@ -436,7 +436,7 @@
     grid-template-columns: 1fr;
   }
   .presign__ticket {
-    max-width: 240px;
+    max-width: 280px;
   }
 }
 @media (max-width: 420px) {
@@ -472,5 +472,82 @@
   }
   .slip__actions .btn {
     width: 100%;
+  }
+}
+
+/* ---------- Dashboard: the three steps, and a drawing where a list is empty ---------- */
+
+.app__steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-bottom: 1px solid var(--ink);
+}
+.app__steps li {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: var(--s3);
+  align-items: center;
+  padding: var(--s3) var(--s4) var(--s3) 0;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.app__steps li + li {
+  padding-left: var(--s4);
+  border-left: 1px solid var(--ink);
+}
+@media (max-width: 760px) {
+  .app__steps {
+    grid-template-columns: 1fr;
+  }
+  .app__steps li + li {
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid var(--ink);
+  }
+}
+div.holds__empty {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: var(--s4);
+  align-items: center;
+}
+.holds__art {
+  width: 120px;
+}
+
+/* ---------- Pay: the request drawn as a ticket that is not punched yet ---------- */
+
+.pay {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 720px);
+  gap: var(--s6);
+  justify-content: center;
+  align-items: start;
+}
+.pay .slip {
+  margin-inline: 0;
+  width: 100%;
+}
+.pay > .slip:only-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+@media (max-width: 900px) {
+  .pay {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pay__ticket {
+    max-width: 320px;
+  }
+}
+
+.send__nowallet {
+  display: grid;
+  gap: var(--s3);
+  padding-top: var(--s2);
+}
+@media (pointer: coarse) {
+  .copy {
+    min-height: 44px;
   }
 }

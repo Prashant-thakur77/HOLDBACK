@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { Bowl } from '@/components/art/Bowl';
 import { BoxStamp } from '@/components/art/Stamps';
 import { PageOpener, SectionHead, TierTickets } from '@/components/site/blocks';
-import { LIMITS, STEPS, TIER_FACTS } from '@/content/product';
+import { PaymentStory } from '@/components/motion/PaymentStory';
+import { COLLECTORS, LIMITS, STEPS, TIER_FACTS } from '@/content/product';
 import { windowLabel } from '@/lib/i18n';
 
 export const metadata: Metadata = {
@@ -51,6 +52,9 @@ function Crossing() {
   );
 }
 
+/** The scroll story follows one payment to a recipient the policy calls suspicious. */
+const EXAMPLE_WINDOW = TIER_FACTS.find((fact) => fact.tier === 'SUSPICIOUS')?.windowSecs ?? 0;
+
 const ASIDES = [
   <>
     <span className="label">Time budgets</span>
@@ -77,6 +81,7 @@ export default function HowItWorksPage() {
         word="How it works"
         ink="blue"
         page={2}
+        motif="punch"
         lead="A hold is a payment that waits. The money leaves your wallet and sits in a vault that belongs to that one payment. Until the release time only you can move it, and only back to yourself."
       >
         <nav aria-label="On this page" className="toc">
@@ -89,6 +94,12 @@ export default function HowItWorksPage() {
 
       <section className="section wrap" aria-labelledby="journey">
         <SectionHead id="journey" title="One payment, five stages" ink="blue" />
+        <PaymentStory
+          steps={STEPS}
+          collectors={COLLECTORS.map((collector) => collector.name)}
+          windowSecs={EXAMPLE_WINDOW}
+          windowText={windowLabel(EXAMPLE_WINDOW, 'en')}
+        />
         <ol className="journey">
           {STEPS.map((step, index) => (
             <li key={step.name} className="journey__step">

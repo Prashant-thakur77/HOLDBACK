@@ -23,12 +23,21 @@
   align-items: center;
 }
 /* The O is a ticket cell with a round hole: paper removed, not ink added. */
+@property --o-hole {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 33%;
+}
 .wordmark__o {
   display: inline-block;
   width: 0.56em;
   height: 0.7em;
   margin: 0 0.035em;
-  background: radial-gradient(circle at 50% 50%, transparent 0 0.15em, currentColor 0.16em);
+  background: radial-gradient(
+    circle at 50% 50%,
+    transparent 0 var(--o-hole),
+    currentColor calc(var(--o-hole) + 1.5%)
+  );
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -46,6 +55,24 @@
   }
   .site-header .mark__punch {
     animation: punch-in 270ms var(--e-press) 500ms both;
+  }
+  /* The footer wordmark arrives whole and is punched once it has landed. */
+  @keyframes o-punch {
+    0% {
+      --o-hole: 0%;
+    }
+    60% {
+      --o-hole: 37%;
+    }
+    100% {
+      --o-hole: 33%;
+    }
+  }
+  html.js .site-footer__mark .wordmark__o {
+    --o-hole: 0%;
+  }
+  html.js .site-footer__mark.is-in .wordmark__o {
+    animation: o-punch 300ms var(--e-press) 620ms both;
   }
   a:hover > .mark .mark__punch {
     animation: punch-in 270ms var(--e-press) both;
@@ -101,7 +128,7 @@
   fill: var(--stock);
 }
 .tk-note {
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 700;
   letter-spacing: 0.8px;
   text-transform: uppercase;
@@ -115,9 +142,9 @@
   font-variant-numeric: tabular-nums;
 }
 .tk-label {
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 700;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
   fill: var(--tk-text);
 }
@@ -129,8 +156,9 @@
   fill: var(--tk-text);
 }
 .tk-small {
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 500;
+  font-stretch: 86%;
   fill: var(--tk-text);
 }
 .tk-note:lang(hi),
@@ -145,6 +173,16 @@
   fill: none;
   stroke: var(--ink);
   stroke-width: 1.5;
+}
+/* Compact ticket: no small print, larger numerals, legible from 246 px wide. */
+.ticket--compact .tk-cell {
+  font-size: 15px;
+}
+.ticket--compact .tk-serial {
+  font-size: 15.5px;
+}
+.ticket--compact .ticket__stamp {
+  inset: 30% 0 auto 0;
 }
 .ticket__hole,
 .ticket__chad {
@@ -346,5 +384,65 @@
   }
   .stamp--struck {
     animation: strike var(--t-press) var(--e-press) 160ms both;
+  }
+}
+
+/* ---------- Illustration set: one ink line, flat accents in the page's ink ---------- */
+
+.motif {
+  display: block;
+  overflow: visible;
+}
+.motif__line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-linejoin: round;
+  stroke-linecap: square;
+}
+.motif__accent {
+  fill: var(--tk, var(--blue));
+}
+.motif__paper {
+  fill: var(--stock);
+}
+.motif__dot {
+  fill: var(--ink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* The drawing draws itself: every stroke has a normalised length of 1. */
+  html.js [data-reveal='draw'] .motif__line {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  html.js [data-reveal='draw'] .motif__accent,
+  html.js [data-reveal='draw'] .motif__dot {
+    opacity: 0;
+  }
+  html.js [data-reveal='draw'].is-in .motif__line {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1100ms var(--e-paper);
+    transition-delay: calc(var(--i, 0) * 90ms);
+  }
+  html.js [data-reveal='draw'].is-in .motif__accent,
+  html.js [data-reveal='draw'].is-in .motif__dot {
+    opacity: 1;
+    transition: opacity var(--t-lift) linear;
+    transition-delay: calc(700ms + var(--i, 0) * 90ms);
+  }
+
+  /* Idle life, slower than a calm breath: the counter speaker says something now and then. */
+  @keyframes speak {
+    0%,
+    70%,
+    100% {
+      opacity: 1;
+    }
+    80% {
+      opacity: 0.25;
+    }
+  }
+  .is-in .motif__pulse {
+    animation: speak 5.2s ease-in-out 1.6s infinite;
   }
 }

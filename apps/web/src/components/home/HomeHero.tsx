@@ -3,6 +3,7 @@
 import type { TierName } from '@holdback/sdk';
 import Link from 'next/link';
 
+import { Arrow } from '@/components/art/Mark';
 import { useLang } from '@/components/LangProvider';
 
 import { BowlDemo } from './BowlDemo';
@@ -14,7 +15,14 @@ type DemoTier = Extract<TierName, 'TRUSTED' | 'UNKNOWN' | 'SUSPICIOUS' | 'FLAGGE
  * second line of the headline sits in a solid block of ink, the way the fare
  * sits on a ticket.
  */
-export function HomeHero({ windows }: { windows: Record<DemoTier, number> }) {
+export function HomeHero({
+  windows,
+  exampleHold,
+}: {
+  windows: Record<DemoTier, number>;
+  /** A real hold whose receipt a visitor can open without a wallet. */
+  exampleHold: string;
+}) {
   const { lang, t } = useLang();
   const tagged = lang === 'en' ? undefined : lang;
   return (
@@ -32,7 +40,7 @@ export function HomeHero({ windows }: { windows: Record<DemoTier, number> }) {
           {t('hero.dek')}
         </p>
         <div className="btn-row" lang={tagged}>
-          <Link href="/app" className="btn">
+          <Link href="/app" className="btn" data-magnetic>
             {t('cta.send')}
           </Link>
           <Link href="/dojo" className="btn btn--ghost">
@@ -43,6 +51,10 @@ export function HomeHero({ windows }: { windows: Record<DemoTier, number> }) {
           <span className="pill" data-ink="ink">
             {t('status.devnet')}
           </span>
+          <Link href={`/h/${exampleHold}`} className="more hero__receipt">
+            {t('cta.receipt')}
+            <Arrow />
+          </Link>
         </p>
       </div>
       <BowlDemo windows={windows} />

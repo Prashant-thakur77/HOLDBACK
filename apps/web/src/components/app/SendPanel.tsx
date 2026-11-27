@@ -13,6 +13,7 @@ import { explorerUrl } from '@/lib/cluster';
 import { formatTokenAmount, parseAmount, shortAddress } from '@/lib/format';
 import { TIER_INK, windowLabel } from '@/lib/i18n';
 import { knownMints, mintMeta } from '@/lib/mints';
+import { EXAMPLE_HOLD } from '@/lib/site';
 
 /** Typed by the sender before a payment to a sanctioned address can be signed. */
 const CONFIRM_PHRASE = 'SEND ANYWAY';
@@ -202,8 +203,23 @@ export function SendPanel() {
           ) : null}
         </div>
 
-        {!prepared ? (
-          <button type="submit" className="btn" disabled={amount === null || !publicKey || busy}>
+        {!publicKey ? (
+          <div className="send__nowallet">
+            <p>
+              Sending needs a wallet on devnet. Connect one in the panel beside this form. No wallet
+              yet? You can still see how a hold behaves.
+            </p>
+            <div className="btn-row">
+              <Link href="/" className="btn">
+                Try the practice ticket
+              </Link>
+              <Link href={`/h/${EXAMPLE_HOLD}`} className="btn btn--ghost">
+                Open a real receipt
+              </Link>
+            </div>
+          </div>
+        ) : !prepared ? (
+          <button type="submit" className="btn" disabled={amount === null || busy}>
             {busy ? STAGE_TEXT[payment.stage] : <T k="action.review" />}
           </button>
         ) : null}
@@ -216,16 +232,14 @@ export function SendPanel() {
           <div className="presign__grid">
             <div className="presign__ticket">
               <Ticket
+                compact
                 ink={TIER_INK[prepared.assessment.tier]}
                 windowSecs={prepared.plan.windowSecs}
                 serial={prepared.hold ? shortAddress(prepared.hold) : 'Instant'}
                 amount={formatTokenAmount(prepared.input.amount, meta).split(' ')[0] ?? ''}
                 unit={meta?.symbol ?? ''}
-                blockNote={prepared.plan.instant ? 'Paid at once' : 'Held on-chain'}
-                gridLabel={t('ticket.grid')}
                 tierLabel={t(`tier.${prepared.assessment.tier}`)}
                 windowText={windowLabel(prepared.plan.windowSecs, lang)}
-                footLine={t('ticket.foot')}
                 lang={lang}
                 title={`Payment of ${formatTokenAmount(prepared.input.amount, meta)}, undo window ${windowLabel(prepared.plan.windowSecs, 'en')}`}
               />

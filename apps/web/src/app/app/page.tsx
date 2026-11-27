@@ -3,6 +3,7 @@
 import { Suspense } from 'react';
 
 import { HoldsPanel } from '@/components/app/HoldsPanel';
+import { Motif } from '@/components/art/Motifs';
 import { SendPanel } from '@/components/app/SendPanel';
 import { WalletPanel } from '@/components/app/WalletPanel';
 import { T } from '@/components/LangProvider';
@@ -24,6 +25,26 @@ export default function DashboardPage() {
         </p>
       </header>
       <hr className="rule" />
+      <ol className="app__steps" aria-label="How a payment goes">
+        <li data-ink="blue">
+          <Motif name="phone" size={64} />
+          <span>
+            <b>Connect</b> a wallet on devnet.
+          </span>
+        </li>
+        <li data-ink="blue">
+          <Motif name="punch" size={64} />
+          <span>
+            <b>Read the verdict</b> before you sign: the evidence sets the undo window.
+          </span>
+        </li>
+        <li data-ink="blue">
+          <Motif name="tickets" size={64} />
+          <span>
+            <b>Send.</b> Until the window ends, one press takes it back.
+          </span>
+        </li>
+      </ol>
       <div className="app__grid">
         {/* Reads the query string, which is only known in the browser. */}
         <Suspense fallback={<section className="panel send" aria-busy="true" />}>

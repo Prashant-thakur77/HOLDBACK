@@ -108,6 +108,7 @@ export default function DocsPage() {
         word="Docs"
         ink="water"
         page={7}
+        motif="tickets"
         lead="What you need to run it, read it and check it: commands, addresses, accounts, the routes this site serves, and plain answers to common questions."
       />
 
