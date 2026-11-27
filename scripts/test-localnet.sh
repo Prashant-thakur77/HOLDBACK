@@ -6,7 +6,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 WALLET="${ANCHOR_WALLET:-keys/deployer.json}"
-PROGRAM_ID=$(solana-keygen pubkey target/deploy/holdback-keypair.json)
+PROGRAM_ID=$(node -p "require('./sdk/src/idl/holdback.json').address")
 LEDGER=$(mktemp -d)
 PORT=8899
 

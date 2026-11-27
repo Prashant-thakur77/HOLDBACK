@@ -50,7 +50,8 @@ jobs:
           solana-keygen new --no-bip39-passphrase --silent -o keys/deployer.json
       - run: npm ci
       - run: npm run build --workspace sdk
-      - run: anchor build
+      - name: Build (the program keypair is not in the repository)
+        run: anchor build --ignore-keys
       - name: IDL in the SDK matches the build
         run: |
           node scripts/sync-idl.mjs
