@@ -1,0 +1,33 @@
+{
+  "name": "@holdback/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for HOLDBACK: PDAs, instruction builders, account decoders, event parser and evidence hashing",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "keywords": [
+    "solana",
+    "holdback",
+    "payments",
+    "escrow",
+    "undo",
+    "sdk"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@noble/hashes": "^1.6.1",
+    "@solana/web3.js": "^1.98.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
