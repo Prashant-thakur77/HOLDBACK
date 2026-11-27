@@ -31,6 +31,7 @@ import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
 import { Chip } from '@/ui/Chip';
 import { Field } from '@/ui/Field';
+import { playSound } from '@/ui/sounds';
 import { haptic } from '@/ui/haptics';
 import { Header, IconButton } from '@/ui/Header';
 import { Notice } from '@/ui/Notice';
@@ -218,6 +219,7 @@ export default function Send() {
         hold = (created as PublicKey | null)?.toBase58() ?? null;
       }
       haptic.success();
+      playSound(hold ? 'placed' : 'released');
       await actions.refresh();
       if (hold) {
         toast(t('send.held'), 'calm');

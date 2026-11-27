@@ -27,6 +27,7 @@ import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
 import { Chip } from '@/ui/Chip';
 import { CountdownRing } from '@/ui/CountdownRing';
+import { playSound } from '@/ui/sounds';
 import { haptic } from '@/ui/haptics';
 import { Header, IconButton } from '@/ui/Header';
 import { Icon } from '@/ui/Icon';
@@ -138,6 +139,8 @@ export default function HoldDetail() {
     try {
       await task();
       haptic.success();
+      if (what === 'undo') playSound('returned');
+      else if (what === 'release') playSound('released');
       toast(done, 'calm');
       await query.refetch();
     } catch (error) {
