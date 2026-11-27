@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-holdback = "11111111111111111111111111111111"
+holdback = "26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom"
 
 [programs.localnet]
 holdback = "26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom"
