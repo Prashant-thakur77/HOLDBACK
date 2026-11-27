@@ -1,0 +1,28 @@
+[package]
+name = "holdback-payments"
+version = "0.1.0"
+description = "Holdback Payments - Dark Forest payment channels with MagicBlock PER"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "holdback_payments"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build", "light-sdk/idl-build"]
+custom-heap = []
+custom-panic = []
+anchor-debug = []
+
+[dependencies]
+anchor-lang = { version = "0.32.1", features = ["init-if-needed"] }
+ephemeral-rollups-sdk = { version = "0.8", features = ["anchor"] }
+light-sdk = { version = "0.16.0", default-features = false, features = ["anchor", "v2"] }
+borsh = "0.10.0"
+blake3 = "=1.5.5"
+holdback = { path = "../holdback", features = ["cpi"] }
