@@ -12,16 +12,17 @@ Checked items are built, tested and committed.
 - [x] Accounts, instructions, events, errors (SOL, SPL Token, Token-2022)
 - [x] Rust tests with clock warping (LiteSVM)
 - [x] Property test for invariants I1–I6
-- [ ] 100,000-case run recorded in `eval/`
-- [ ] Localnet TypeScript integration tests
-- [ ] Devnet deploy, program ID recorded
+- [x] 100,000-case run recorded in `eval/program_invariants.json` (609,726 instructions, 0 violations)
+- [x] Localnet TypeScript integration tests (13 scenarios)
+- [ ] Devnet deploy, program ID recorded (waiting for devnet SOL)
 - [ ] Verified build attempt
 
 ## Phase 2: SDK
-- [ ] PDAs, builders, decoders, event parser, `explain`, vitest
+- [x] PDAs, builders, decoders, event parser, `explain`, evidence hashing, API client, vitest (27 tests)
 
 ## Phase 3: Supabase
-- [ ] Migrations, RLS, Realtime, `helius-webhook`, cron
+- [x] Schema migration with RLS and Realtime
+- [ ] `helius-webhook`, housekeeping cron, seed
 
 ## Phase 4: risk agent
 - [ ] Collectors, policy, evidence hash, LLM extraction, oracle, relayer, crank
