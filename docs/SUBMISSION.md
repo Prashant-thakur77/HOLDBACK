@@ -1,6 +1,6 @@
 # Submission text
 
-One block per track. `APK_URL`, `VIDEO_URL` and `BYTE_GAME_URL` are filled in at
+One block per track. `VIDEO_URL` and `BYTE_GAME_URL` are filled in at
 submission time; every figure is copied from the README results table (generated from
 `eval/results.json`) and must be identical everywhere.
 
@@ -72,7 +72,7 @@ Game: `BYTE_GAME_URL`.
 A native Android app built from the official Solana Mobile template. Holds, undo, early
 release, trust and scam reports are signed through Mobile Wallet Adapter. Push notifications
 deep-link into the hold with "Tap to undo". A server-side Seeker Genesis Token check shows a
-"Verified Seeker owner" badge. The Scam Dojo runs offline in its own tab. APK: `APK_URL`.
+"Verified Seeker owner" badge. The Scam Dojo runs offline in its own tab. APK: https://github.com/Prashant-thakur77/HOLDBACK/releases/tag/v0.1.0-devnet.
 
 ## ElevenLabs
 
@@ -116,5 +116,5 @@ calls, customs and KYC threats, remote-access apps and "verification transfers".
 - Program (devnet): `26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom`
 - Live site: https://holdback.prashantthakur.dev
 - Risk agent API: https://holdback-api.prashantthakur.dev
-- APK: `APK_URL`
+- APK: https://github.com/Prashant-thakur77/HOLDBACK/releases/tag/v0.1.0-devnet
 - Video: `VIDEO_URL`
