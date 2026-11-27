@@ -136,6 +136,21 @@ export interface SeekerVerification {
   skrDomain: string | null;
 }
 
+/** Sign `message` with the wallet, then exchange the signature for a session. */
+export interface AuthChallenge {
+  wallet: string;
+  message: string;
+  challenge: string;
+  expiresAt: string;
+}
+
+/** A wallet session. The token is also a Supabase JWT with the claim `wallet`. */
+export interface WalletSession {
+  token: string;
+  wallet: string;
+  expiresAt: string;
+}
+
 export class GuardianError extends Error {
   constructor(
     readonly status: number,
@@ -248,6 +263,24 @@ export class GuardianClient {
 
   relayWithdraw(mint: string, amount: string): Promise<{ signature: string }> {
     return this.request('POST', '/v1/relay/withdraw', { mint, amount });
+  }
+
+  authChallenge(wallet: string): Promise<AuthChallenge> {
+    return this.request('POST', '/v1/auth/challenge', { wallet });
+  }
+
+  /** `signature` is the base58 ed25519 signature of the challenge message. */
+  authSession(body: {
+    wallet: string;
+    challenge: string;
+    signature: string;
+  }): Promise<WalletSession> {
+    return this.request('POST', '/v1/auth/session', body);
+  }
+
+  /** Asks the oracle to lengthen a hold by `hours`. Needs the sender's session token. */
+  voiceExtend(pda: string, hours: number): Promise<ReassessResponse> {
+    return this.request('POST', '/v1/voice/extend', { hold: pda, hours });
   }
 
   voiceSession(pda: string, lang: Lang): Promise<VoiceSession> {

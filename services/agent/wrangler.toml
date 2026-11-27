@@ -1,0 +1,30 @@
+name = "holdback-guardian"
+main = "src/index.ts"
+compatibility_date = "2026-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Every minute: release due holds, close settled ones, send pushes.
+# Every ten minutes: re-assess pending holds (the oracle extends when risk rose).
+# Hourly: refresh the static blocklists.
+[triggers]
+crons = ["* * * * *", "*/10 * * * *", "0 * * * *"]
+
+[observability]
+enabled = true
+
+# Non-secret settings. Secrets go in with `wrangler secret put <NAME>`
+# (see .dev.vars.example for the full list).
+# SOLANA_RPC_URL must be replaced before deploying: Solana's public RPC
+# endpoints refuse requests from Workers. Set a private RPC URL as a secret
+# (`wrangler secret put SOLANA_RPC_URL`) and delete this default.
+[vars]
+SOLANA_RPC_URL = "https://api.devnet.solana.com"
+LLM_PROVIDER = "anthropic"
+SNS_API_URL = "https://sdk-proxy-v2.sns.id"
+
+# Optional: cache generated voice notes in R2 instead of Supabase Storage.
+# Create the bucket with `wrangler r2 bucket create holdback-voice`, then
+# uncomment.
+# [[r2_buckets]]
+# binding = "VOICE_BUCKET"
+# bucket_name = "holdback-voice"

@@ -120,3 +120,23 @@ keep using the public endpoint.
 ## D19. The Dojo watch page has its own content-security policy
 `/dojo/watch/*` sends exactly `frame-ancestors https://app.bytearena.fun`. Every other route
 sends the full policy with `frame-ancestors 'none'`.
+
+## D20. Risk policy details
+- **Order of precedence.** Sanctions list, then the sender's `Trust` account, then a
+  confirmed scam report or a score of 60+, then a score of 30–59, then clean payment history,
+  then UNKNOWN. A `Trust` account outranks FLAGGED (the sender's explicit choice) but never
+  SANCTIONED.
+- **History-based trust still makes a hold.** The zero-window instruction needs the on-chain
+  `Trust` account. A recipient trusted only through three completed payments gets a
+  one-second hold that the crank completes within a minute.
+- **The model speaks only when there is something to cite.** Clean and trusted results use
+  fixed wording in each language; the model writes the explanation only for results with
+  findings, and its output must pass schema validation or the template is used. The default
+  model is the small, fast one because the text is two or three sentences and the user is
+  waiting; `ANTHROPIC_MODEL` overrides it.
+- **Domain blocklists are stored as hashed shards** (sorted 64-bit hashes, 16 shards per
+  list); address lists are exact rows.
+- **The relay refuses sanctioned recipients**, because a relayed request cannot carry the
+  typed confirmation.
+- **Proof-by-transfer needs a minimum balance** of the mint, a transfer from the owner's own
+  token account, and a block time inside the challenge window.
