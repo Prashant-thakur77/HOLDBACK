@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "types": ["mocha", "chai"],
+    "typeRoots": ["./node_modules/@types"],
+    "lib": ["es2015"],
+    "module": "commonjs",
+    "target": "es6",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "tests/holdback.ts",
+    "tests/holdback-payments.ts",
+    "tests/compress-settlement.ts",
+    "tests/payments-er-devnet.ts"
+  ]
+}
