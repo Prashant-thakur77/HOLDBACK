@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-11-27T16:01:07.225Z",
+  "generated_at": "2026-11-27T18:35:20.984Z",
   "environment": {
     "guardian": {
       "mode": "local Node process",
       "host": "127.0.0.1",
       "configured": {
-        "HELIUS_API_KEY": false,
-        "CHAINABUSE_API_KEY": false,
-        "FIRECRAWL_API_KEY": false,
-        "SUPABASE_URL": false,
-        "SUPABASE_SERVICE_ROLE_KEY": false,
+        "HELIUS_API_KEY": true,
+        "CHAINABUSE_API_KEY": true,
+        "FIRECRAWL_API_KEY": true,
+        "SUPABASE_URL": true,
+        "SUPABASE_SERVICE_ROLE_KEY": true,
         "ANTHROPIC_API_KEY": true,
         "OPENAI_API_KEY": false,
         "MAINNET_RPC_URL": false,
@@ -21,36 +21,50 @@
   "assess": {
     "requests_per_phase": 30,
     "pause_between_requests_ms": 1000,
-    "cold": { "n": 30, "p50_ms": 283.2, "p95_ms": 620.5, "min_ms": 167.8, "max_ms": 1157.3 },
-    "warm": { "n": 30, "p50_ms": 185.2, "p95_ms": 1358.3, "min_ms": 134.2, "max_ms": 1778.9 },
-    "unavailable_collectors": { "baseline": 60, "chainabuse": 60, "helius": 60, "web_reports": 60 },
+    "cold": { "n": 30, "p50_ms": 4020.2, "p95_ms": 13473.5, "min_ms": 2857.9, "max_ms": 14505.6 },
+    "warm": { "n": 30, "p50_ms": 2291.6, "p95_ms": 9780, "min_ms": 2166.6, "max_ms": 14190.4 },
+    "unavailable_collectors": {
+      "baseline": 4,
+      "blocklist": 3,
+      "chainabuse": 60,
+      "helius": 3,
+      "onchain_reputation": 4,
+      "sns": 3,
+      "web_reports": 9
+    },
     "failed_requests": 0,
     "note": "sequential requests over HTTP; recipients are new addresses without history"
   },
   "chain": {
     "available": true,
-    "cluster_rpc_host": "api.devnet.solana.com",
+    "cluster_rpc_host": "devnet.helius-rpc.com",
     "program_id": "26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom",
     "commitment": "confirmed",
     "iterations": 5,
-    "create_hold": { "n": 5, "p50_ms": 839, "p95_ms": 1024.3, "min_ms": 702.7, "max_ms": 1050.7 },
-    "reclaim": { "n": 5, "p50_ms": 1006.3, "p95_ms": 1619.4, "min_ms": 769.4, "max_ms": 1754 },
+    "create_hold": {
+      "n": 5,
+      "p50_ms": 1046.1,
+      "p95_ms": 2107.5,
+      "min_ms": 891.5,
+      "max_ms": 2118.8
+    },
+    "reclaim": { "n": 5, "p50_ms": 2499.8, "p95_ms": 2588.9, "min_ms": 1544.7, "max_ms": 2603.3 },
     "funded_lamports": 50000000,
     "returned_lamports": 48980200,
     "signatures": {
       "create_hold": [
-        "5rVjc7TsvzDGmPnHDwDkbMmQqas7xk8X8rbHsnmMzL9vGkss5CMEWz2kKEHtetPx8mLY9td4QfKqkLBGWq9cBjq8",
-        "4uZ36Loyi4T6S2D2SRm7Eok9s6Gx8DMJfqsM392Q4r4gZyw1Et3KVfrbYikeHfsanexyTDsDeVNm5KFbEE7sEdrs",
-        "65SXHfC4jRx8CeUnVBWW5YSDKXCqDmt9K9PjP4Y9qYtw89RqnMFT7wNUPBiXNN4S68v5fE6gWvU8TTrm4gX8nnFD",
-        "A5tZGC4qbYzUuNQ7XwCxUC4W4sQ2iWcSTfnvmFosWvSJLEBFXFaG18T1FMfSetYGrbUi6ob4v8gxczZb3rkRqSA",
-        "4FCji7DDw1nCPQE44rFcCGAjU44rXFJxJqw8LobY2yDLbejnBsibXbuBsH1R2F6p2TYk2YVLMk2JT4PTAJmb7rJ1"
+        "2CPUsX5z9rw4LLQQSCiNC8ULEcw1GwouEiTpSBvmnVNvNSEGZ9EG8iUnDH8XPxHqhwEwHD5zzFzpatAKBDowfTZC",
+        "64XExYYp88RD8Z9zQWcLxJSVhJWeyqJ6MVPzeij2uhhgbiq5Wu1WeD1LdhEFt8xRLURXLr69Pgzvb8FAmPxuhRQH",
+        "soHNiNTHVkJVjL41pX4HY87MPf47ZJKX1sn5nVCj38dLjcaNWA4KHugors7pV41N2RkiYR575SZkFU89ibbuaMM",
+        "5NFnSGSrdB4oZvUHwTvXHpFquWS5JWBnc1fjr5A8f6K1LSwmtvweqAhfmSGHR1uSyhQy5fPd8M7QHXX8gnCvrtKu",
+        "4DfijxEZ5yGQdT3nHhE16t5imGeJfFnKUzigxnAKWui4XMrWiC1LC1RNnZj8xuAX721DCKeLEDwiyZupYwj9KpuM"
       ],
       "reclaim": [
-        "2Tik8Htqx9MbavXHXsZNMKcoWx4pAARNR5ABTARLp15mHJCoJHaSDeQ3bhNTRDy8phLktQN7KJ7bnSQyZUokc5DW",
-        "5pmJDajWi6NVuz1edksCsSuRmWhEg2zqfMynKwPFqXmzwyGxMSVftDVz3XdLpMWw7UUU2R1GXUgaURSAy6yFwKkx",
-        "4JBYh8BFeawvzgnd1bvCKtSNDwis568mEeRAE78eFnYoxouWHnaBAqcPuz3WefNc6WnDTVH9peXPRHKLrDybWuoj",
-        "2DqkQ9v6nLZuRLczKnJb5sJGzzxyY4mZs9XYS43jUBxfCBtvbwzqqwxU99Cr1xh1dEnxMf5pC8tunQqRtiiagW2v",
-        "5Ais5gMZHCrPM5JBgS5czHi8mnRyYNL5pmhGYmTSmwEZH4Vq8vPQpuBVU2Kvm8NjbdghjbF3drTXug3WKsERW2Ap"
+        "5LiMUneBTLZPVVTyjfGmhJQDNdM9NjYedfiCGLGvVsB9Hdr3GwQStSDDK1aEQs2LVf2nVmdHrJ1PTfKQpWHpmgzQ",
+        "4qhuQogT2trYLhZkBSdaRjQ3zhupYtSbyxsEqrrARAd4Uvpdx7NwWyYJWDFieqC1f5CpzGRm2MiaWGSxw81LMXDB",
+        "394XTeNgGKYPsgST81cZtWdgn5dCA9dZ9fixc7uFTYJXTY8hK338FcgKwhd2NEk7UtpCe5m9K72MW7ypzdso4sgQ",
+        "4PY568GS9iBUfrFJBSB5BtXKqrfeKoFALGR9FmjerXyav6PG5SGPANcaq8DPK2g5gRQ63ZQa5jDFS4japjaqPHth",
+        "3dbYRKzkTKX4pStPpKAn52H6tpo5vKfsTrF73KDdorSG1Vk7Rduz6BFNFqxjnPB1gHuhUTQeoAB1ZvGsaYzr65fd"
       ]
     },
     "note": "milliseconds from sendRawTransaction to confirmed commitment; SOL holds, one at a time, with an untimed pause between transactions; any rate-limit retry of the RPC endpoint inside a transaction is included"

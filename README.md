@@ -210,31 +210,31 @@ Every number below is produced by a script and stored in `eval/results.json`
 
 <!-- results:start -->
 
-Run of 2026-11-27 at commit `0e96710`. Held-out means first published on or after 2026-07-01.
+Run of 2026-11-27 at commit `2b17d25`. Held-out means first published on or after 2026-07-01.
 
 | Metric                                                     | Static blocklist                                     | HOLDBACK                             |
 | ---------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------ |
 | Recall on held-out scam addresses                          | 0/3 (0.0%, 95% CI 0.0% to 56.1%)                     | 3/3 (100.0%, 95% CI 43.9% to 100.0%) |
 | Recall without the label’s own list (independent evidence) | n/a                                                  | 0/3 (0.0%, 95% CI 0.0% to 56.1%)     |
-| False-positive rate on legit addresses                     | 0/54 (0.0%, 95% CI 0.0% to 6.6%)                     | 0/54 (0.0%, 95% CI 0.0% to 6.6%)     |
-| Precision                                                  | no rows (n = 0)                                      | 3/3 (100.0%, 95% CI 43.9% to 100.0%) |
+| False-positive rate on legit addresses                     | 0/54 (0.0%, 95% CI 0.0% to 6.6%)                     | 1/54 (1.9%, 95% CI 0.3% to 9.8%)     |
+| Precision                                                  | no rows (n = 0)                                      | 3/4 (75.0%, 95% CI 30.1% to 95.4%)   |
 | Scam value protected, sender reacts after 10 min           | 0.0% blocked (0/3); the rest is a plain transfer, 0% | 100.0% reclaimable (3/3 payments)    |
 | Scam value protected, sender reacts after 1 h              | 0.0% blocked (0/3); the rest is a plain transfer, 0% | 100.0% reclaimable (3/3 payments)    |
 | Scam value protected, sender reacts after 6 h              | 0.0% blocked (0/3); the rest is a plain transfer, 0% | 100.0% reclaimable (3/3 payments)    |
 | Scam value protected, sender reacts after 24 h             | 0.0% blocked (0/3); the rest is a plain transfer, 0% | 100.0% reclaimable (3/3 payments)    |
-| Median time to verdict                                     | n/a                                                  | 298 ms (n = 102)                     |
-| `/v1/assess`, first request                                | n/a                                                  | p50 283 ms, p95 621 ms (n = 30)      |
-| `/v1/assess`, repeat request                               | n/a                                                  | p50 185 ms, p95 1,358 ms (n = 30)    |
-| `create_hold` to confirmed, devnet                         | n/a                                                  | p50 839 ms, p95 1,024 ms (n = 5)     |
-| `reclaim` to confirmed, devnet                             | n/a                                                  | p50 1,006 ms, p95 1,619 ms (n = 5)   |
+| Median time to verdict                                     | n/a                                                  | 8,834 ms (n = 102)                   |
+| `/v1/assess`, first request                                | n/a                                                  | p50 4,020 ms, p95 13,474 ms (n = 30) |
+| `/v1/assess`, repeat request                               | n/a                                                  | p50 2,292 ms, p95 9,780 ms (n = 30)  |
+| `create_hold` to confirmed, devnet                         | n/a                                                  | p50 1,046 ms, p95 2,108 ms (n = 5)   |
+| `reclaim` to confirmed, devnet                             | n/a                                                  | p50 2,500 ms, p95 2,589 ms (n = 5)   |
 
 ```mermaid
 xychart-beta
   title "Latency in ms (bars: median, line: 95th percentile)"
   x-axis ["assess, first", "assess, repeat", "create_hold", "reclaim"]
-  y-axis "ms" 0 --> 2000
-  bar [283, 185, 839, 1006]
-  line [621, 1358, 1024, 1619]
+  y-axis "ms" 0 --> 13500
+  bar [4020, 2292, 1046, 2500]
+  line [13474, 9780, 2108, 2589]
 ```
 
 ```mermaid
@@ -251,13 +251,15 @@ Bars: HOLDBACK. Line: a plain transfer, which cannot be reclaimed at any delay.
 ```mermaid
 pie showData
   title Tiers the risk agent assigned in this run
-  "UNKNOWN" : 98
-  "SANCTIONED" : 4
+  "UNKNOWN" : 94
+  "SUSPICIOUS" : 4
+  "FLAGGED" : 1
+  "SANCTIONED" : 3
 ```
 
-Every scam label comes from a public list that the `blocklist` collector also reads, so recall above repeats the label; without that list the Guardian caught 0 of 3. In this run these evidence collectors were unavailable for every assessment: `baseline`, `chainabuse`, `helius`, `web_reports`. Dataset sources that could not be used: `chainabuse`. The numbers describe that configuration and nothing more; [`eval/RESULTS.md`](eval/RESULTS.md) lists every limit and the full tables.
+Every scam label comes from a public list that the `blocklist` collector also reads, so recall above repeats the label; without that list the Guardian caught 0 of 3. Dataset sources that could not be used: `chainabuse`. The numbers describe that configuration and nothing more; [`eval/RESULTS.md`](eval/RESULTS.md) lists every limit and the full tables.
 
-**Where it fails.** A wallet created less than a day ago, with no reports and little or no history, gives the Guardian nothing to find. Of 44 such wallets (new mainnet wallets and never-used keypairs, none of them a known scam) it rated 0/44 (0.0%, 95% CI 0.0% to 8.0%) as suspicious or worse. What still helps is the default window: every one of them got 30 min, so a payment to them could still be undone for 44/44 (100.0%) after 10 min, 0/44 (0.0%) after 1 h, 0/44 (0.0%) after 6 h, 0/44 (0.0%) after 24 h. The gap that remains: a victim who notices after the default window has closed gets nothing back, exactly as with a plain transfer.
+**Where it fails.** A wallet created less than a day ago, with no reports and little or no history, gives the Guardian nothing to find. Of 44 such wallets (new mainnet wallets and never-used keypairs, none of them a known scam) it rated 4/44 (9.1%, 95% CI 3.6% to 21.2%) as suspicious or worse. What still helps is the default window: every one of them got 30 min, 6 h, 24 h, so a payment to them could still be undone for 44/44 (100.0%) after 10 min, 4/44 (9.1%) after 1 h, 1/44 (2.3%) after 6 h, 0/44 (0.0%) after 24 h. The gap that remains: a victim who notices after the default window has closed gets nothing back, exactly as with a plain transfer.
 
 Program property test: 100,000 random cases, 609,726 instructions, 0 invariant violations.
 

@@ -1,8 +1,8 @@
 {
-  "built_at": "2026-11-27T15:56:01+00:00",
+  "built_at": "2026-11-27T18:10:48+00:00",
   "cutoff_date": "2026-07-01",
   "seed": 20261127,
-  "mainnet_rpc_host": "api.mainnet-beta.solana.com",
+  "mainnet_rpc_host": "mainnet.helius-rpc.com",
   "rows": 102,
   "rows_by_label": {
     "fresh": 44,
@@ -57,7 +57,7 @@
       "role": "scam reports",
       "url": "https://api.chainabuse.com/v0/reports?chain=SOL",
       "status": "unavailable",
-      "note": "CHAINABUSE_API_KEY is not set"
+      "note": "api.chainabuse.com: HTTP 400"
     },
     {
       "source": "explorer_programs",
@@ -72,7 +72,7 @@
     {
       "source": "mainnet_sample",
       "role": "legit wallets and fresh wallets",
-      "url": "https://api.mainnet-beta.solana.com",
+      "url": "https://mainnet.helius-rpc.com",
       "retrieved_at": "2026-11-27",
       "status": "ok",
       "entries_total": 500,
