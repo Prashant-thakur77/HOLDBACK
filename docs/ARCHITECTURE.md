@@ -63,13 +63,13 @@ flowchart LR
 2. **Decide.** A deterministic policy turns the evidence into findings, a score, a tier and a
    window. No language model takes part in this step.
 
-   | Tier | When | Window |
-   | --- | --- | --- |
-   | TRUSTED | The sender's `Trust` account exists, or 3+ past releases to this recipient and no flags | none |
-   | UNKNOWN | Default | 30 minutes |
-   | SUSPICIOUS | Score 30–59 | 6 hours |
-   | FLAGGED | Score 60+, or a confirmed scam report | 24 hours |
-   | SANCTIONED | On the sanctions list | 72 hours, and the app asks for typed confirmation |
+   | Tier       | When                                                                                    | Window                                            |
+   | ---------- | --------------------------------------------------------------------------------------- | ------------------------------------------------- |
+   | TRUSTED    | The sender's `Trust` account exists, or 3+ past releases to this recipient and no flags | none                                              |
+   | UNKNOWN    | Default                                                                                 | 30 minutes                                        |
+   | SUSPICIOUS | Score 30–59                                                                             | 6 hours                                           |
+   | FLAGGED    | Score 60+, or a confirmed scam report                                                   | 24 hours                                          |
+   | SANCTIONED | On the sanctions list                                                                   | 72 hours, and the app asks for typed confirmation |
 
 3. **Commit to the evidence.** The Guardian builds an evidence document (policy version,
    parties, amount, score, tier, window, findings, evidence items, unavailable collectors),
@@ -108,15 +108,15 @@ eval scripts.
 
 Accounts (all PDAs, bump stored):
 
-| Account | Seeds | Purpose |
-| --- | --- | --- |
-| `Config` | `["config"]` | Admin, relayer, oracle, window limits, pause switch |
-| `Hold` | `["hold", sender, nonce_le_u64]` | One protected payment |
-| Vault | ATA(mint, owner = Hold) | Holds the tokens; SOL sits in the Hold account itself |
-| `Trust` | `["trust", sender, recipient]` | Existence means "sender trusts recipient" |
-| `DepositBox` | `["box", owner]` | Inbox for wallets that can only make transfers |
-| `Flag` | `["flag", reporter, subject]` | One scam report per reporter per subject |
-| `SubjectStats` | `["stats", subject]` | Flags, holds received, reclaimed-against, released-to |
+| Account        | Seeds                            | Purpose                                               |
+| -------------- | -------------------------------- | ----------------------------------------------------- |
+| `Config`       | `["config"]`                     | Admin, relayer, oracle, window limits, pause switch   |
+| `Hold`         | `["hold", sender, nonce_le_u64]` | One protected payment                                 |
+| Vault          | ATA(mint, owner = Hold)          | Holds the tokens; SOL sits in the Hold account itself |
+| `Trust`        | `["trust", sender, recipient]`   | Existence means "sender trusts recipient"             |
+| `DepositBox`   | `["box", owner]`                 | Inbox for wallets that can only make transfers        |
+| `Flag`         | `["flag", reporter, subject]`    | One scam report per reporter per subject              |
+| `SubjectStats` | `["stats", subject]`             | Flags, holds received, reclaimed-against, released-to |
 
 Design choices worth knowing:
 
@@ -147,24 +147,24 @@ Seedless embedded wallets (Pollar) can send tokens to an address and nothing els
 
 ## Off-chain services
 
-| Part | Runs on | Role |
-| --- | --- | --- |
-| Guardian (`services/agent`) | Cloudflare Workers, Hono | Assessment, policy, evidence store, oracle, relayer, cranker (Cron Trigger), voice, push |
-| `helius-webhook` | Supabase Edge Function | Decodes program events from Helius webhooks into the `holds` mirror and daily metrics |
-| Supabase | Postgres + Realtime | Evidence documents, hold mirror, caches, profiles, Dojo runs; row-level security, service-role writes only |
-| Web (`apps/web`) | Cloudflare Workers via OpenNext | Site, dashboard, public receipts, Solana Action, Dojo API and watch page |
-| MCP server (`mcp`) | Local process (stdio) | Lets AI agents assess recipients and pay through holds |
+| Part                        | Runs on                         | Role                                                                                                       |
+| --------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Guardian (`services/agent`) | Cloudflare Workers, Hono        | Assessment, policy, evidence store, oracle, relayer, cranker (Cron Trigger), voice, push                   |
+| `helius-webhook`            | Supabase Edge Function          | Decodes program events from Helius webhooks into the `holds` mirror and daily metrics                      |
+| Supabase                    | Postgres + Realtime             | Evidence documents, hold mirror, caches, profiles, Dojo runs; row-level security, service-role writes only |
+| Web (`apps/web`)            | Cloudflare Workers via OpenNext | Site, dashboard, public receipts, Solana Action, Dojo API and watch page                                   |
+| MCP server (`mcp`)          | Local process (stdio)           | Lets AI agents assess recipients and pay through holds                                                     |
 
 Nothing off-chain can move funds on its own. If every service is down, a wallet that can sign
 can still undo, release and close with the SDK.
 
 ## Packages
 
-| Package | Depends on | Notes |
-| --- | --- | --- |
-| `@holdback/sdk` | web3.js, noble hashes | IDL-driven codec, PDAs, builders, decoders, events, evidence hashing, API client |
-| `@holdback/guardian` | sdk | The service above |
-| `@holdback/dojo` | none | Deterministic game engine and Fetch-API handler |
-| `@holdback/mcp` | sdk | Model Context Protocol tools |
-| `apps/web`, `apps/mobile` | sdk, dojo | Standalone apps linking the local packages |
-| `eval`, `bench` | Guardian API, sdk | Dataset, baseline, metrics, replay, latency |
+| Package                   | Depends on            | Notes                                                                            |
+| ------------------------- | --------------------- | -------------------------------------------------------------------------------- |
+| `@holdback/sdk`           | web3.js, noble hashes | IDL-driven codec, PDAs, builders, decoders, events, evidence hashing, API client |
+| `@holdback/guardian`      | sdk                   | The service above                                                                |
+| `@holdback/dojo`          | none                  | Deterministic game engine and Fetch-API handler                                  |
+| `@holdback/mcp`           | sdk                   | Model Context Protocol tools                                                     |
+| `apps/web`, `apps/mobile` | sdk, dojo             | Standalone apps linking the local packages                                       |
+| `eval`, `bench`           | Guardian API, sdk     | Dataset, baseline, metrics, replay, latency                                      |
