@@ -1,0 +1,64 @@
+{
+  "generated_at": "2026-11-27T15:47:58.966Z",
+  "environment": {
+    "guardian": {
+      "mode": "local Node process",
+      "host": "127.0.0.1",
+      "configured": {
+        "HELIUS_API_KEY": false,
+        "CHAINABUSE_API_KEY": false,
+        "FIRECRAWL_API_KEY": false,
+        "SUPABASE_URL": false,
+        "SUPABASE_SERVICE_ROLE_KEY": false,
+        "ANTHROPIC_API_KEY": true,
+        "OPENAI_API_KEY": false,
+        "MAINNET_RPC_URL": false,
+        "SOLANA_RPC_URL": true
+      }
+    },
+    "node": "v24.10.0"
+  },
+  "assess": {
+    "requests_per_phase": 30,
+    "pause_between_requests_ms": 1000,
+    "cold": { "n": 30, "p50_ms": 252.8, "p95_ms": 340.1, "min_ms": 226.4, "max_ms": 660.7 },
+    "warm": { "n": 30, "p50_ms": 132.2, "p95_ms": 148, "min_ms": 114.8, "max_ms": 200.4 },
+    "unavailable_collectors": {
+      "baseline": 60,
+      "blocklist": 60,
+      "chainabuse": 60,
+      "helius": 60,
+      "web_reports": 60
+    },
+    "failed_requests": 0,
+    "note": "sequential requests over HTTP; recipients are new addresses without history"
+  },
+  "chain": {
+    "available": true,
+    "cluster_rpc_host": "api.devnet.solana.com",
+    "program_id": "26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom",
+    "commitment": "confirmed",
+    "iterations": 5,
+    "create_hold": { "n": 5, "p50_ms": 890, "p95_ms": 1063, "min_ms": 714.1, "max_ms": 1094.8 },
+    "reclaim": { "n": 5, "p50_ms": 833.8, "p95_ms": 989, "min_ms": 672.3, "max_ms": 996 },
+    "funded_lamports": 50000000,
+    "returned_lamports": 48980200,
+    "signatures": {
+      "create_hold": [
+        "3aGDvESNsMebhP2w2xfBgWjBQZB5W3KZ8Xp6umsZbsUFSXFwMFZ7HSqrCD2iavFGNZ4RNYfJ4JG1nX4GBJwFbvVF",
+        "MczwEfYNf649rDejitsknnADuDaB3KS9bMq3bEf5L9fpn4mfHapGp1UqKMvErnhZq8AH9UDFkssfzQo1GvAF7sw",
+        "3nNTprawJDUqMi1kWVUT4rgvNzAPeQgAoap8k4N3GemQWUiF8PDX4Hy1MALKELojJdyS5xgcivg8X1QgZ8sJ5zFp",
+        "xNWokpAJgCtq4qJT4guHKgvy7JSjKjiEARHpFD3u3i9uUPwNHWZaUULySnVQ9kriSqr61gsFZ2y7cWnY2TYmGAE",
+        "4Ngo4t1gwZUZ2yCkcbL6RBTnSiVCtTJoJtEZLtjbbLz9Mc86V8AMyHSMGRvRYqhu3bTDsHXHCSom3XtYniLekUjB"
+      ],
+      "reclaim": [
+        "2eMEinaihskTmSa2NhxGrL8Fshchujr6y6ygNXtePsTmWSCw1yEeupHysy2p6mQzMHDz9sKnLM85wZ8XXyXK3G8b",
+        "4eg7YYu56BzoVhuB5PdxVdoH6qEAeycwhymrButqoocNdb6DS6xg29UK7TzMuoQDuJQhFcyNBtuSYA54qnuJRW2p",
+        "34qSR2BFoEY3FxVn2cZfMm5AvwgMK6jXfrWGTEmXX2wmW6G3c3xzRRAcHCCoFvaGytWvoP2awUD7sz5WYPYrBqn",
+        "14YqASjVE62AB2Y6f6hNtzpZq9BXUcwyUWnZ4xE2mKk5ydu16snUbC81fR1WvG5uJfxECDbqaEAdiw8yx8XmbQm",
+        "Lk9tHnGzTk2dpKiQWgBe3CkhQiwu1jXVtYB5uhnB7xK8qbdoCXXNqVKaupXRvVvcekPKcsxgwGj6WFFQWFWc4NE"
+      ]
+    },
+    "note": "milliseconds from sendRawTransaction to confirmed commitment; SOL holds, one at a time, with an untimed pause between transactions; any rate-limit retry of the RPC endpoint inside a transaction is included"
+  }
+}

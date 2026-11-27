@@ -117,6 +117,8 @@ jobs:
       - run: pip install -r eval/requirements.txt
       - run: python -m pytest eval -q
       - run: npm ci
+      - name: Bench and README-table tests
+        run: node --import tsx --test bench/test/*.test.ts
       - name: README table matches eval/results.json
         run: |
           npm run readme:numbers

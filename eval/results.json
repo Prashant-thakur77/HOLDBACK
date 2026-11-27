@@ -1,0 +1,834 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-27T15:48:29+00:00",
+  "git": {
+    "commit": "9966f61644e0a1100b719e1c36be96c73d51d486",
+    "uncommitted_changes": true
+  },
+  "environment": {
+    "python": "3.10.13",
+    "guardian": {
+      "guardian": {
+        "mode": "local Node process",
+        "host": "127.0.0.1",
+        "configured": {
+          "HELIUS_API_KEY": false,
+          "CHAINABUSE_API_KEY": false,
+          "FIRECRAWL_API_KEY": false,
+          "SUPABASE_URL": false,
+          "SUPABASE_SERVICE_ROLE_KEY": false,
+          "ANTHROPIC_API_KEY": true,
+          "OPENAI_API_KEY": false,
+          "MAINNET_RPC_URL": false,
+          "SOLANA_RPC_URL": true
+        },
+        "node": "v24.10.0"
+      },
+      "assessments": 102,
+      "assessments_failed": 0,
+      "policy_versions": [
+        "holdback-policy/1.0.0"
+      ],
+      "collectors_unavailable_in_every_assessment": [
+        "baseline",
+        "blocklist",
+        "chainabuse",
+        "helius",
+        "web_reports"
+      ],
+      "collectors_unavailable_in_some_assessments": {},
+      "collectors_answering_in_every_assessment": [
+        "context",
+        "onchain_reputation",
+        "sns"
+      ],
+      "context_note_sent": false
+    },
+    "dataset_sources_unavailable": [
+      "chainabuse"
+    ],
+    "mainnet_rpc_host": "api.mainnet-beta.solana.com",
+    "bench": {
+      "guardian": {
+        "mode": "local Node process",
+        "host": "127.0.0.1",
+        "configured": {
+          "HELIUS_API_KEY": false,
+          "CHAINABUSE_API_KEY": false,
+          "FIRECRAWL_API_KEY": false,
+          "SUPABASE_URL": false,
+          "SUPABASE_SERVICE_ROLE_KEY": false,
+          "ANTHROPIC_API_KEY": true,
+          "OPENAI_API_KEY": false,
+          "MAINNET_RPC_URL": false,
+          "SOLANA_RPC_URL": true
+        }
+      },
+      "node": "v24.10.0"
+    }
+  },
+  "config": {
+    "cutoff_date": "2026-07-01",
+    "seed": 20261127,
+    "detection_tier": "SUSPICIOUS",
+    "replay_delays_secs": {
+      "10 min": 600,
+      "1 h": 3600,
+      "6 h": 21600,
+      "24 h": 86400
+    },
+    "assumed_amount_usd": 1000.0,
+    "assumed_amount_is_an_assumption": true,
+    "min_legit_age_days": 365,
+    "fresh_max_age_hours": 24
+  },
+  "dataset": {
+    "built_at": "2026-11-27T15:45:34+00:00",
+    "cutoff_date": "2026-07-01",
+    "seed": 20261127,
+    "mainnet_rpc_host": "api.mainnet-beta.solana.com",
+    "rows": 102,
+    "rows_by_label": {
+      "fresh": 44,
+      "legit": 54,
+      "scam": 4
+    },
+    "rows_by_label_split": {
+      "fresh/fresh": 44,
+      "legit/all": 54,
+      "scam/dev": 1,
+      "scam/heldout": 3
+    },
+    "rows_by_label_split_source": {
+      "fresh/fresh/generated": 30,
+      "fresh/fresh/mainnet_sample": 14,
+      "legit/all/explorer_programs": 51,
+      "legit/all/mainnet_sample": 3,
+      "scam/dev/ofac": 1,
+      "scam/heldout/ofac": 3
+    },
+    "rows_by_label_category": {
+      "fresh/generated_keypair": 30,
+      "fresh/sampled_new_wallet": 14,
+      "legit/program": 51,
+      "legit/sampled_wallet": 3,
+      "scam/sanctioned": 4
+    },
+    "legit_rows_dropped_as_listed": 0,
+    "sources": [
+      {
+        "source": "ofac",
+        "role": "scam list",
+        "url": "https://raw.githubusercontent.com/0xB10C/ofac-sanctioned-digital-currency-addresses/lists/sanctioned_addresses_SOL.txt",
+        "retrieved_at": "2026-11-27",
+        "status": "ok",
+        "entries_total": 4,
+        "entries_solana": 4,
+        "note": ""
+      },
+      {
+        "source": "scamsniffer",
+        "role": "scam list",
+        "url": "https://raw.githubusercontent.com/scamsniffer/scam-database/main/blacklist/address.json",
+        "retrieved_at": "2026-11-27",
+        "status": "ok",
+        "entries_total": 2530,
+        "entries_solana": 0,
+        "note": "the list holds no Solana address"
+      },
+      {
+        "source": "chainabuse",
+        "role": "scam reports",
+        "url": "https://api.chainabuse.com/v0/reports?chain=SOL",
+        "status": "unavailable",
+        "note": "CHAINABUSE_API_KEY is not set"
+      },
+      {
+        "source": "explorer_programs",
+        "role": "legit programs",
+        "url": "https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts",
+        "retrieved_at": "2026-11-27",
+        "status": "ok",
+        "entries_total": 53,
+        "entries_solana": 51,
+        "note": "kept when the account is executable on mainnet"
+      },
+      {
+        "source": "mainnet_sample",
+        "role": "legit wallets and fresh wallets",
+        "url": "https://api.mainnet-beta.solana.com",
+        "retrieved_at": "2026-11-27",
+        "status": "ok",
+        "entries_total": 500,
+        "entries_solana": 17,
+        "note": "seed 20261127, anchor slot 474598777; stopped: candidate budget spent"
+      },
+      {
+        "source": "generated",
+        "role": "fresh wallets",
+        "url": "",
+        "retrieved_at": "",
+        "status": "ok",
+        "entries_total": 30,
+        "entries_solana": 30,
+        "note": "seeded keypairs; 30 verified to have no mainnet history, 0 not checked"
+      }
+    ],
+    "unavailable_sources": [
+      "chainabuse"
+    ],
+    "excluded_sources": [
+      {
+        "source": "phantom_nft_blocklist",
+        "url": "https://raw.githubusercontent.com/phantom/blocklist/master/nft-blocklist.yaml",
+        "reason": "mints of spam NFTs, not wallets that receive payments",
+        "solana_addresses": 3054,
+        "retrieved_at": "2026-11-27"
+      }
+    ],
+    "exchange_labels": "none: no public, machine-readable list of labelled Solana exchange wallets was found",
+    "sampling": {
+      "anchor_slot": 474598777,
+      "anchor_time": 1795792941,
+      "blocks_requested": 12,
+      "blocks_read": 12,
+      "fee_payers_seen": 923,
+      "candidates_examined": 500,
+      "rejected_listed": 0,
+      "rejected_too_active_to_date": 466,
+      "rejected_age_not_proven": 17,
+      "rejected_rpc_error": 0,
+      "established": 3,
+      "fresh": 14,
+      "stopped_because": "candidate budget spent",
+      "errors": []
+    },
+    "rpc_calls_made_this_run": 0
+  },
+  "baseline": {
+    "method": "address was on a static list (OFAC SOL mirror, ScamSniffer) published before the cut-off",
+    "cutoff_date": "2026-07-01",
+    "blocklist_size_before_cutoff": 1,
+    "splits": {
+      "heldout": {
+        "recall": {
+          "successes": 0,
+          "n": 3,
+          "value": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.5614970317550454
+        },
+        "false_positive_rate": {
+          "successes": 0,
+          "n": 54,
+          "value": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0664135880908964
+        },
+        "precision": {
+          "successes": 0,
+          "n": 0,
+          "value": null,
+          "ci95_low": null,
+          "ci95_high": null
+        },
+        "scam_rows": 3,
+        "legit_rows": 54,
+        "not_scored": 0,
+        "share_of_scam_payments_blocked": 0.0,
+        "scam_rows_flagged": 0
+      },
+      "dev": {
+        "recall": {
+          "successes": 1,
+          "n": 1,
+          "value": 1.0,
+          "ci95_low": 0.20654931437723745,
+          "ci95_high": 1.0
+        },
+        "false_positive_rate": {
+          "successes": 0,
+          "n": 54,
+          "value": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0664135880908964
+        },
+        "precision": {
+          "successes": 1,
+          "n": 1,
+          "value": 1.0,
+          "ci95_low": 0.20654931437723745,
+          "ci95_high": 1.0
+        },
+        "scam_rows": 1,
+        "legit_rows": 54,
+        "not_scored": 0,
+        "share_of_scam_payments_blocked": 1.0,
+        "scam_rows_flagged": 1
+      },
+      "undated": {
+        "recall": {
+          "successes": 0,
+          "n": 0,
+          "value": null,
+          "ci95_low": null,
+          "ci95_high": null
+        },
+        "false_positive_rate": {
+          "successes": 0,
+          "n": 54,
+          "value": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0664135880908964
+        },
+        "precision": {
+          "successes": 0,
+          "n": 0,
+          "value": null,
+          "ci95_low": null,
+          "ci95_high": null
+        },
+        "scam_rows": 0,
+        "legit_rows": 54,
+        "not_scored": 0,
+        "share_of_scam_payments_blocked": null,
+        "scam_rows_flagged": 0
+      }
+    }
+  },
+  "holdback": {
+    "detection_rule": "tier is SUSPICIOUS or higher",
+    "splits": {
+      "heldout": {
+        "recall": {
+          "successes": 0,
+          "n": 3,
+          "value": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.5614970317550454
+        },
+        "false_positive_rate": {
+          "successes": 0,
+          "n": 54,
+          "value": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0664135880908964
+        },
+        "precision": {
+          "successes": 0,
+          "n": 0,
+          "value": null,
+          "ci95_low": null,
+          "ci95_high": null
+        },
+        "scam_rows": 3,
+        "legit_rows": 54,
+        "not_scored": 0,
+        "independent_recall": {
+          "successes": 0,
+          "n": 3,
+          "value": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.5614970317550454
+        },
+        "tiers": {
+          "TRUSTED": 0,
+          "UNKNOWN": 3,
+          "SUSPICIOUS": 0,
+          "FLAGGED": 0,
+          "SANCTIONED": 0
+        },
+        "replay": {
+          "payments": 3,
+          "amounts_stated_by_source": 0,
+          "amounts_assumed": 3,
+          "assumed_amount_usd": 1000.0,
+          "table": [
+            {
+              "delay": "10 min",
+              "delay_secs": 600,
+              "payments": 3,
+              "payments_reclaimable": 3,
+              "share_of_payments": 1.0,
+              "value_usd": 3000.0,
+              "value_reclaimable_usd": 3000.0,
+              "share_of_value": 1.0,
+              "plain_transfer_share_of_value": 0.0
+            },
+            {
+              "delay": "1 h",
+              "delay_secs": 3600,
+              "payments": 3,
+              "payments_reclaimable": 0,
+              "share_of_payments": 0.0,
+              "value_usd": 3000.0,
+              "value_reclaimable_usd": 0,
+              "share_of_value": 0.0,
+              "plain_transfer_share_of_value": 0.0
+            },
+            {
+              "delay": "6 h",
+              "delay_secs": 21600,
+              "payments": 3,
+              "payments_reclaimable": 0,
+              "share_of_payments": 0.0,
+              "value_usd": 3000.0,
+              "value_reclaimable_usd": 0,
+              "share_of_value": 0.0,
+              "plain_transfer_share_of_value": 0.0
+            },
+            {
+              "delay": "24 h",
+              "delay_secs": 86400,
+              "payments": 3,
+              "payments_reclaimable": 0,
+              "share_of_payments": 0.0,
+              "value_usd": 3000.0,
+              "value_reclaimable_usd": 0,
+              "share_of_value": 0.0,
+              "plain_transfer_share_of_value": 0.0
+            }
+          ]
+        }
+      },
+      "dev": {
+        "recall": {
+          "successes": 0,
+          "n": 1,
+          "value": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.7934506856227626
+        },
+        "false_positive_rate": {
+          "successes": 0,
+          "n": 54,
+          "value": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0664135880908964
+        },
+        "precision": {
+          "successes": 0,
+          "n": 0,
+          "value": null,
+          "ci95_low": null,
+          "ci95_high": null
+        },
+        "scam_rows": 1,
+        "legit_rows": 54,
+        "not_scored": 0,
+        "independent_recall": {
+          "successes": 0,
+          "n": 1,
+          "value": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.7934506856227626
+        },
+        "tiers": {
+          "TRUSTED": 0,
+          "UNKNOWN": 1,
+          "SUSPICIOUS": 0,
+          "FLAGGED": 0,
+          "SANCTIONED": 0
+        },
+        "replay": {
+          "payments": 1,
+          "amounts_stated_by_source": 0,
+          "amounts_assumed": 1,
+          "assumed_amount_usd": 1000.0,
+          "table": [
+            {
+              "delay": "10 min",
+              "delay_secs": 600,
+              "payments": 1,
+              "payments_reclaimable": 1,
+              "share_of_payments": 1.0,
+              "value_usd": 1000.0,
+              "value_reclaimable_usd": 1000.0,
+              "share_of_value": 1.0,
+              "plain_transfer_share_of_value": 0.0
+            },
+            {
+              "delay": "1 h",
+              "delay_secs": 3600,
+              "payments": 1,
+              "payments_reclaimable": 0,
+              "share_of_payments": 0.0,
+              "value_usd": 1000.0,
+              "value_reclaimable_usd": 0,
+              "share_of_value": 0.0,
+              "plain_transfer_share_of_value": 0.0
+            },
+            {
+              "delay": "6 h",
+              "delay_secs": 21600,
+              "payments": 1,
+              "payments_reclaimable": 0,
+              "share_of_payments": 0.0,
+              "value_usd": 1000.0,
+              "value_reclaimable_usd": 0,
+              "share_of_value": 0.0,
+              "plain_transfer_share_of_value": 0.0
+            },
+            {
+              "delay": "24 h",
+              "delay_secs": 86400,
+              "payments": 1,
+              "payments_reclaimable": 0,
+              "share_of_payments": 0.0,
+              "value_usd": 1000.0,
+              "value_reclaimable_usd": 0,
+              "share_of_value": 0.0,
+              "plain_transfer_share_of_value": 0.0
+            }
+          ]
+        }
+      },
+      "undated": {
+        "recall": {
+          "successes": 0,
+          "n": 0,
+          "value": null,
+          "ci95_low": null,
+          "ci95_high": null
+        },
+        "false_positive_rate": {
+          "successes": 0,
+          "n": 54,
+          "value": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0664135880908964
+        },
+        "precision": {
+          "successes": 0,
+          "n": 0,
+          "value": null,
+          "ci95_low": null,
+          "ci95_high": null
+        },
+        "scam_rows": 0,
+        "legit_rows": 54,
+        "not_scored": 0,
+        "independent_recall": {
+          "successes": 0,
+          "n": 0,
+          "value": null,
+          "ci95_low": null,
+          "ci95_high": null
+        },
+        "tiers": {
+          "TRUSTED": 0,
+          "UNKNOWN": 0,
+          "SUSPICIOUS": 0,
+          "FLAGGED": 0,
+          "SANCTIONED": 0
+        },
+        "replay": {
+          "payments": 0,
+          "amounts_stated_by_source": 0,
+          "amounts_assumed": 0,
+          "assumed_amount_usd": 1000.0,
+          "table": [
+            {
+              "delay": "10 min",
+              "delay_secs": 600,
+              "payments": 0,
+              "payments_reclaimable": 0,
+              "share_of_payments": null,
+              "value_usd": 0,
+              "value_reclaimable_usd": 0,
+              "share_of_value": null,
+              "plain_transfer_share_of_value": null
+            },
+            {
+              "delay": "1 h",
+              "delay_secs": 3600,
+              "payments": 0,
+              "payments_reclaimable": 0,
+              "share_of_payments": null,
+              "value_usd": 0,
+              "value_reclaimable_usd": 0,
+              "share_of_value": null,
+              "plain_transfer_share_of_value": null
+            },
+            {
+              "delay": "6 h",
+              "delay_secs": 21600,
+              "payments": 0,
+              "payments_reclaimable": 0,
+              "share_of_payments": null,
+              "value_usd": 0,
+              "value_reclaimable_usd": 0,
+              "share_of_value": null,
+              "plain_transfer_share_of_value": null
+            },
+            {
+              "delay": "24 h",
+              "delay_secs": 86400,
+              "payments": 0,
+              "payments_reclaimable": 0,
+              "share_of_payments": null,
+              "value_usd": 0,
+              "value_reclaimable_usd": 0,
+              "share_of_value": null,
+              "plain_transfer_share_of_value": null
+            }
+          ]
+        }
+      }
+    },
+    "legit": {
+      "tiers": {
+        "TRUSTED": 0,
+        "UNKNOWN": 54,
+        "SUSPICIOUS": 0,
+        "FLAGGED": 0,
+        "SANCTIONED": 0
+      },
+      "false_positive_rate_by_category": {
+        "program": {
+          "successes": 0,
+          "n": 51,
+          "value": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.07004661989853143
+        },
+        "sampled_wallet": {
+          "successes": 0,
+          "n": 3,
+          "value": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.5614970317550454
+        }
+      }
+    },
+    "time_to_verdict": {
+      "client_ms": {
+        "n": 102,
+        "median_ms": 389.3,
+        "p95_ms": 806.2,
+        "min_ms": 274.8,
+        "max_ms": 2205.9
+      },
+      "server_ms": {
+        "n": 102,
+        "median_ms": 386.0,
+        "p95_ms": 802.8,
+        "min_ms": 273.0,
+        "max_ms": 2178.0
+      },
+      "note": "first assessment of each recipient, one request at a time"
+    },
+    "computed_at": "2026-11-27T15:48:29+00:00"
+  },
+  "negative_result": {
+    "n": 44,
+    "caught": {
+      "successes": 0,
+      "n": 44,
+      "value": 0.0,
+      "ci95_low": 0.0,
+      "ci95_high": 0.08029560375848066
+    },
+    "by_category": {
+      "generated_keypair": {
+        "caught": {
+          "successes": 0,
+          "n": 30,
+          "value": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.11351339317396876
+        },
+        "tiers": {
+          "TRUSTED": 0,
+          "UNKNOWN": 30,
+          "SUSPICIOUS": 0,
+          "FLAGGED": 0,
+          "SANCTIONED": 0
+        }
+      },
+      "sampled_new_wallet": {
+        "caught": {
+          "successes": 0,
+          "n": 14,
+          "value": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.2153108027376358
+        },
+        "tiers": {
+          "TRUSTED": 0,
+          "UNKNOWN": 14,
+          "SUSPICIOUS": 0,
+          "FLAGGED": 0,
+          "SANCTIONED": 0
+        }
+      }
+    },
+    "tiers": {
+      "TRUSTED": 0,
+      "UNKNOWN": 44,
+      "SUSPICIOUS": 0,
+      "FLAGGED": 0,
+      "SANCTIONED": 0
+    },
+    "windows_secs": [
+      1800
+    ],
+    "replay": [
+      {
+        "delay": "10 min",
+        "delay_secs": 600,
+        "payments": 44,
+        "payments_reclaimable": 44,
+        "share_of_payments": 1.0,
+        "value_usd": 44000.0,
+        "value_reclaimable_usd": 44000.0,
+        "share_of_value": 1.0,
+        "plain_transfer_share_of_value": 0.0
+      },
+      {
+        "delay": "1 h",
+        "delay_secs": 3600,
+        "payments": 44,
+        "payments_reclaimable": 0,
+        "share_of_payments": 0.0,
+        "value_usd": 44000.0,
+        "value_reclaimable_usd": 0,
+        "share_of_value": 0.0,
+        "plain_transfer_share_of_value": 0.0
+      },
+      {
+        "delay": "6 h",
+        "delay_secs": 21600,
+        "payments": 44,
+        "payments_reclaimable": 0,
+        "share_of_payments": 0.0,
+        "value_usd": 44000.0,
+        "value_reclaimable_usd": 0,
+        "share_of_value": 0.0,
+        "plain_transfer_share_of_value": 0.0
+      },
+      {
+        "delay": "24 h",
+        "delay_secs": 86400,
+        "payments": 44,
+        "payments_reclaimable": 0,
+        "share_of_payments": 0.0,
+        "value_usd": 44000.0,
+        "value_reclaimable_usd": 0,
+        "share_of_value": 0.0,
+        "plain_transfer_share_of_value": 0.0
+      }
+    ],
+    "not_scored": 0
+  },
+  "latency": {
+    "generated_at": "2026-11-27T15:47:58.966Z",
+    "environment": {
+      "guardian": {
+        "mode": "local Node process",
+        "host": "127.0.0.1",
+        "configured": {
+          "HELIUS_API_KEY": false,
+          "CHAINABUSE_API_KEY": false,
+          "FIRECRAWL_API_KEY": false,
+          "SUPABASE_URL": false,
+          "SUPABASE_SERVICE_ROLE_KEY": false,
+          "ANTHROPIC_API_KEY": true,
+          "OPENAI_API_KEY": false,
+          "MAINNET_RPC_URL": false,
+          "SOLANA_RPC_URL": true
+        }
+      },
+      "node": "v24.10.0"
+    },
+    "assess": {
+      "requests_per_phase": 30,
+      "pause_between_requests_ms": 1000,
+      "cold": {
+        "n": 30,
+        "p50_ms": 252.8,
+        "p95_ms": 340.1,
+        "min_ms": 226.4,
+        "max_ms": 660.7
+      },
+      "warm": {
+        "n": 30,
+        "p50_ms": 132.2,
+        "p95_ms": 148,
+        "min_ms": 114.8,
+        "max_ms": 200.4
+      },
+      "unavailable_collectors": {
+        "baseline": 60,
+        "blocklist": 60,
+        "chainabuse": 60,
+        "helius": 60,
+        "web_reports": 60
+      },
+      "failed_requests": 0,
+      "note": "sequential requests over HTTP; recipients are new addresses without history"
+    },
+    "chain": {
+      "available": true,
+      "cluster_rpc_host": "api.devnet.solana.com",
+      "program_id": "26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom",
+      "commitment": "confirmed",
+      "iterations": 5,
+      "create_hold": {
+        "n": 5,
+        "p50_ms": 890,
+        "p95_ms": 1063,
+        "min_ms": 714.1,
+        "max_ms": 1094.8
+      },
+      "reclaim": {
+        "n": 5,
+        "p50_ms": 833.8,
+        "p95_ms": 989,
+        "min_ms": 672.3,
+        "max_ms": 996
+      },
+      "funded_lamports": 50000000,
+      "returned_lamports": 48980200,
+      "signatures": {
+        "create_hold": [
+          "3aGDvESNsMebhP2w2xfBgWjBQZB5W3KZ8Xp6umsZbsUFSXFwMFZ7HSqrCD2iavFGNZ4RNYfJ4JG1nX4GBJwFbvVF",
+          "MczwEfYNf649rDejitsknnADuDaB3KS9bMq3bEf5L9fpn4mfHapGp1UqKMvErnhZq8AH9UDFkssfzQo1GvAF7sw",
+          "3nNTprawJDUqMi1kWVUT4rgvNzAPeQgAoap8k4N3GemQWUiF8PDX4Hy1MALKELojJdyS5xgcivg8X1QgZ8sJ5zFp",
+          "xNWokpAJgCtq4qJT4guHKgvy7JSjKjiEARHpFD3u3i9uUPwNHWZaUULySnVQ9kriSqr61gsFZ2y7cWnY2TYmGAE",
+          "4Ngo4t1gwZUZ2yCkcbL6RBTnSiVCtTJoJtEZLtjbbLz9Mc86V8AMyHSMGRvRYqhu3bTDsHXHCSom3XtYniLekUjB"
+        ],
+        "reclaim": [
+          "2eMEinaihskTmSa2NhxGrL8Fshchujr6y6ygNXtePsTmWSCw1yEeupHysy2p6mQzMHDz9sKnLM85wZ8XXyXK3G8b",
+          "4eg7YYu56BzoVhuB5PdxVdoH6qEAeycwhymrButqoocNdb6DS6xg29UK7TzMuoQDuJQhFcyNBtuSYA54qnuJRW2p",
+          "34qSR2BFoEY3FxVn2cZfMm5AvwgMK6jXfrWGTEmXX2wmW6G3c3xzRRAcHCCoFvaGytWvoP2awUD7sz5WYPYrBqn",
+          "14YqASjVE62AB2Y6f6hNtzpZq9BXUcwyUWnZ4xE2mKk5ydu16snUbC81fR1WvG5uJfxECDbqaEAdiw8yx8XmbQm",
+          "Lk9tHnGzTk2dpKiQWgBe3CkhQiwu1jXVtYB5uhnB7xK8qbdoCXXNqVKaupXRvVvcekPKcsxgwGj6WFFQWFWc4NE"
+        ]
+      },
+      "note": "milliseconds from sendRawTransaction to confirmed commitment; SOL holds, one at a time, with an untimed pause between transactions; any rate-limit retry of the RPC endpoint inside a transaction is included"
+    }
+  },
+  "program_invariants": {
+    "invariant_cases": 100000,
+    "instructions_executed": 609726,
+    "holds_opened": 101379,
+    "violations": 0
+  },
+  "limitations": [
+    "Collector `baseline` was unavailable in every assessment: no sender history, which only affects the trusted fast path (needs Supabase).",
+    "Collector `blocklist` was unavailable in every assessment: no sanctions-list or scam-list lookup, so listed addresses are not recognised (needs Supabase with the lists loaded).",
+    "Collector `chainabuse` was unavailable in every assessment: no abuse-report lookup (needs CHAINABUSE_API_KEY).",
+    "Collector `helius` was unavailable in every assessment: no wallet age, history or behaviour heuristics (needs HELIUS_API_KEY).",
+    "Collector `web_reports` was unavailable in every assessment: no web search for reports naming the address (needs FIRECRAWL_API_KEY).",
+    "Missing collectors add no points, and nearly every rule adds risk. Recall and the false-positive rate below are therefore expected to be lower than a fully configured service would show. That expectation is not a measurement.",
+    "The held-out scam set has n = 3. Intervals this wide support no claim about a rate.",
+    "No sender note is sent, so social-engineering cues, the signal HOLDBACK reads from the sender's own words, are not exercised.",
+    "Dataset source `chainabuse` was unavailable (CHAINABUSE_API_KEY is not set); its rows are absent, not estimated.",
+    "Scam labels come from the same public lists the `blocklist` collector reads. When that collector is available, catching a listed address repeats the label; `independent_recall` excludes it.",
+    "The baseline's held-out recall on list-sourced rows is zero by construction: those addresses were published after the cut-off. It becomes informative only with dated reports from another source.",
+    "Sampled legit wallets are presumed legitimate (a transaction over a year old, on no list); they are not verified. Very active wallets are excluded because their age cannot be read cheaply.",
+    "Fresh wallets are unlabelled new wallets and generated keypairs, not known scams.",
+    "Exchange wallets: none: no public, machine-readable list of labelled Solana exchange wallets was found."
+  ]
+}

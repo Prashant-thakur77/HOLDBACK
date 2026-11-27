@@ -184,3 +184,19 @@ The default `solana-verify` image ships a Cargo too old for one dependency, so t
 uses the `4.3.0` image. Its output differs from a local `anchor build`, so the devnet program
 was upgraded to the Docker-built binary after it passed the full Rust test suite. The on-chain
 hash now equals the hash anyone gets from the documented command.
+
+## D23. Evaluation method
+
+- **A report's date is its publication date.** For lists kept in git it is the first commit
+  that contains the address. The blocklist baseline only sees lists as published before the
+  cut-off (2026-07-01).
+- **Replay is a sensitivity table** over how long the sender takes to react (10 minutes to
+  24 hours). No reaction-time distribution is assumed.
+- **Independent recall** is reported next to recall: it ignores evidence from the collector
+  that reads the same list a label came from.
+- **Fresh wallets are unlabelled.** The negative-result set is new mainnet wallets and
+  never-used keypairs, not known scams. It measures what the agent can see, not who is
+  guilty.
+- **The run records its own environment.** Collectors and sources that were unavailable are
+  listed in `eval/results.json` and printed next to the table, so a run without keys cannot
+  pass for a full one.

@@ -1,0 +1,14 @@
+{
+  "name": "@holdback/bench",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Latency benchmarks for the Guardian API and the on-chain hold lifecycle",
+  "type": "module",
+  "scripts": {
+    "bench": "tsx src/run.ts",
+    "guardian": "tsx src/guardian-server.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "node --import tsx --test test/*.test.ts"
+  }
+}

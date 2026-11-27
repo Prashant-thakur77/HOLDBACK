@@ -1,0 +1,7 @@
+source,role,url,retrieved_at,status,entries_total,entries_solana,note
+ofac,scam list,https://raw.githubusercontent.com/0xB10C/ofac-sanctioned-digital-currency-addresses/lists/sanctioned_addresses_SOL.txt,2026-11-27,ok,4,4,
+scamsniffer,scam list,https://raw.githubusercontent.com/scamsniffer/scam-database/main/blacklist/address.json,2026-11-27,ok,2530,0,the list holds no Solana address
+chainabuse,scam reports,https://api.chainabuse.com/v0/reports?chain=SOL,,unavailable,,,CHAINABUSE_API_KEY is not set
+explorer_programs,legit programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,ok,53,51,kept when the account is executable on mainnet
+mainnet_sample,legit wallets and fresh wallets,https://api.mainnet-beta.solana.com,2026-11-27,ok,500,17,"seed 20261127, anchor slot 474598777; stopped: candidate budget spent"
+generated,fresh wallets,,,ok,30,30,"seeded keypairs; 30 verified to have no mainnet history, 0 not checked"

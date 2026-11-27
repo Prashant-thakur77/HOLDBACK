@@ -1,0 +1,91 @@
+{
+  "method": "address was on a static list (OFAC SOL mirror, ScamSniffer) published before the cut-off",
+  "cutoff_date": "2026-07-01",
+  "blocklist_size_before_cutoff": 1,
+  "splits": {
+    "heldout": {
+      "recall": {
+        "successes": 0,
+        "n": 3,
+        "value": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.5614970317550454
+      },
+      "false_positive_rate": {
+        "successes": 0,
+        "n": 54,
+        "value": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.0664135880908964
+      },
+      "precision": {
+        "successes": 0,
+        "n": 0,
+        "value": null,
+        "ci95_low": null,
+        "ci95_high": null
+      },
+      "scam_rows": 3,
+      "legit_rows": 54,
+      "not_scored": 0,
+      "share_of_scam_payments_blocked": 0.0,
+      "scam_rows_flagged": 0
+    },
+    "dev": {
+      "recall": {
+        "successes": 1,
+        "n": 1,
+        "value": 1.0,
+        "ci95_low": 0.20654931437723745,
+        "ci95_high": 1.0
+      },
+      "false_positive_rate": {
+        "successes": 0,
+        "n": 54,
+        "value": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.0664135880908964
+      },
+      "precision": {
+        "successes": 1,
+        "n": 1,
+        "value": 1.0,
+        "ci95_low": 0.20654931437723745,
+        "ci95_high": 1.0
+      },
+      "scam_rows": 1,
+      "legit_rows": 54,
+      "not_scored": 0,
+      "share_of_scam_payments_blocked": 1.0,
+      "scam_rows_flagged": 1
+    },
+    "undated": {
+      "recall": {
+        "successes": 0,
+        "n": 0,
+        "value": null,
+        "ci95_low": null,
+        "ci95_high": null
+      },
+      "false_positive_rate": {
+        "successes": 0,
+        "n": 54,
+        "value": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.0664135880908964
+      },
+      "precision": {
+        "successes": 0,
+        "n": 0,
+        "value": null,
+        "ci95_low": null,
+        "ci95_high": null
+      },
+      "scam_rows": 0,
+      "legit_rows": 54,
+      "not_scored": 0,
+      "share_of_scam_payments_blocked": null,
+      "scam_rows_flagged": 0
+    }
+  }
+}

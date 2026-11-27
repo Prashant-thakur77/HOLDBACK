@@ -99,22 +99,22 @@ Every number below is produced by a script and stored in `eval/results.json`
 
 <!-- results:start -->
 
-Run of 2026-11-27 at commit `d7b86c5`. Held-out means first published on or after 2026-07-01.
+Run of 2026-11-27 at commit `9966f61`. Held-out means first published on or after 2026-07-01.
 
-| Metric                                          | Static blocklist                 | HOLDBACK                           |
-| ----------------------------------------------- | -------------------------------- | ---------------------------------- |
-| Recall on held-out scam addresses               | 0/3 (0.0%, 95% CI 0.0% to 56.1%) | 0/3 (0.0%, 95% CI 0.0% to 56.1%)   |
-| False-positive rate on legit addresses          | 0/54 (0.0%, 95% CI 0.0% to 6.6%) | 0/54 (0.0%, 95% CI 0.0% to 6.6%)   |
-| Precision                                       | no rows (n = 0)                  | no rows (n = 0)                    |
-| Scam value still reclaimable, undo after 10 min | 0% (plain transfer)              | 100.0% (3/3 payments)              |
-| Scam value still reclaimable, undo after 1 h    | 0% (plain transfer)              | 0.0% (0/3 payments)                |
-| Scam value still reclaimable, undo after 6 h    | 0% (plain transfer)              | 0.0% (0/3 payments)                |
-| Scam value still reclaimable, undo after 24 h   | 0% (plain transfer)              | 0.0% (0/3 payments)                |
-| Median time to verdict                          | n/a                              | 389 ms (n = 102)                   |
-| `/v1/assess`, first request                     | n/a                              | p50 267 ms, p95 395 ms (n = 30)    |
-| `/v1/assess`, repeat request                    | n/a                              | p50 139 ms, p95 154 ms (n = 30)    |
-| `create_hold` to confirmed, devnet              | n/a                              | p50 845 ms, p95 897 ms (n = 5)     |
-| `reclaim` to confirmed, devnet                  | n/a                              | p50 1,056 ms, p95 2,786 ms (n = 5) |
+| Metric                                           | Static blocklist                                     | HOLDBACK                          |
+| ------------------------------------------------ | ---------------------------------------------------- | --------------------------------- |
+| Recall on held-out scam addresses                | 0/3 (0.0%, 95% CI 0.0% to 56.1%)                     | 0/3 (0.0%, 95% CI 0.0% to 56.1%)  |
+| False-positive rate on legit addresses           | 0/54 (0.0%, 95% CI 0.0% to 6.6%)                     | 0/54 (0.0%, 95% CI 0.0% to 6.6%)  |
+| Precision                                        | no rows (n = 0)                                      | no rows (n = 0)                   |
+| Scam value protected, sender reacts after 10 min | 0.0% blocked (0/3); the rest is a plain transfer, 0% | 100.0% reclaimable (3/3 payments) |
+| Scam value protected, sender reacts after 1 h    | 0.0% blocked (0/3); the rest is a plain transfer, 0% | 0.0% reclaimable (0/3 payments)   |
+| Scam value protected, sender reacts after 6 h    | 0.0% blocked (0/3); the rest is a plain transfer, 0% | 0.0% reclaimable (0/3 payments)   |
+| Scam value protected, sender reacts after 24 h   | 0.0% blocked (0/3); the rest is a plain transfer, 0% | 0.0% reclaimable (0/3 payments)   |
+| Median time to verdict                           | n/a                                                  | 389 ms (n = 102)                  |
+| `/v1/assess`, first request                      | n/a                                                  | p50 253 ms, p95 340 ms (n = 30)   |
+| `/v1/assess`, repeat request                     | n/a                                                  | p50 132 ms, p95 148 ms (n = 30)   |
+| `create_hold` to confirmed, devnet               | n/a                                                  | p50 890 ms, p95 1,063 ms (n = 5)  |
+| `reclaim` to confirmed, devnet                   | n/a                                                  | p50 834 ms, p95 989 ms (n = 5)    |
 
 In this run these evidence collectors were unavailable for every assessment: `baseline`, `blocklist`, `chainabuse`, `helius`, `web_reports`. Dataset sources that could not be used: `chainabuse`. The numbers describe that configuration and nothing more; [`eval/RESULTS.md`](eval/RESULTS.md) lists every limit and the full tables.
 

@@ -1,0 +1,16 @@
+{
+  "mode": "local Node process",
+  "host": "127.0.0.1",
+  "configured": {
+    "HELIUS_API_KEY": false,
+    "CHAINABUSE_API_KEY": false,
+    "FIRECRAWL_API_KEY": false,
+    "SUPABASE_URL": false,
+    "SUPABASE_SERVICE_ROLE_KEY": false,
+    "ANTHROPIC_API_KEY": true,
+    "OPENAI_API_KEY": false,
+    "MAINNET_RPC_URL": false,
+    "SOLANA_RPC_URL": true
+  },
+  "node": "v24.10.0"
+}

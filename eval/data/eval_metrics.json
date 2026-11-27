@@ -1,0 +1,463 @@
+{
+  "computed_at": "2026-11-27T15:48:29+00:00",
+  "detection_rule": "tier is SUSPICIOUS or higher",
+  "environment": {
+    "guardian": {
+      "mode": "local Node process",
+      "host": "127.0.0.1",
+      "configured": {
+        "HELIUS_API_KEY": false,
+        "CHAINABUSE_API_KEY": false,
+        "FIRECRAWL_API_KEY": false,
+        "SUPABASE_URL": false,
+        "SUPABASE_SERVICE_ROLE_KEY": false,
+        "ANTHROPIC_API_KEY": true,
+        "OPENAI_API_KEY": false,
+        "MAINNET_RPC_URL": false,
+        "SOLANA_RPC_URL": true
+      },
+      "node": "v24.10.0"
+    },
+    "assessments": 102,
+    "assessments_failed": 0,
+    "policy_versions": [
+      "holdback-policy/1.0.0"
+    ],
+    "collectors_unavailable_in_every_assessment": [
+      "baseline",
+      "blocklist",
+      "chainabuse",
+      "helius",
+      "web_reports"
+    ],
+    "collectors_unavailable_in_some_assessments": {},
+    "collectors_answering_in_every_assessment": [
+      "context",
+      "onchain_reputation",
+      "sns"
+    ],
+    "context_note_sent": false
+  },
+  "splits": {
+    "heldout": {
+      "recall": {
+        "successes": 0,
+        "n": 3,
+        "value": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.5614970317550454
+      },
+      "false_positive_rate": {
+        "successes": 0,
+        "n": 54,
+        "value": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.0664135880908964
+      },
+      "precision": {
+        "successes": 0,
+        "n": 0,
+        "value": null,
+        "ci95_low": null,
+        "ci95_high": null
+      },
+      "scam_rows": 3,
+      "legit_rows": 54,
+      "not_scored": 0,
+      "independent_recall": {
+        "successes": 0,
+        "n": 3,
+        "value": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.5614970317550454
+      },
+      "tiers": {
+        "TRUSTED": 0,
+        "UNKNOWN": 3,
+        "SUSPICIOUS": 0,
+        "FLAGGED": 0,
+        "SANCTIONED": 0
+      },
+      "replay": {
+        "payments": 3,
+        "amounts_stated_by_source": 0,
+        "amounts_assumed": 3,
+        "assumed_amount_usd": 1000.0,
+        "table": [
+          {
+            "delay": "10 min",
+            "delay_secs": 600,
+            "payments": 3,
+            "payments_reclaimable": 3,
+            "share_of_payments": 1.0,
+            "value_usd": 3000.0,
+            "value_reclaimable_usd": 3000.0,
+            "share_of_value": 1.0,
+            "plain_transfer_share_of_value": 0.0
+          },
+          {
+            "delay": "1 h",
+            "delay_secs": 3600,
+            "payments": 3,
+            "payments_reclaimable": 0,
+            "share_of_payments": 0.0,
+            "value_usd": 3000.0,
+            "value_reclaimable_usd": 0,
+            "share_of_value": 0.0,
+            "plain_transfer_share_of_value": 0.0
+          },
+          {
+            "delay": "6 h",
+            "delay_secs": 21600,
+            "payments": 3,
+            "payments_reclaimable": 0,
+            "share_of_payments": 0.0,
+            "value_usd": 3000.0,
+            "value_reclaimable_usd": 0,
+            "share_of_value": 0.0,
+            "plain_transfer_share_of_value": 0.0
+          },
+          {
+            "delay": "24 h",
+            "delay_secs": 86400,
+            "payments": 3,
+            "payments_reclaimable": 0,
+            "share_of_payments": 0.0,
+            "value_usd": 3000.0,
+            "value_reclaimable_usd": 0,
+            "share_of_value": 0.0,
+            "plain_transfer_share_of_value": 0.0
+          }
+        ]
+      }
+    },
+    "dev": {
+      "recall": {
+        "successes": 0,
+        "n": 1,
+        "value": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.7934506856227626
+      },
+      "false_positive_rate": {
+        "successes": 0,
+        "n": 54,
+        "value": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.0664135880908964
+      },
+      "precision": {
+        "successes": 0,
+        "n": 0,
+        "value": null,
+        "ci95_low": null,
+        "ci95_high": null
+      },
+      "scam_rows": 1,
+      "legit_rows": 54,
+      "not_scored": 0,
+      "independent_recall": {
+        "successes": 0,
+        "n": 1,
+        "value": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.7934506856227626
+      },
+      "tiers": {
+        "TRUSTED": 0,
+        "UNKNOWN": 1,
+        "SUSPICIOUS": 0,
+        "FLAGGED": 0,
+        "SANCTIONED": 0
+      },
+      "replay": {
+        "payments": 1,
+        "amounts_stated_by_source": 0,
+        "amounts_assumed": 1,
+        "assumed_amount_usd": 1000.0,
+        "table": [
+          {
+            "delay": "10 min",
+            "delay_secs": 600,
+            "payments": 1,
+            "payments_reclaimable": 1,
+            "share_of_payments": 1.0,
+            "value_usd": 1000.0,
+            "value_reclaimable_usd": 1000.0,
+            "share_of_value": 1.0,
+            "plain_transfer_share_of_value": 0.0
+          },
+          {
+            "delay": "1 h",
+            "delay_secs": 3600,
+            "payments": 1,
+            "payments_reclaimable": 0,
+            "share_of_payments": 0.0,
+            "value_usd": 1000.0,
+            "value_reclaimable_usd": 0,
+            "share_of_value": 0.0,
+            "plain_transfer_share_of_value": 0.0
+          },
+          {
+            "delay": "6 h",
+            "delay_secs": 21600,
+            "payments": 1,
+            "payments_reclaimable": 0,
+            "share_of_payments": 0.0,
+            "value_usd": 1000.0,
+            "value_reclaimable_usd": 0,
+            "share_of_value": 0.0,
+            "plain_transfer_share_of_value": 0.0
+          },
+          {
+            "delay": "24 h",
+            "delay_secs": 86400,
+            "payments": 1,
+            "payments_reclaimable": 0,
+            "share_of_payments": 0.0,
+            "value_usd": 1000.0,
+            "value_reclaimable_usd": 0,
+            "share_of_value": 0.0,
+            "plain_transfer_share_of_value": 0.0
+          }
+        ]
+      }
+    },
+    "undated": {
+      "recall": {
+        "successes": 0,
+        "n": 0,
+        "value": null,
+        "ci95_low": null,
+        "ci95_high": null
+      },
+      "false_positive_rate": {
+        "successes": 0,
+        "n": 54,
+        "value": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.0664135880908964
+      },
+      "precision": {
+        "successes": 0,
+        "n": 0,
+        "value": null,
+        "ci95_low": null,
+        "ci95_high": null
+      },
+      "scam_rows": 0,
+      "legit_rows": 54,
+      "not_scored": 0,
+      "independent_recall": {
+        "successes": 0,
+        "n": 0,
+        "value": null,
+        "ci95_low": null,
+        "ci95_high": null
+      },
+      "tiers": {
+        "TRUSTED": 0,
+        "UNKNOWN": 0,
+        "SUSPICIOUS": 0,
+        "FLAGGED": 0,
+        "SANCTIONED": 0
+      },
+      "replay": {
+        "payments": 0,
+        "amounts_stated_by_source": 0,
+        "amounts_assumed": 0,
+        "assumed_amount_usd": 1000.0,
+        "table": [
+          {
+            "delay": "10 min",
+            "delay_secs": 600,
+            "payments": 0,
+            "payments_reclaimable": 0,
+            "share_of_payments": null,
+            "value_usd": 0,
+            "value_reclaimable_usd": 0,
+            "share_of_value": null,
+            "plain_transfer_share_of_value": null
+          },
+          {
+            "delay": "1 h",
+            "delay_secs": 3600,
+            "payments": 0,
+            "payments_reclaimable": 0,
+            "share_of_payments": null,
+            "value_usd": 0,
+            "value_reclaimable_usd": 0,
+            "share_of_value": null,
+            "plain_transfer_share_of_value": null
+          },
+          {
+            "delay": "6 h",
+            "delay_secs": 21600,
+            "payments": 0,
+            "payments_reclaimable": 0,
+            "share_of_payments": null,
+            "value_usd": 0,
+            "value_reclaimable_usd": 0,
+            "share_of_value": null,
+            "plain_transfer_share_of_value": null
+          },
+          {
+            "delay": "24 h",
+            "delay_secs": 86400,
+            "payments": 0,
+            "payments_reclaimable": 0,
+            "share_of_payments": null,
+            "value_usd": 0,
+            "value_reclaimable_usd": 0,
+            "share_of_value": null,
+            "plain_transfer_share_of_value": null
+          }
+        ]
+      }
+    }
+  },
+  "legit": {
+    "tiers": {
+      "TRUSTED": 0,
+      "UNKNOWN": 54,
+      "SUSPICIOUS": 0,
+      "FLAGGED": 0,
+      "SANCTIONED": 0
+    },
+    "false_positive_rate_by_category": {
+      "program": {
+        "successes": 0,
+        "n": 51,
+        "value": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.07004661989853143
+      },
+      "sampled_wallet": {
+        "successes": 0,
+        "n": 3,
+        "value": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.5614970317550454
+      }
+    }
+  },
+  "time_to_verdict": {
+    "client_ms": {
+      "n": 102,
+      "median_ms": 389.3,
+      "p95_ms": 806.2,
+      "min_ms": 274.8,
+      "max_ms": 2205.9
+    },
+    "server_ms": {
+      "n": 102,
+      "median_ms": 386.0,
+      "p95_ms": 802.8,
+      "min_ms": 273.0,
+      "max_ms": 2178.0
+    },
+    "note": "first assessment of each recipient, one request at a time"
+  },
+  "negative_result": {
+    "n": 44,
+    "caught": {
+      "successes": 0,
+      "n": 44,
+      "value": 0.0,
+      "ci95_low": 0.0,
+      "ci95_high": 0.08029560375848066
+    },
+    "by_category": {
+      "generated_keypair": {
+        "caught": {
+          "successes": 0,
+          "n": 30,
+          "value": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.11351339317396876
+        },
+        "tiers": {
+          "TRUSTED": 0,
+          "UNKNOWN": 30,
+          "SUSPICIOUS": 0,
+          "FLAGGED": 0,
+          "SANCTIONED": 0
+        }
+      },
+      "sampled_new_wallet": {
+        "caught": {
+          "successes": 0,
+          "n": 14,
+          "value": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.2153108027376358
+        },
+        "tiers": {
+          "TRUSTED": 0,
+          "UNKNOWN": 14,
+          "SUSPICIOUS": 0,
+          "FLAGGED": 0,
+          "SANCTIONED": 0
+        }
+      }
+    },
+    "tiers": {
+      "TRUSTED": 0,
+      "UNKNOWN": 44,
+      "SUSPICIOUS": 0,
+      "FLAGGED": 0,
+      "SANCTIONED": 0
+    },
+    "windows_secs": [
+      1800
+    ],
+    "replay": [
+      {
+        "delay": "10 min",
+        "delay_secs": 600,
+        "payments": 44,
+        "payments_reclaimable": 44,
+        "share_of_payments": 1.0,
+        "value_usd": 44000.0,
+        "value_reclaimable_usd": 44000.0,
+        "share_of_value": 1.0,
+        "plain_transfer_share_of_value": 0.0
+      },
+      {
+        "delay": "1 h",
+        "delay_secs": 3600,
+        "payments": 44,
+        "payments_reclaimable": 0,
+        "share_of_payments": 0.0,
+        "value_usd": 44000.0,
+        "value_reclaimable_usd": 0,
+        "share_of_value": 0.0,
+        "plain_transfer_share_of_value": 0.0
+      },
+      {
+        "delay": "6 h",
+        "delay_secs": 21600,
+        "payments": 44,
+        "payments_reclaimable": 0,
+        "share_of_payments": 0.0,
+        "value_usd": 44000.0,
+        "value_reclaimable_usd": 0,
+        "share_of_value": 0.0,
+        "plain_transfer_share_of_value": 0.0
+      },
+      {
+        "delay": "24 h",
+        "delay_secs": 86400,
+        "payments": 44,
+        "payments_reclaimable": 0,
+        "share_of_payments": 0.0,
+        "value_usd": 44000.0,
+        "value_reclaimable_usd": 0,
+        "share_of_value": 0.0,
+        "plain_transfer_share_of_value": 0.0
+      }
+    ],
+    "not_scored": 0
+  },
+  "fresh_label_note": "fresh wallets are unlabelled new wallets, not known scams"
+}

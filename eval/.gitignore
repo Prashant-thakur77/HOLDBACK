@@ -1,0 +1,4 @@
+# Raw downloads and cached RPC answers: large, and rebuilt by build_dataset.py.
+data/raw/
+__pycache__/
+.pytest_cache/

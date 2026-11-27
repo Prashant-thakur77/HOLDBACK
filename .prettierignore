@@ -16,3 +16,6 @@ PLAN.md
 PROMPT.md
 docs/INVENTORY.md
 supabase/functions/_shared/holdback.idl.json
+eval/program_invariants.json
+eval/data
+bench/results.json

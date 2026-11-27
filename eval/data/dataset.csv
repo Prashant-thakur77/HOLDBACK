@@ -1,0 +1,103 @@
+address,label,category,source,source_url,retrieved_at,report_date,amount_usd,split,note
+42RLPACwZPx3vYYmxSueqsogfynBDqXK298EDsNoyoHi,scam,sanctioned,ofac,https://raw.githubusercontent.com/0xB10C/ofac-sanctioned-digital-currency-addresses/lists/sanctioned_addresses_SOL.txt,2026-11-27,2026-05-16,,dev,report date = first commit of the list file that contains the address
+6wjqWWra8ombzaw6VHrG5xpQ972jCYF6bbHiFCbWmr4U,scam,sanctioned,ofac,https://raw.githubusercontent.com/0xB10C/ofac-sanctioned-digital-currency-addresses/lists/sanctioned_addresses_SOL.txt,2026-11-27,2026-08-08,,heldout,report date = first commit of the list file that contains the address
+Fc1EwQUZyTEagaDvA1utHXCcZNyG1x2PLt2DfNu1cJdH,scam,sanctioned,ofac,https://raw.githubusercontent.com/0xB10C/ofac-sanctioned-digital-currency-addresses/lists/sanctioned_addresses_SOL.txt,2026-11-27,2026-07-14,,heldout,report date = first commit of the list file that contains the address
+FuCC7GoYwt5TsNTjWL23Xx9UKCvC18chjMEFPL3vJDCC,scam,sanctioned,ofac,https://raw.githubusercontent.com/0xB10C/ofac-sanctioned-digital-currency-addresses/lists/sanctioned_addresses_SOL.txt,2026-11-27,2026-07-14,,heldout,report date = first commit of the list file that contains the address
+35P6Xkh5zNZDecpsFLuQXHsWb8AbhqYWnboF3J2ZJr9g,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+3Boh7QtGDPLZC6AepWSd17KxZ4REz4M1MEZgphYzuzpe,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+3gy4jdh7rL3h4ZL7QwfvvLJdfs3m9R67z12fxmEUrtzR,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+3vzM4beWaUkoNMWzw8de49tXf1h5318Ae7TK1YkXuTKg,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+4cYdWxsygfG6RApgBXFaNzaxBzUe9ksye4uBeWy334Dj,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+5v7j9TybXor4D37ouS8PqeFdmDhTDacRSHWJMpGp743J,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+6CDr4Nc46aZmNxAtcpDjq7ApXznY51EmQ3MNvJuWofLt,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+6U8XiV883ofMB7x2uqRMDeMYyAVa8HghzbLhsQGCXS5c,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+73F4NJ6uLLKgERXD5euf5DF1NEBmnf6CzLgjAiJ7hj5S,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+7CLPsLC5NY3vxCNg3ts94QvGJ5x3LT9sMk8985rJ44Db,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+7ngsVgKQYdTVr3Gv7GEdmhXrLFqezQTT44ruNaJKxKTi,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+8G5SxQ2Ru5XKYt2TgcN3LfQMnAHDUVXVCA6McUAHk33z,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+8WKNo1xsfeQik2wPF27J2HtTnYw3PTFXsV4DJQxRiKGY,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+9Rcb5h6D6Vrq79Zer4kkT8j9jctsPYNB8x3t6vpqNuxU,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+9YruUcJ2hrLNfD8Tt2d7Cw5xsQ3dUAaTcL2B2nZX943W,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+9f1iM8DvuByx4CaQeVHMUAraUj7TrYYRLMRzkwfbEHV7,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+AjjGt336eGuXEStUwfiGe5c3HHo211yFjFgNZzhqpEST,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+Amc63JkAnmMKfxttevJuxHXXjzJ1FvP5vXVeMDeTauJW,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+BHsKYwBZekjmLpu11qAeYGCMh1eF4EgWxtf9buGXkKWv,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+BStJbXE3f67T5ZaKsF4Bdf3oyAyC7LFQCDpVx8gafwkG,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+BqfJtA85FAgenXsARwypDggTfyVK99guztKkMV4xmbJb,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+DxwtvGaHZht4Bh8KVss1PQUmVQVNzwH84BJdiZPAC7yj,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+E1JDiJd1Su3mN6mTfMSx9aqTHKEZhecDt6dEVj1kB8e4,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+E1o5PTRACJ23VmpvEC8rahd6Ya9yGANFwnVQQFtFC61S,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+FGuvxXex91Cboz2xo6b71MphcB87f3JRWzJtt1KgXk3i,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+J6jxQt5pH2kNNXTP4HX9MvcJDSjErJKyDqDYApRoACSW,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+UfVJvdDbJGMtZhsJXsqaHzZmdafztsefioNXGmLanWn,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+XK67n8sp385G5tmo5xkWDzdHu37761BoP6CpMR4Xbn4,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+brJScGUv8bfvM2cxhwzwFXoFe7ezUWxKdzXMk352E4U,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+cfKJBEvdvsLYPZzgDP4abPAoWW6D5H4oHtEWYxRUWkz,fresh,generated_keypair,generated,,,,,fresh,generated for this evaluation; never used on-chain
+2mwtyCNHxGBomofeaTRqQ5QvJG75oLkt2rR6su7Za5Vm,fresh,sampled_new_wallet,mainnet_sample,https://api.mainnet-beta.solana.com,2026-11-27,,,fresh,"fee payer in slot 474597165; whole history: 10 signatures, first 0.1 h before the anchor block"
+31yfJDw4HtctrAJfE9Yg16inVEbwcH3YaQB6GmtZ5dYE,fresh,sampled_new_wallet,mainnet_sample,https://api.mainnet-beta.solana.com,2026-11-27,,,fresh,"fee payer in slot 474596350; whole history: 6 signatures, first 0.6 h before the anchor block"
+3ekDNpVeMC6r5PYaGJWZXUaZbyt8de9iT37BP1icWknB,fresh,sampled_new_wallet,mainnet_sample,https://api.mainnet-beta.solana.com,2026-11-27,,,fresh,"fee payer in slot 474597806; whole history: 12 signatures, first 1.2 h before the anchor block"
+5nnxYNPUfJsgYfTgFBMpEmSwzDEArr8LMv3VisaWTY4w,fresh,sampled_new_wallet,mainnet_sample,https://api.mainnet-beta.solana.com,2026-11-27,,,fresh,"fee payer in slot 474597806; whole history: 24 signatures, first 2.0 h before the anchor block"
+6eyMVimLpY59woQh7XD5AsT9J8pmntF8mGyvh2QbE7bF,fresh,sampled_new_wallet,mainnet_sample,https://api.mainnet-beta.solana.com,2026-11-27,,,fresh,"fee payer in slot 474597706; whole history: 7 signatures, first 0.2 h before the anchor block"
+78yLW1bJg5ubAsD3VHeeDcabHH5V8S88xgJsMV9wpsge,fresh,sampled_new_wallet,mainnet_sample,https://api.mainnet-beta.solana.com,2026-11-27,,,fresh,"fee payer in slot 474597806; whole history: 5 signatures, first 2.0 h before the anchor block"
+7HhZpnHeHUwhc36TTYChM52HZucT9DHruysupRKPe6Fc,fresh,sampled_new_wallet,mainnet_sample,https://api.mainnet-beta.solana.com,2026-11-27,,,fresh,"fee payer in slot 474598626; whole history: 4 signatures, first 0.0 h before the anchor block"
+AFoMjGCvYc6GXTXmSzgYk5WtK3Nk6sgjZXsX2SK1ZSQd,fresh,sampled_new_wallet,mainnet_sample,https://api.mainnet-beta.solana.com,2026-11-27,,,fresh,"fee payer in slot 474598626; whole history: 7 signatures, first 0.4 h before the anchor block"
+B1dvVd47YGdjb2rHHKAwNypA2PTUEyFPcs7oN7PPoXAT,fresh,sampled_new_wallet,mainnet_sample,https://api.mainnet-beta.solana.com,2026-11-27,,,fresh,"fee payer in slot 474598626; whole history: 23 signatures, first 2.8 h before the anchor block"
+CJ8r2St959VKWzs2JHCGrbdBFrigum9JPZhW6zeRXDHX,fresh,sampled_new_wallet,mainnet_sample,https://api.mainnet-beta.solana.com,2026-11-27,,,fresh,"fee payer in slot 474597165; whole history: 6 signatures, first 0.1 h before the anchor block"
+CLpY1QUCNcanUcXx11EkxAZf6jvx5Ty6kYVm8bUQR5Xh,fresh,sampled_new_wallet,mainnet_sample,https://api.mainnet-beta.solana.com,2026-11-27,,,fresh,"fee payer in slot 474597806; whole history: 5 signatures, first 0.6 h before the anchor block"
+Crg1RLRGzA6mSV1uUkvng5BZDTJSnpcVfo19VyAQ13At,fresh,sampled_new_wallet,mainnet_sample,https://api.mainnet-beta.solana.com,2026-11-27,,,fresh,"fee payer in slot 474598626; whole history: 5 signatures, first 0.2 h before the anchor block"
+EGk6CzpE1BBUV3bSsrRveJQwMBDVtpbfCswLu71VYsXG,fresh,sampled_new_wallet,mainnet_sample,https://api.mainnet-beta.solana.com,2026-11-27,,,fresh,"fee payer in slot 474597615; whole history: 2 signatures, first 0.1 h before the anchor block"
+FfcFC5Gr8tNLuCaEwW1reyKrzMurQzwop3v7UF63bApa,fresh,sampled_new_wallet,mainnet_sample,https://api.mainnet-beta.solana.com,2026-11-27,,,fresh,"fee payer in slot 474598423; whole history: 10 signatures, first 0.1 h before the anchor block"
+11111111111111111111111111111111,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,System Program
+22zoJMtdu4tQc2PzL74ZUT7FrwgB1Udec8DdW4yw4BdG,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Solana Attestation Service Program
+27haf8L6oxUeXrHrgEgsexjSY5hbVUWEmvv9Nyxg8vQv,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Raydium Liquidity Pool Program v2
+675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Raydium AMM Program
+9W959DqEETiGZocYWCQPaJ6sBmUzgfxXfqGeTEdp3aQP,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Orca Swap Program v2
+ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Associated Token Program
+AddressLookupTab1e1111111111111111111111111,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Address Lookup Table Program
+BPFLoader1111111111111111111111111111111111,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,BPF Loader
+BPFLoader2111111111111111111111111111111111,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,BPF Loader 2
+BPFLoaderUpgradeab1e11111111111111111111111,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,BPF Upgradeable Loader
+ComputeBudget111111111111111111111111111111,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Compute Budget Program
+Config1111111111111111111111111111111111111,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Config Program
+De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Subscriptions Program
+DjVE6JNiYqPL2QXyCUUh8rNjHrbz9hXHNYt99MQ59qw1,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Orca Swap Program v1
+DtmE9D2CSB4L5D6A15mraeEjrGMm6auWVzgaD8hK2tZM,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Switchboard Oracle Program
+Ed25519SigVerify111111111111111111111111111,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Ed25519 SigVerify Precompile
+EhhTKczWMGQt46ynNeRX1WfeagwwJd7ufHvCDjRxjo5Q,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Raydium Staking Program
+Feat1YXHhH6t1juaWF74WLcfv4XoNocjXA6sPWHNgAse,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Feature Proposal Program
+Feature111111111111111111111111111111111111,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Feature Gate Program
+Gt9S41PtjR58CbG9JhJ3J6vxesqrNAswbWYbLNTMZA3c,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Chainlink Data Streams Verifier Program
+HEvSKofvBgfaexv23kMabbYqxasxU3mQ4ibBMEmJWHny,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Chainlink Store Program
+KeccakSecp256k11111111111111111111111111111,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Secp256k1 SigVerify Precompile
+L2TExMFKdjpN9kozasaurPirfHy9P8sbXoAN1qA3S95,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Lighthouse Program
+LendZqTs7gn5CTSJU1jWKhKuVpjJGom45nnwPb2AMTi,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Lending Program
+MarBmsSgKXdrN1egZf5sqe1TMai9K1rChYNDJgjq7aD,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Marinade Staking Program
+Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Memo Program v1
+MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Memo Program
+ProgM6JCCvbYkfKqJYHePx4xxSUSqJp7rh8Lyv7nk7S,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Program Metadata Program
+RVKd61ztZW9GUwhRbbLoYVRE5Xf1B2tVscKqwZqXgEr,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Raydium Liquidity Pool Program v1
+SPoo1Ku8WFXoNDMHPsrGSTSG1Y47rzgn41SLUNakuHy,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Stake Pool Program
+Stake11111111111111111111111111111111111111,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Stake Program
+SwaPpA9LAaLfeLi3a68M4DjnLqgtticKg6CnyNwgAC8,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Swap Program
+SySTEM1eSU2p4BGQfQpimFEWWSC1XDFeun3Nqzz3rT7,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Light System Program
+TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Token Program
+TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Token-2022 Program
+VRFzZoJdhFWL8rkvu87LpKM3RbcVezpMEc6X5GVDr7y,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,ORAO VRF v2
+Vote111111111111111111111111111111111111111,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Vote Program
+WnFt12ZrnzZrFZkt2xsNsaNWoQribnuQ5B5FrDbwDhD,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Wormhole NFT Bridge
+WormT3McKhFJ2RkiGpdw9GKvNCrB2aB54gb2uV9MfQC,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Wormhole
+cTokenmWW8bLPjZEBAUgYy3zKxQZW6VKi7bqNFEVv3m,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,ZK Compressed Token Program
+cjg3oHmg9uuPsP8D6g29NWvhySJkdYdAo9D25PRbKXJ,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Chainlink OCR2 Oracle Program
+cmtDvXumGCrqC1Age74AVPhSRVXJMd8PJS91L8KbNCK,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,State Compression Program
+cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,NFT Candy Machine Program V2
+cndyAnrLdpjq1Ssp1z8xxDsB8dxe7u4HL5Nxi2K5WXZ,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,NFT Candy Machine Program
+compr6CUsB5m2jS4Y3831ztGSTnDpnKJTKS95d64XVq,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,ZK Account Compression Program
+metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Token Metadata Program
+namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Name Service Program
+oreV2ZymfyeXgNgBdqMkumTqqAprVqgBWQfoYkrtKWQ,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,ORE Program
+vau1zxA2LbssAUEF7Gpw91zMM1LvXrvpzJtmZ58rPsn,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Token Vault Program
+worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Wormhole Core Bridge
+wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb,legit,program,explorer_programs,https://raw.githubusercontent.com/solana-foundation/explorer/master/app/utils/programs.ts,2026-11-27,,,all,Wormhole Token Bridge
+5Awao1yKpiKySnbBCsSAJARhHLFAGcKwxrCT7FTHyB4M,legit,sampled_wallet,mainnet_sample,https://api.mainnet-beta.solana.com,2026-11-27,,,all,fee payer in slot 474598175; a transaction on 2025-09-03 found; 1000 signatures read
+5tRBJjEvnzzqsoPYjuQR8s82surMfxbtNvGdFKvLNvhW,legit,sampled_wallet,mainnet_sample,https://api.mainnet-beta.solana.com,2026-11-27,,,all,fee payer in slot 474598423; a transaction on 2025-06-10 found; 1000 signatures read
+DjMSSa4qtBoWgqS3YLbWE1dpXxZiZtgrbH7cUGJs3GvU,legit,sampled_wallet,mainnet_sample,https://api.mainnet-beta.solana.com,2026-11-27,,,all,fee payer in slot 474597680; a transaction on 2025-08-30 found; 4000 signatures read
