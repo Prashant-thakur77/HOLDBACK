@@ -74,6 +74,12 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run lint
+      - name: Webhook decoder tests
+        working-directory: supabase/tests
+        run: |
+          npm ci
+          npm run typecheck
+          npm test
 
   web:
     name: Web (typecheck, tests, build)

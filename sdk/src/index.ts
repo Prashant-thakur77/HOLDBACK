@@ -1,4 +1,5 @@
 export * from './accounts';
+export { decodeType, encodeType, type IdlType } from './codec';
 export * from './api';
 export * from './constants';
 export * from './errors';

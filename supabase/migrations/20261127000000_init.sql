@@ -5,16 +5,18 @@
 -- documents behind each window, caches, profiles and game runs.
 --
 -- Access model: every write goes through the service role (the agent and the
--- webhook). Anonymous clients can read evidence and receipts by hash/PDA and
--- the public counters. A signed-in wallet (JWT claim `wallet`) can read its
--- own holds and profile.
+-- webhook). Anonymous clients can fetch one evidence document by hash and one
+-- receipt by PDA through definer functions, and read the public counters;
+-- they cannot list either table. Dojo runs are served by the web app, which
+-- reads them with the service role. A signed-in wallet (JWT claim `wallet`)
+-- can read its own holds and profile.
 
 create extension if not exists pgcrypto;
 
 -- The wallet in the caller's JWT, or null for anonymous callers.
 create or replace function public.jwt_wallet() returns text
 language sql stable as $$
-  select nullif(current_setting('request.jwt.claims', true)::jsonb ->> 'wallet', '')
+  select nullif(nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'wallet', '')
 $$;
 
 create or replace function public.touch_updated_at() returns trigger
@@ -191,16 +193,27 @@ create or replace view public.live_stats with (security_invoker = false) as
 
 -- A public receipt: one hold by PDA with its evidence. Runs as the owner so
 -- anonymous callers can fetch a single known hold without listing the table.
+-- Amount and nonce are returned as text: they are u64 values and do not fit
+-- in a JSON number.
 create or replace function public.hold_receipt(p_pda text) returns jsonb
 language sql stable security definer set search_path = public as $$
   select jsonb_build_object(
-    'hold', to_jsonb(h),
+    'hold', to_jsonb(h) || jsonb_build_object('amount', h.amount::text, 'nonce', h.nonce::text),
     'document', e.document,
     'spoken', coalesce(e.spoken, '{}'::jsonb)
   )
   from holds h
   left join evidence e on e.hash = h.evidence_hash
   where h.pda = p_pda
+$$;
+
+-- One evidence document by its hash. Evidence is public to anyone who knows
+-- the hash (it is on-chain in the hold), but the table cannot be listed.
+create or replace function public.evidence_document(p_hash text) returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object('hash', hash, 'document', document, 'spoken', spoken, 'created_at', created_at)
+  from evidence
+  where hash = p_hash
 $$;
 
 -- row-level security ----------------------------------------------------------------
@@ -224,9 +237,6 @@ alter table public.metrics_daily     enable row level security;
 create policy profiles_read_own on public.profiles
   for select using (wallet = public.jwt_wallet());
 
-create policy evidence_read_all on public.evidence
-  for select using (true);
-
 create policy blocklist_meta_read_all on public.blocklist_meta
   for select using (true);
 
@@ -236,18 +246,21 @@ create policy holds_read_own on public.holds
 create policy instant_read_own on public.instant_transfers
   for select using (public.jwt_wallet() in (sender, recipient));
 
-create policy dojo_runs_read_all on public.dojo_runs
-  for select using (true);
-
 create policy eval_runs_read_all on public.eval_runs
   for select using (true);
 
 create policy metrics_read_all on public.metrics_daily
   for select using (true);
 
+-- Explicit read grants for the tables that have a select policy above. Row
+-- visibility is still decided by those policies.
+grant select on public.profiles, public.holds, public.instant_transfers, public.blocklist_meta,
+  public.eval_runs, public.metrics_daily to anon, authenticated;
 grant select on public.live_stats to anon, authenticated;
 grant execute on function public.hold_receipt(text) to anon, authenticated;
-revoke all on public.evidence_cache, public.relay_challenges, public.flags_offchain from anon, authenticated;
+grant execute on function public.evidence_document(text) to anon, authenticated;
+revoke all on public.evidence, public.evidence_cache, public.relay_challenges, public.flags_offchain, public.dojo_runs
+  from anon, authenticated;
 
 -- realtime ----------------------------------------------------------------------------
 

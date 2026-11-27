@@ -81,3 +81,23 @@ needs to create an account.
   `error` and the full state, so an agent can recover.
 - **Memo.** The hash covers `turn|round|move|outcome|points` lines. If the write fails the
   result says so and it can be retried.
+
+## D14. The webhook writes through one SQL function
+`ingest_hold_events(jsonb)` applies a whole webhook delivery in one transaction and moves the
+daily counters only together with the row change, so a retried delivery cannot count twice.
+A settlement or extension that arrives before its hold is answered with 503 so the sender
+retries. Raw webhooks are recommended: enhanced payloads carry no logs, and the function then
+has to fetch each transaction. USD values are recorded at par for known stablecoins only;
+SOL and other mints stay null. `pg_cron` does SQL housekeeping only; the crank and the list
+refresh run on the agent's Cron Trigger.
+
+## D15. Evidence and Dojo runs are fetched, not listed
+Anonymous clients get one evidence document by hash and one receipt by PDA through definer
+functions. Neither table can be listed, and Dojo runs (which contain a run in progress) are
+served only by the web app.
+
+## D16. The MCP server fails closed
+`send_protected_payment` refuses to pay when the Guardian cannot be reached, refuses
+sanctioned recipients, and falls back to the default window when a recipient is rated trusted
+but has no on-chain `Trust` account. Irreversible tools (`release_early`,
+`trust_recipient`) need an explicit acknowledgement argument. Amounts are in display units.

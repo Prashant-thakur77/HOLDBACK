@@ -15,3 +15,4 @@ eval/results.json
 PLAN.md
 PROMPT.md
 docs/INVENTORY.md
+supabase/functions/_shared/holdback.idl.json
