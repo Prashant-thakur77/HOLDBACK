@@ -42,7 +42,9 @@ async function main() {
       defaultWindowSecs: WINDOW_SECS_BY_TIER[Tier.UNKNOWN],
       maxWindowSecs: WINDOW_SECS_BY_TIER[Tier.SANCTIONED],
     });
-    const signature = await sendAndConfirmTransaction(connection, new Transaction().add(ix), [admin]);
+    const signature = await sendAndConfirmTransaction(connection, new Transaction().add(ix), [
+      admin,
+    ]);
     console.log('Config initialized:', configPda().toBase58(), 'tx', signature);
   }
 

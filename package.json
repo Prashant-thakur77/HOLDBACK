@@ -18,7 +18,7 @@
     "program:build": "anchor build && npm run idl:sync",
     "program:test": "cargo test -p holdback",
     "program:fuzz": "./scripts/fuzz.sh",
-    "program:test:localnet": "anchor test",
+    "program:test:localnet": "anchor build && ./scripts/test-localnet.sh",
     "idl:sync": "node scripts/sync-idl.mjs",
     "readme:numbers": "tsx scripts/readme_numbers.ts",
     "lint": "prettier --check \"**/*.{ts,tsx,js,mjs,json,md}\"",
