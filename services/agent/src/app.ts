@@ -4,6 +4,7 @@ import { cors } from 'hono/cors';
 
 import type { Background } from './env';
 import { ApiError } from './errors';
+import { rateLimit } from './ratelimit';
 import { assessRoutes } from './routes/assess';
 import { authRoutes } from './routes/auth';
 import { communityRoutes } from './routes/community';
@@ -26,6 +27,8 @@ export function createApp(): Hono<AppEnv> {
       maxAge: 86_400,
     }),
   );
+
+  app.use('*', rateLimit());
 
   app.use('*', async (c, next) => {
     let background: Background | undefined;

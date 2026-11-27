@@ -116,6 +116,27 @@ describe('wallet sign-in', () => {
     expect(claims).toMatchObject({ role: 'authenticated', wallet: address });
   });
 
+  it('signs with the service secret when the project exposes no JWT secret', async () => {
+    const serviceOnly: Env = { SESSION_JWT_SECRET: 'session-secret' };
+    const issuedResponse = await post('/v1/auth/challenge', { wallet: address }, serviceOnly);
+    const issued = (await issuedResponse.json()) as { message: string; challenge: string };
+    const response = await post(
+      '/v1/auth/session',
+      {
+        wallet: address,
+        challenge: issued.challenge,
+        signature: encodeBase58(sign(issued.message)),
+      },
+      serviceOnly,
+    );
+    expect(response.status).toBe(200);
+    const { token } = (await response.json()) as { token: string };
+    expect(await verifyJwt(token, 'session-secret')).toMatchObject({
+      role: 'authenticated',
+      wallet: address,
+    });
+  });
+
   it('accepts a base64 signature too', async () => {
     const issued = await challenge();
     const response = await post(

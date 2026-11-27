@@ -100,9 +100,6 @@ export async function createWalletSession(
   challenge: string,
   signature: string,
 ): Promise<Session & { nonce: string }> {
-  if (!env.SUPABASE_JWT_SECRET) {
-    throw unavailable('SUPABASE_JWT_SECRET is not configured', 'auth_unavailable');
-  }
   const claims = await verifyJwt(challenge, sessionSecret(env));
   if (!claims || claims.scope !== 'challenge' || claims.wallet !== wallet) {
     throw unauthorized('The sign-in challenge is invalid or has expired');
@@ -113,8 +110,11 @@ export async function createWalletSession(
     throw unauthorized('The signature does not match this wallet');
   }
   const exp = nowSecs() + WALLET_SESSION_TTL_SECS;
-  // Exactly the claims the database's row-level security reads.
-  const token = await signJwt({ role: 'authenticated', wallet, exp }, env.SUPABASE_JWT_SECRET);
+  // Exactly the claims the database's row-level security reads. Signed with the
+  // project's JWT secret the token also opens Realtime under RLS; projects that
+  // only expose asymmetric signing keys get a token this service accepts and
+  // clients fall back to polling for live updates.
+  const token = await signJwt({ role: 'authenticated', wallet, exp }, walletSessionSecret(env));
   return {
     token,
     wallet,
@@ -140,11 +140,17 @@ export async function walletFromAuthorization(
     const claims = await verifyJwt(token, env.SESSION_JWT_SECRET);
     if (claims?.scope === 'relay' && typeof claims.wallet === 'string') return claims.wallet;
   }
-  if (env.SUPABASE_JWT_SECRET) {
-    const claims = await verifyJwt(token, env.SUPABASE_JWT_SECRET);
+  const walletSecret = env.SUPABASE_JWT_SECRET || env.SESSION_JWT_SECRET;
+  if (walletSecret) {
+    const claims = await verifyJwt(token, walletSecret);
     if (claims?.role === 'authenticated' && typeof claims.wallet === 'string') return claims.wallet;
   }
   return null;
+}
+
+/** The secret wallet sessions are signed with: Supabase's when known, else this service's. */
+function walletSessionSecret(env: Env): string {
+  return env.SUPABASE_JWT_SECRET || sessionSecret(env);
 }
 
 export async function requireWallet(env: Env, authorization: string | undefined): Promise<string> {

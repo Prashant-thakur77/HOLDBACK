@@ -2,6 +2,7 @@ name = "holdback-guardian"
 main = "src/index.ts"
 compatibility_date = "2026-11-01"
 compatibility_flags = ["nodejs_compat"]
+routes = [{ pattern = "holdback-api.prashantthakur.dev", custom_domain = true }]
 
 # Every minute: release due holds, close settled ones, send pushes.
 # Every ten minutes: re-assess pending holds (the oracle extends when risk rose).
@@ -12,14 +13,20 @@ crons = ["* * * * *", "*/10 * * * *", "0 * * * *"]
 [observability]
 enabled = true
 
+# 30 metered calls per minute per caller IP (assess, reassess, flags, relay
+# login, voice). See src/ratelimit.ts.
+[[ratelimits]]
+name = "ASSESS_LIMITER"
+namespace_id = "41001"
+simple = { limit = 30, period = 60 }
+
 # Non-secret settings. Secrets go in with `wrangler secret put <NAME>`
-# (see .dev.vars.example for the full list).
-# SOLANA_RPC_URL must be replaced before deploying: Solana's public RPC
-# endpoints refuse requests from Workers. Set a private RPC URL as a secret
-# (`wrangler secret put SOLANA_RPC_URL`) and delete this default.
+# (see .dev.vars.example for the full list). SOLANA_RPC_URL is a secret and is
+# required: Solana's public RPC endpoints refuse requests from Workers. Local
+# `wrangler dev` reads it from .dev.vars.
 [vars]
-SOLANA_RPC_URL = "https://api.devnet.solana.com"
 LLM_PROVIDER = "anthropic"
+PUBLIC_BASE_URL = "https://holdback-api.prashantthakur.dev"
 SNS_API_URL = "https://sdk-proxy-v2.sns.id"
 
 # Optional: cache generated voice notes in R2 instead of Supabase Storage.
