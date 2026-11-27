@@ -1,0 +1,24 @@
+{
+  "androidPackage": "xyz.holdback.app",
+  "name": "HOLDBACK",
+  "subtitle": "Every payment gets an undo window.",
+  "description": "HOLDBACK puts an undo window on every payment you send on Solana.\n\nWhen you pay, the money waits in an on-chain hold for a short time before it reaches the recipient. A risk agent called Guardian sizes that window from evidence: scam reports, blocklists, sanctions lists and on-chain history. A recipient you trust gets paid at once. A new recipient waits a short while. An address that other people reported gets the longest window.\n\nWhile the window is open you can take the money back with one tap. It can only return to the wallet it came from.\n\nWhat is in the app\n- Send USDC or SOL to an address, a .sol or .skr name, or a scanned QR code\n- A live verdict before you sign, with the evidence and links to its sources\n- A simulation of what will leave your wallet, shown before any signature\n- Countdown rings for every hold, and a one-tap undo\n- Talk to Guardian by voice about a hold, in English, Hindi, Spanish or Portuguese\n- Inbox for payments on their way to you\n- Trusted people, for payments that should not wait\n- Scam Dojo: an offline practice game about telling honest requests from scams\n- Sign with your own wallet (Seed Vault, Phantom, Solflare) or sign in with email through Pollar\n\nEmail (Pollar) accounts: refunds can only ever return to your own wallet.",
+  "whatsNew": "First release.",
+  "languages": ["en", "hi", "es", "pt"],
+  "media": {
+    "icon": "media/icon-512.png",
+    "banner": "media/banner-1200x600.png",
+    "previews": [
+      "media/preview-1.png",
+      "media/preview-2.png",
+      "media/preview-3.png",
+      "media/preview-4.png"
+    ]
+  },
+  "links": {
+    "website": "",
+    "privacyPolicy": "",
+    "termsOfService": "",
+    "supportEmail": ""
+  }
+}

@@ -1,0 +1,22 @@
+node_modules/
+.expo/
+expo-env.d.ts
+*.tsbuildinfo
+
+# Generated native project (run `npm run prebuild`)
+/android
+/ios
+.kotlin/
+
+# Build output and signing material
+/build
+*.apk
+*.aab
+*.keystore
+*.jks
+google-services.json
+
+# Local env
+.env
+.env.*
+!.env.example
