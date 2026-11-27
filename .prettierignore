@@ -1,0 +1,17 @@
+node_modules
+target
+dist
+.next
+.open-next
+.wrangler
+.anchor
+test-ledger
+package-lock.json
+sdk/src/idl
+apps/mobile/android
+apps/mobile/ios
+eval/data
+eval/results.json
+PLAN.md
+PROMPT.md
+docs/INVENTORY.md

@@ -1,18 +1,14 @@
 {
   "compilerOptions": {
-    "types": ["mocha", "chai"],
-    "typeRoots": ["./node_modules/@types"],
-    "lib": ["es2015"],
+    "target": "ES2022",
     "module": "commonjs",
-    "target": "es6",
+    "moduleResolution": "node",
+    "lib": ["ES2022"],
+    "types": ["mocha", "chai", "node"],
+    "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "skipLibCheck": true
   },
-  "include": [
-    "tests/holdback.ts",
-    "tests/holdback-payments.ts",
-    "tests/compress-settlement.ts",
-    "tests/payments-er-devnet.ts"
-  ]
+  "include": ["tests/**/*.ts", "scripts/**/*.ts"]
 }

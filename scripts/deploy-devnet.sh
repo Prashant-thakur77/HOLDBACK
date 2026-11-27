@@ -1,60 +1,40 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+# Builds and deploys the program to devnet, then initializes the config.
+#
+# Needs keys/deployer.json (upgrade authority and admin) funded with ~5 SOL,
+# plus keys/oracle.json, keys/relayer.json and keys/holdback-program.json.
+# Set HELIUS_DEVNET_RPC in .env to use a private RPC; the public one works too.
+set -euo pipefail
+cd "$(dirname "$0")/.."
 
-# Load env
-source .env
+[ -f .env ] && set -a && source .env && set +a
+RPC="${HELIUS_DEVNET_RPC:-https://api.devnet.solana.com}"
+WALLET="keys/deployer.json"
+PROGRAM_KEYPAIR="keys/holdback-program.json"
+ADMIN=$(solana-keygen pubkey "$WALLET")
 
-HELIUS_RPC="${HELIUS_DEVNET_RPC}"
-WALLET="keys/holdback.json"
-PUBKEY=$(solana-keygen pubkey "$WALLET")
-
-echo "=== Holdback Devnet Deploy (Helius RPC) ==="
-echo "Wallet:  $PUBKEY"
-echo "RPC:     $HELIUS_RPC"
-echo ""
-
-# Check balance
-BALANCE=$(solana balance "$PUBKEY" --url "$HELIUS_RPC" 2>/dev/null | awk '{print $1}')
-echo "Balance: $BALANCE SOL"
-
-if (( $(echo "$BALANCE < 3" | bc -l) )); then
-  echo ""
-  echo "⚠  Need at least 3 SOL for deploy. Attempting airdrop..."
-  solana airdrop 2 "$PUBKEY" --url "$HELIUS_RPC" || {
-    echo ""
-    echo "Airdrop failed. Please fund manually:"
-    echo "  → Visit https://faucet.solana.com"
-    echo "  → Address: $PUBKEY"
-    echo "  → Select Devnet, request 5 SOL"
+echo "Deployer: $ADMIN"
+BALANCE=$(solana balance "$ADMIN" --url "$RPC" | awk '{print $1}')
+echo "Balance:  $BALANCE SOL"
+if awk "BEGIN{exit !($BALANCE < 5)}"; then
+  echo "Requesting an airdrop..."
+  solana airdrop 5 "$ADMIN" --url "$RPC" || {
+    echo "Airdrop failed. Fund $ADMIN at https://faucet.solana.com (devnet) and run again."
     exit 1
   }
-  sleep 2
-  BALANCE=$(solana balance "$PUBKEY" --url "$HELIUS_RPC" 2>/dev/null | awk '{print $1}')
-  echo "New balance: $BALANCE SOL"
 fi
 
-echo ""
-echo "1. Configuring for devnet (Helius)..."
-solana config set --url "$HELIUS_RPC" --keypair "$WALLET"
-
-echo ""
-echo "2. Syncing program keys..."
+mkdir -p target/deploy
+cp "$PROGRAM_KEYPAIR" target/deploy/holdback-keypair.json
 anchor keys sync
-
-echo ""
-echo "3. Building..."
 anchor build
+node scripts/sync-idl.mjs
 
-echo ""
-echo "4. Deploying to devnet..."
-anchor deploy --provider.cluster "$HELIUS_RPC" --provider.wallet "$WALLET"
+solana program deploy target/deploy/holdback.so \
+  --program-id "$PROGRAM_KEYPAIR" \
+  --keypair "$WALLET" \
+  --url "$RPC"
 
-echo ""
-echo "5. Verifying deployment..."
-solana program show $(anchor keys list | awk '{print $2}') --url "$HELIUS_RPC"
+solana program show "$(solana-keygen pubkey "$PROGRAM_KEYPAIR")" --url "$RPC"
 
-echo ""
-echo "=== Deploy Complete ==="
-echo ""
-echo "Run ER integration test:"
-echo "  ANCHOR_PROVIDER_URL=\$HELIUS_DEVNET_RPC ANCHOR_WALLET=keys/holdback.json npx ts-mocha -p ./tsconfig.json -t 120000 tests/er-devnet.ts"
+ANCHOR_PROVIDER_URL="$RPC" ANCHOR_WALLET="$WALLET" npx tsx scripts/init-config.ts

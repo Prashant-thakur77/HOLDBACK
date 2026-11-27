@@ -13,8 +13,21 @@ node_modules/
 keys/
 
 # Build artifacts
-sdk/dist/
-dark-forest/dist/
+dist/
+.next/
+.open-next/
+*.tsbuildinfo
+
+# Python
+__pycache__/
+.venv/
+
+# Mobile
+apps/mobile/android/
+apps/mobile/ios/
+apps/mobile/.expo/
+*.apk
+*.keystore
 
 # Cloudflare Workers
 .wrangler/
@@ -29,5 +42,7 @@ dark-forest/dist/
 .vscode/
 *.iml
 
-# Local notes
+# Local planning files
 PLAN.md
+PROMPT.md
+docs/INVENTORY.md
