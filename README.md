@@ -211,16 +211,16 @@ devnet as a memo.
 
 ## What has run where
 
-| Part               | Verified                                                                                           | Not yet                                                                                                                 |
-| ------------------ | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Program            | 30 Rust tests, 100,000-case property test, 13 localnet scenarios, deployed and exercised on devnet | Audit; reproducible Docker build                                                                                        |
-| SDK                | 27 unit tests; used by every other package                                                         |                                                                                                                         |
-| Guardian           | 221 tests; create, oracle extend, crank release and close, and a Dojo memo on devnet under Node    | Inside the Workers runtime with a private RPC; live calls to Helius, Chainabuse, Firecrawl, ElevenLabs; a real database |
-| Webhook and schema | 56 decoder tests; migrations and end-to-end ingest against a local Postgres                        | A hosted project, a real Helius delivery, Realtime                                                                      |
-| MCP server         | 45 tests; binary lists its tools                                                                   | Signing on a real cluster                                                                                               |
-| Web                | 88 tests; Action, Dojo API and headers under the Workers runtime locally                           | Deployment; a wallet in a browser; a Blink client                                                                       |
-| Mobile app         | 137 unit tests; typecheck, lint, `expo-doctor` and prebuild pass; signed arm64 release APK builds  | Any run on a device or emulator: wallet connect and signing, Pollar, voice, push are unexercised                        |
-| Scam Dojo          | 101 tests; a full run over HTTP                                                                    | Upload to Byte; the report collector (needs a Firecrawl key)                                                            |
+| Part               | Verified                                                                                                                            | Not yet                                                                                                                 |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Program            | 30 Rust tests, 100,000-case property test, 13 localnet scenarios, deployed and exercised on devnet                                  | Audit; reproducible Docker build                                                                                        |
+| SDK                | 27 unit tests; used by every other package                                                                                          |                                                                                                                         |
+| Guardian           | 240 tests; create, oracle extend, crank release and close, and a Dojo memo on devnet under Node                                     | Inside the Workers runtime with a private RPC; live calls to Helius, Chainabuse, Firecrawl, ElevenLabs; a real database |
+| Webhook and schema | 56 decoder tests; migrations and end-to-end ingest against a local Postgres                                                         | A hosted project, a real Helius delivery, Realtime                                                                      |
+| MCP server         | 45 tests; binary lists its tools                                                                                                    | Signing on a real cluster                                                                                               |
+| Web                | 98 tests; designed site, Lighthouse mobile 98-100 in every category; Action, Dojo API and headers under the Workers runtime locally | Deployment; a wallet in a browser; a Blink client                                                                       |
+| Mobile app         | 137 unit tests; typecheck, lint, `expo-doctor` and prebuild pass; signed arm64 release APK builds                                   | Any run on a device or emulator: wallet connect and signing, Pollar, voice, push are unexercised                        |
+| Scam Dojo          | 101 tests; a full run over HTTP                                                                                                     | Upload to Byte; the report collector (needs a Firecrawl key)                                                            |
 
 ## Run it
 
