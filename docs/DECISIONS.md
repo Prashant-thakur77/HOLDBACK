@@ -65,3 +65,19 @@ cannot sign program instructions or messages. Pollar users therefore pay into th
 `DepositBox` and the relayer opens, undoes and withdraws for them under the on-chain limits
 in D6. The box's token account is created by `init_deposit_box`, so the payment itself never
 needs to create an account.
+
+## D13. Scam Dojo follows the Byte game spec where it differs from the plan
+- **Ending.** The spec decides endings by a field value, so the state carries
+  `status: playing | won | lost`. Winning means surviving 8 rounds with at least 900 points.
+  A wrong final decision costs a life, except a scam paid through a hold.
+- **Deal.** Each run has 3 or 4 legitimate requests rather than independent draws, so
+  "always refuse" and "always report" run out of lives every time.
+- **Scoring.** A legitimate request paid through a hold earns 80%; reporting a scam adds a
+  bonus; the score never decreases, which the declared bets rely on.
+- **Secrets.** `dojo_runs` is publicly readable, so the seed and the play token are derived
+  with an HMAC from a server secret and never stored. Moves need the token because the watch
+  URL exposes the run id.
+- **Rejections.** An illegal move, a wrong turn or a finished run returns HTTP 200 with an
+  `error` and the full state, so an agent can recover.
+- **Memo.** The hash covers `turn|round|move|outcome|points` lines. If the write fails the
+  result says so and it can be retried.
