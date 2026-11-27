@@ -1,67 +1,53 @@
+//! Program errors. Messages are written for end users: wallets show them as-is.
+
 use anchor_lang::prelude::*;
 
 #[error_code]
 pub enum HoldbackError {
-    #[msg("Reward must be greater than zero")]
-    InvalidReward,
-    #[msg("Deadline must be in the future")]
-    InvalidDeadline,
-    #[msg("Job is not in the expected status")]
-    WrongStatus,
-    #[msg("Only the poster can perform this action")]
+    #[msg("The undo window is longer than the maximum this program allows")]
+    WindowTooLong,
+    #[msg("The undo window is shorter than the minimum this program allows")]
+    WindowTooShort,
+    #[msg("An undo window can be extended but never shortened")]
+    WindowCannotShrink,
+    #[msg("This hold has already been released or reclaimed")]
+    HoldNotPending,
+    #[msg("The undo window is still running; funds cannot be released yet")]
+    WindowNotOver,
+    #[msg("The undo window has ended; this action is no longer possible")]
+    WindowOver,
+    #[msg("The sender has not marked this recipient as trusted")]
+    NotTrusted,
+    #[msg("This signer is not allowed to perform this action")]
     Unauthorized,
-    #[msg("Bid stake must be greater than zero")]
-    InvalidStake,
-    #[msg("Bid stake is below minimum (10% of reward)")]
-    InsufficientStake,
-    #[msg("Only the claimer can submit proof")]
-    InvalidClaimer,
-    #[msg("Deadline has passed")]
-    DeadlinePassed,
-    #[msg("Deadline has not yet passed")]
-    DeadlineNotPassed,
-    #[msg("Invalid verdict value")]
-    InvalidVerdict,
-    #[msg("Proof must be submitted before settlement")]
-    MissingProof,
-    #[msg("Review period has not expired")]
-    ReviewPeriodActive,
-    #[msg("Insufficient escrow balance")]
-    InsufficientEscrow,
-    #[msg("TTD URI exceeds maximum length")]
-    UriTooLong,
-    #[msg("Job is not in auto-match mode")]
-    NotAutoMatch,
-    #[msg("Insufficient escrow for sub-job")]
-    InsufficientEscrowForSubJob,
-    #[msg("Sub-job reward exceeds remaining escrow")]
-    SubJobExceedsEscrow,
-    #[msg("Dispute window has not ended")]
-    DisputeWindowActive,
-    #[msg("Dispute window has ended")]
-    DisputeWindowExpired,
-    #[msg("Dispute stake too low")]
-    DisputeStakeTooLow,
-    #[msg("Invalid dispute status")]
-    InvalidDisputeStatus,
-    #[msg("Panel vote already cast")]
-    AlreadyVoted,
-    #[msg("Panel quorum not reached")]
-    QuorumNotReached,
-    #[msg("Not a designated panel verifier")]
-    NotPanelVerifier,
-    #[msg("Invalid verification mode")]
-    InvalidVerificationMode,
-    #[msg("TEE attestation not verified for this job")]
-    TeeNotVerified,
-    #[msg("Invalid TEE attestation report")]
-    InvalidAttestation,
-    #[msg("TEE attestation signature missing or invalid")]
-    InvalidAttestationSignature,
-    #[msg("TEE attestation has expired")]
-    AttestationExpired,
-    #[msg("TEE attestation does not match job state")]
-    AttestationMismatch,
-    #[msg("Validator is not in the allowlist")]
-    InvalidValidator,
+    #[msg("New holds are paused; existing holds can still be reclaimed or released")]
+    Paused,
+    #[msg("The amount must be greater than zero")]
+    ZeroAmount,
+    #[msg("The token mint does not match this hold")]
+    MintMismatch,
+    #[msg("Arithmetic overflow")]
+    Overflow,
+    #[msg("The risk tier is not a known value")]
+    InvalidTier,
+    #[msg("The risk tier can be raised but never lowered")]
+    TierCannotDrop,
+    #[msg("Window settings must satisfy min <= default <= max <= 30 days")]
+    InvalidWindowConfig,
+    #[msg("Sender and recipient must be different accounts")]
+    SelfTransfer,
+    #[msg("The flag reason code is not a known value")]
+    InvalidReason,
+    #[msg("This hold is still pending and cannot be closed")]
+    HoldStillPending,
+    #[msg("This hold holds native SOL; use the SOL instruction")]
+    NotTokenHold,
+    #[msg("This hold holds tokens; use the token instruction")]
+    NotSolHold,
+    #[msg("Mints that take a fee on transfer are not supported")]
+    UnsupportedMint,
+    #[msg("The amount is too small to keep the recipient account rent-exempt")]
+    AmountBelowRentFloor,
+    #[msg("The account does not belong to the expected party")]
+    WrongParty,
 }

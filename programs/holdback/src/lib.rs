@@ -1,373 +1,178 @@
+//! HOLDBACK: every payment gets an undo window.
+//!
+//! A sender places funds in a [`state::Hold`]. Until `release_at` only the
+//! sender can move them, and only back to the sender. After `release_at`
+//! anyone can crank them to the recipient. A risk oracle may lengthen a
+//! pending window when new evidence appears; nobody can shorten one.
+//!
+//! Trust model in one paragraph: the **oracle** key can only call
+//! `extend_window`, which moves no funds and can only delay release, up to
+//! `max_window_secs` after creation. The **relayer** key serves wallets that
+//! cannot sign program instructions; it can only move a deposit box's funds
+//! back to the box owner or into a hold whose sender is that owner, with at
+//! least the default window. The **admin** can change service keys and window
+//! limits and pause new holds, but has no instruction that touches a vault.
+
+use anchor_lang::prelude::*;
+
 pub mod constants;
 pub mod errors;
+pub mod events;
 pub mod instructions;
 pub mod state;
 
-use anchor_lang::prelude::*;
-use ephemeral_rollups_sdk::anchor::ephemeral;
 use instructions::*;
-use light_sdk::instruction::{PackedAddressTreeInfo, ValidityProof};
 
-#[cfg(feature = "idl-build")]
-type ValidityProofArg = Vec<u8>;
-#[cfg(not(feature = "idl-build"))]
-type ValidityProofArg = ValidityProof;
+declare_id!("26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom");
 
-#[cfg(feature = "idl-build")]
-type PackedAddressTreeInfoArg = Vec<u8>;
-#[cfg(not(feature = "idl-build"))]
-type PackedAddressTreeInfoArg = PackedAddressTreeInfo;
-
-declare_id!("BqNSjpGpePKj1hhD1o1UbyLdiYvSY4S3nt5jNe6Ny8vK");
-
-#[ephemeral]
 #[program]
 pub mod holdback {
     use super::*;
 
-    pub fn register_ttd(
-        ctx: Context<RegisterTtd>,
-        ttd_hash: [u8; 32],
-        ttd_uri: String,
-        version: u16,
+    /// Creates the singleton config. Only the program's upgrade authority can
+    /// call this, and only once.
+    pub fn initialize_config(
+        ctx: Context<InitializeConfig>,
+        relayer: Pubkey,
+        risk_oracle: Pubkey,
+        min_window_secs: u32,
+        default_window_secs: u32,
+        max_window_secs: u32,
     ) -> Result<()> {
-        ttd::handler_register_ttd(ctx, ttd_hash, ttd_uri, version)
-    }
-
-    pub fn initialize_job(
-        ctx: Context<InitializeJob>,
-        job_id: u64,
-        reward_lamports: u64,
-        deadline: i64,
-        spec_hash: [u8; 32],
-        ttd_hash: [u8; 32],
-        privacy_level: u8,
-        encryption_pubkey: [u8; 32],
-        assignment_mode: u8,
-        verification_level: u8,
-        verification_mode: u8,
-    ) -> Result<()> {
-        job::handler_initialize_job(
+        instructions::config::initialize_config(
             ctx,
-            job_id,
-            reward_lamports,
-            deadline,
-            spec_hash,
-            ttd_hash,
-            privacy_level,
-            encryption_pubkey,
-            assignment_mode,
-            verification_level,
-            verification_mode,
+            relayer,
+            risk_oracle,
+            min_window_secs,
+            default_window_secs,
+            max_window_secs,
         )
     }
 
-    pub fn auto_assign_job(ctx: Context<AutoAssignJob>, assigned_agent: Pubkey) -> Result<()> {
-        job::handler_auto_assign_job(ctx, assigned_agent)
+    /// Admin-only update of service keys, window limits and the pause switch.
+    pub fn update_config(ctx: Context<UpdateConfig>, args: UpdateConfigArgs) -> Result<()> {
+        instructions::config::update_config(ctx, args)
     }
 
-    pub fn create_sub_job(
-        ctx: Context<CreateSubJob>,
-        sub_job_id: u64,
-        assigned_agent: Pubkey,
-        reward_lamports: u64,
-        deadline: i64,
-        ttd_hash: [u8; 32],
+    /// Places `amount` of an SPL / Token-2022 token in a new hold.
+    pub fn create_hold(
+        ctx: Context<CreateHold>,
+        nonce: u64,
+        amount: u64,
+        window_secs: u32,
+        tier: u8,
+        evidence_hash: [u8; 32],
     ) -> Result<()> {
-        job::handler_create_sub_job(
-            ctx,
-            sub_job_id,
-            assigned_agent,
-            reward_lamports,
-            deadline,
-            ttd_hash,
-        )
+        instructions::create_hold::create_token(ctx, nonce, amount, window_secs, tier, evidence_hash)
     }
 
-    pub fn submit_verified_proof(
-        ctx: Context<SubmitVerifiedProof>,
-        proof_hash: [u8; 32],
-        receipt_root: [u8; 32],
-        receipt_uri: [u8; 32],
-        attestation_hash: [u8; 32],
+    /// Places `amount` lamports in a new hold.
+    pub fn create_hold_sol(
+        ctx: Context<CreateHoldSol>,
+        nonce: u64,
+        amount: u64,
+        window_secs: u32,
+        tier: u8,
+        evidence_hash: [u8; 32],
     ) -> Result<()> {
-        proof::handler_submit_verified_proof(
-            ctx,
-            proof_hash,
-            receipt_root,
-            receipt_uri,
-            attestation_hash,
-        )
+        instructions::create_hold::create_sol(ctx, nonce, amount, window_secs, tier, evidence_hash)
     }
 
-    pub fn auto_settle(ctx: Context<AutoSettle>) -> Result<()> {
-        settlement::handler_auto_settle(ctx)
+    /// Zero-window path: pays a recipient the sender has marked as trusted
+    /// directly, with no vault. Requires the `Trust` PDA to exist.
+    pub fn instant_transfer(ctx: Context<InstantTransferToken>, amount: u64) -> Result<()> {
+        instructions::instant::instant_token(ctx, amount)
     }
 
-    pub fn open_dispute(
-        ctx: Context<OpenDispute>,
-        disputed_thread: u32,
-        challenger_receipt_hash: [u8; 32],
-        evidence_uri: [u8; 32],
+    /// Zero-window path for native SOL.
+    pub fn instant_transfer_sol(ctx: Context<InstantTransferSol>, amount: u64) -> Result<()> {
+        instructions::instant::instant_sol(ctx, amount)
+    }
+
+    /// Creates a deposit box for `owner` and its token account for `mint`.
+    pub fn init_deposit_box(ctx: Context<InitDepositBox>) -> Result<()> {
+        instructions::deposit_box::init_box(ctx)
+    }
+
+    /// Relayer-only: moves tokens from the owner's deposit box into a new
+    /// hold whose sender is the box owner.
+    pub fn open_hold_from_deposit(
+        ctx: Context<OpenHoldFromDeposit>,
+        nonce: u64,
+        amount: u64,
+        window_secs: u32,
+        tier: u8,
+        evidence_hash: [u8; 32],
     ) -> Result<()> {
-        dispute::handler_open_dispute(ctx, disputed_thread, challenger_receipt_hash, evidence_uri)
+        instructions::deposit_box::open_hold_from_box(ctx, nonce, amount, window_secs, tier, evidence_hash)
     }
 
-    pub fn resolve_dispute(ctx: Context<ResolveDispute>, verdict: u8) -> Result<()> {
-        dispute::handler_resolve_dispute(ctx, verdict)
+    /// Returns tokens from a deposit box to its owner. Owner or relayer signs.
+    pub fn withdraw_deposit(ctx: Context<WithdrawDeposit>, amount: u64) -> Result<()> {
+        instructions::deposit_box::withdraw_from_box(ctx, amount)
     }
 
-    pub fn cast_vote(ctx: Context<CastVote>, verdict: u8) -> Result<()> {
-        dispute::handler_cast_vote(ctx, verdict)
-    }
-
-    pub fn tally_panel(ctx: Context<TallyPanel>) -> Result<()> {
-        dispute::handler_tally_panel(ctx)
-    }
-
-    pub fn delegate_job(ctx: Context<DelegateJob>) -> Result<()> {
-        delegation::handler_delegate_job(ctx)
-    }
-
-    pub fn place_bid(ctx: Context<PlaceBid>, stake_lamports: u64) -> Result<()> {
-        bidding::handler_place_bid(ctx, stake_lamports)
-    }
-
-    pub fn close_bidding(ctx: Context<CloseBidding>) -> Result<()> {
-        bidding::handler_close_bidding(ctx)
-    }
-
-    pub fn lock_stake(ctx: Context<LockStake>) -> Result<()> {
-        bidding::handler_lock_stake(ctx)
-    }
-
-    pub fn verify_bid_attestation(
-        ctx: Context<VerifyBidAttestation>,
-        attestation_report: Vec<u8>,
-        tee_pubkey: [u8; 32],
+    /// Oracle-only: lengthens a pending hold's window and raises its tier.
+    pub fn extend_window(
+        ctx: Context<ExtendWindow>,
+        new_release_at: i64,
+        tier: u8,
+        evidence_hash: [u8; 32],
     ) -> Result<()> {
-        tee::handler_verify_bid_attestation(ctx, attestation_report, tee_pubkey)
+        instructions::extend_window::extend(ctx, new_release_at, tier, evidence_hash)
     }
 
-    pub fn submit_proof(ctx: Context<SubmitProof>, proof_hash: [u8; 32]) -> Result<()> {
-        proof::handler_submit_proof(ctx, proof_hash)
+    /// Undo: returns a pending token hold to the sender before `release_at`.
+    pub fn reclaim(ctx: Context<Reclaim>) -> Result<()> {
+        instructions::reclaim::reclaim_token(ctx)
     }
 
-    pub fn settle_job(ctx: Context<SettleJob>, verdict: u8, reason_code: [u8; 32]) -> Result<()> {
-        settlement::handler_settle_job(ctx, verdict, reason_code)
+    /// Undo for a native SOL hold.
+    pub fn reclaim_sol(ctx: Context<ReclaimSol>) -> Result<()> {
+        instructions::reclaim::reclaim_sol(ctx)
     }
 
-    pub fn claim_timeout(ctx: Context<ClaimTimeout>) -> Result<()> {
-        settlement::handler_claim_timeout(ctx)
+    /// Permissionless crank: pays the recipient once the window is over.
+    pub fn release(ctx: Context<Release>) -> Result<()> {
+        instructions::release::release_token(ctx, false)
     }
 
-    pub fn archive_settlement(
-        ctx: Context<ArchiveSettlement>,
-        reason_code: [u8; 32],
+    /// Sender-only: pays the recipient before the window is over.
+    pub fn release_early(ctx: Context<Release>) -> Result<()> {
+        instructions::release::release_token(ctx, true)
+    }
+
+    /// Permissionless crank for a native SOL hold.
+    pub fn release_sol(ctx: Context<ReleaseSol>) -> Result<()> {
+        instructions::release::release_sol(ctx, false)
+    }
+
+    /// Sender-only early release of a native SOL hold.
+    pub fn release_early_sol(ctx: Context<ReleaseSol>) -> Result<()> {
+        instructions::release::release_sol(ctx, true)
+    }
+
+    /// Marks `recipient` as trusted by the signer.
+    pub fn set_trust(ctx: Context<SetTrust>) -> Result<()> {
+        instructions::trust::set_trust(ctx)
+    }
+
+    /// Removes the signer's trust in `recipient` and refunds the rent.
+    pub fn remove_trust(ctx: Context<RemoveTrust>) -> Result<()> {
+        instructions::trust::remove_trust(ctx)
+    }
+
+    /// Records one scam report about `subject`. One per reporter per subject.
+    pub fn flag_subject(
+        ctx: Context<FlagSubject>,
+        reason: u8,
+        evidence_hash: [u8; 32],
     ) -> Result<()> {
-        settlement::handler_archive_settlement(ctx, reason_code)
+        instructions::flag::flag(ctx, reason, evidence_hash)
     }
 
-    pub fn expire_claim(ctx: Context<ExpireClaim>) -> Result<()> {
-        job::handler_expire_claim(ctx)
-    }
-
-    pub fn expire_unclaimed(ctx: Context<ExpireUnclaimed>) -> Result<()> {
-        job::handler_expire_unclaimed(ctx)
-    }
-
-    pub fn extend_deadline(ctx: Context<ExtendDeadline>, new_deadline: i64) -> Result<()> {
-        job::handler_extend_deadline(ctx, new_deadline)
-    }
-
-    pub fn store_credential(
-        ctx: Context<StoreCredential>,
-        encrypted_cred_hash: [u8; 32],
-    ) -> Result<()> {
-        credential::handler_store_credential(ctx, encrypted_cred_hash)
-    }
-
-    pub fn clear_credential(ctx: Context<ClearCredential>) -> Result<()> {
-        credential::handler_clear_credential(ctx)
-    }
-
-    pub fn submit_encrypted_proof(
-        ctx: Context<SubmitProof>,
-        proof_hash: [u8; 32],
-        encrypted_output_hash: [u8; 32],
-    ) -> Result<()> {
-        proof::handler_submit_encrypted_proof(ctx, proof_hash, encrypted_output_hash)
-    }
-
-    /// Archive a settlement into a compressed (ZK) account via Light Protocol.
-    ///
-    /// NOTE: The `#[cfg(feature = "idl-build")]` branch returns `Ok(())` because
-    /// Light SDK's `ValidityProof` and `PackedAddressTreeInfo` types are not
-    /// serializable by the Anchor IDL generator. At runtime (without `idl-build`),
-    /// the real compressed-account logic executes. This is a standard pattern
-    /// when using Light SDK with Anchor.
-    pub fn archive_settlement_compressed<'info>(
-        ctx: Context<'_, '_, '_, 'info, CompressedArchiveAccounts<'info>>,
-        proof: ValidityProofArg,
-        address_tree_info: PackedAddressTreeInfoArg,
-        output_state_tree_index: u8,
-        reason_code: [u8; 32],
-    ) -> Result<()> {
-        #[cfg(feature = "idl-build")]
-        {
-            let _ = (
-                ctx,
-                proof,
-                address_tree_info,
-                output_state_tree_index,
-                reason_code,
-            );
-            return Ok(());
-        }
-        #[cfg(not(feature = "idl-build"))]
-        compressed::handler_archive_settlement_compressed(
-            ctx,
-            proof,
-            address_tree_info,
-            output_state_tree_index,
-            reason_code,
-        )
-    }
-
-    pub fn init_agent_reputation<'info>(
-        ctx: Context<'_, '_, '_, 'info, AgentReputationAccounts<'info>>,
-        proof: ValidityProofArg,
-        address_tree_info: PackedAddressTreeInfoArg,
-        output_state_tree_index: u8,
-        tasks_completed: u32,
-        tasks_failed: u32,
-        total_earned: u64,
-        total_staked: u64,
-    ) -> Result<()> {
-        #[cfg(feature = "idl-build")]
-        {
-            let _ = (
-                ctx,
-                proof,
-                address_tree_info,
-                output_state_tree_index,
-                tasks_completed,
-                tasks_failed,
-                total_earned,
-                total_staked,
-            );
-            return Ok(());
-        }
-        #[cfg(not(feature = "idl-build"))]
-        compressed::handler_init_agent_reputation(
-            ctx,
-            proof,
-            address_tree_info,
-            output_state_tree_index,
-            tasks_completed,
-            tasks_failed,
-            total_earned,
-            total_staked,
-        )
-    }
-
-    pub fn init_poster_reputation<'info>(
-        ctx: Context<'_, '_, '_, 'info, PosterReputationAccounts<'info>>,
-        proof: ValidityProofArg,
-        address_tree_info: PackedAddressTreeInfoArg,
-        output_state_tree_index: u8,
-        tasks_posted: u32,
-        tasks_settled_pass: u32,
-        tasks_settled_fail: u32,
-        disputes_initiated: u32,
-        disputes_won: u32,
-        total_spent: u64,
-        avg_settle_secs: u64,
-    ) -> Result<()> {
-        #[cfg(feature = "idl-build")]
-        {
-            let _ = (
-                ctx,
-                proof,
-                address_tree_info,
-                output_state_tree_index,
-                tasks_posted,
-                tasks_settled_pass,
-                tasks_settled_fail,
-                disputes_initiated,
-                disputes_won,
-                total_spent,
-                avg_settle_secs,
-            );
-            return Ok(());
-        }
-        #[cfg(not(feature = "idl-build"))]
-        compressed::handler_init_poster_reputation(
-            ctx,
-            proof,
-            address_tree_info,
-            output_state_tree_index,
-            tasks_posted,
-            tasks_settled_pass,
-            tasks_settled_fail,
-            disputes_initiated,
-            disputes_won,
-            total_spent,
-            avg_settle_secs,
-        )
-    }
-
-    pub fn register_ttd_compressed<'info>(
-        ctx: Context<'_, '_, '_, 'info, CompressedTtdAccounts<'info>>,
-        proof: ValidityProofArg,
-        address_tree_info: PackedAddressTreeInfoArg,
-        output_state_tree_index: u8,
-        ttd_hash: [u8; 32],
-        ttd_uri_hash: [u8; 32],
-        version: u16,
-    ) -> Result<()> {
-        #[cfg(feature = "idl-build")]
-        {
-            let _ = (
-                ctx,
-                proof,
-                address_tree_info,
-                output_state_tree_index,
-                ttd_hash,
-                ttd_uri_hash,
-                version,
-            );
-            return Ok(());
-        }
-        #[cfg(not(feature = "idl-build"))]
-        compressed::handler_register_ttd_compressed(
-            ctx,
-            proof,
-            address_tree_info,
-            output_state_tree_index,
-            ttd_hash,
-            ttd_uri_hash,
-            version,
-        )
-    }
-
-    pub fn compress_finished_job<'info>(
-        ctx: Context<'_, '_, '_, 'info, CompressedJobAccounts<'info>>,
-        proof: ValidityProofArg,
-        address_tree_info: PackedAddressTreeInfoArg,
-        output_state_tree_index: u8,
-    ) -> Result<()> {
-        #[cfg(feature = "idl-build")]
-        {
-            let _ = (ctx, proof, address_tree_info, output_state_tree_index);
-            return Ok(());
-        }
-        #[cfg(not(feature = "idl-build"))]
-        compressed::handler_compress_finished_job(
-            ctx,
-            proof,
-            address_tree_info,
-            output_state_tree_index,
-        )
+    /// Closes a released or reclaimed hold and refunds its rent.
+    pub fn close_hold(ctx: Context<CloseHold>) -> Result<()> {
+        instructions::close_hold::close(ctx)
     }
 }

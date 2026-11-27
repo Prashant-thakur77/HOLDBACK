@@ -1,46 +1,63 @@
+//! Seeds, enumerated byte values and hard limits shared by every instruction.
+
 use anchor_lang::prelude::*;
-use light_sdk::{cpi::CpiSigner, derive_light_cpi_signer};
 
-/// CPI signer for Light System Program compressed account operations.
-pub const LIGHT_CPI_SIGNER: CpiSigner =
-    derive_light_cpi_signer!("BqNSjpGpePKj1hhD1o1UbyLdiYvSY4S3nt5jNe6Ny8vK");
+/// Seed of the singleton [`crate::state::Config`] account.
+pub const CONFIG_SEED: &[u8] = b"config";
+/// Seed prefix of a [`crate::state::Hold`]: `["hold", sender, nonce_le_u64]`.
+pub const HOLD_SEED: &[u8] = b"hold";
+/// Seed prefix of a [`crate::state::Trust`]: `["trust", sender, recipient]`.
+pub const TRUST_SEED: &[u8] = b"trust";
+/// Seed prefix of a [`crate::state::DepositBox`]: `["box", owner]`.
+pub const BOX_SEED: &[u8] = b"box";
+/// Seed prefix of a [`crate::state::Flag`]: `["flag", reporter, subject]`.
+pub const FLAG_SEED: &[u8] = b"flag";
+/// Seed prefix of a [`crate::state::SubjectStats`]: `["stats", subject]`.
+pub const STATS_SEED: &[u8] = b"stats";
 
-// --- TEE Validators (PER bidding) ---
-pub const DEVNET_TEE_VALIDATOR: Pubkey = pubkey!("HNDKj4XtVBoudGBBbxwsHFKbfNoFCrjL6xrvf7Aq51mX");
-pub const MAINNET_TEE_VALIDATOR: Pubkey = pubkey!("MTEWGuqxUpYZGFJQcp8tLN7x5v9BSeoFHYWQQ3n3xzo");
-pub const LOCALNET_TEE_VALIDATOR: Pubkey = pubkey!("7XRXX7C2vtLJE6A8tTtcR4QEH9FtsC4K3CXL8jCTAK7n");
+/// Risk tiers assigned by the risk agent's deterministic policy.
+pub mod tier {
+    /// The sender explicitly trusts the recipient, or has a clean history with them.
+    pub const TRUSTED: u8 = 0;
+    /// No evidence either way; the default window applies.
+    pub const UNKNOWN: u8 = 1;
+    /// Some evidence of risk.
+    pub const SUSPICIOUS: u8 = 2;
+    /// Strong evidence or a confirmed scam report.
+    pub const FLAGGED: u8 = 3;
+    /// The recipient is on a sanctions list.
+    pub const SANCTIONED: u8 = 4;
+    /// Highest valid tier value.
+    pub const MAX: u8 = SANCTIONED;
+}
 
-pub const JOB_SEED: &[u8] = b"job";
-pub const BID_SEED: &[u8] = b"bid";
-pub const ARCHIVE_SEED: &[u8] = b"archive";
-pub const TTD_SEED: &[u8] = b"ttd";
-pub const VAULT_SEED: &[u8] = b"vault";
-pub const DISPUTE_SEED: &[u8] = b"dispute";
-pub const VOTE_SEED: &[u8] = b"vote";
-pub const PANEL_SIZE: u8 = 5;
-pub const PANEL_QUORUM: u8 = 3;
+/// Where the held funds came from.
+pub mod origin {
+    /// The sender signed `create_hold` from their own wallet.
+    pub const WALLET: u8 = 0;
+    /// The relayer moved funds out of the sender's deposit box.
+    pub const DEPOSIT_BOX: u8 = 1;
+}
 
-// --- Status byte constants ---
-pub const STATUS_OPEN: u8 = 0;
-pub const STATUS_BIDDING: u8 = 1;
-pub const STATUS_CLAIMED: u8 = 2; // winner selected, needs lock_stake
-pub const STATUS_STAKED: u8 = 6; // stake locked, ready for proof
-pub const STATUS_VERIFIED: u8 = 7;
-pub const STATUS_SUBMITTED: u8 = 3; // proof submitted, awaiting settlement
-pub const STATUS_DONE: u8 = 4; // settled PASS
-pub const STATUS_FAILED: u8 = 5; // settled FAIL or expired
+/// Lifecycle of a hold. `PENDING` is the only non-terminal state.
+pub mod status {
+    /// Funds are in the vault and the window is running.
+    pub const PENDING: u8 = 0;
+    /// Funds went to the recipient.
+    pub const RELEASED: u8 = 1;
+    /// Funds went back to the sender.
+    pub const RECLAIMED: u8 = 2;
+}
 
-// --- Privacy levels ---
-pub const PRIVACY_PUBLIC: u8 = 0;
-pub const PRIVACY_ENCRYPTED: u8 = 1;
-pub const PRIVACY_PER: u8 = 2;
+/// Highest accepted `reason` code for `flag_subject`.
+///
+/// 0 other, 1 phishing, 2 impersonation, 3 investment fraud, 4 romance,
+/// 5 fake support, 6 drainer, 7 extortion.
+pub const MAX_FLAG_REASON: u8 = 7;
 
-// --- Verification modes ---
-pub const VERIFICATION_POSTER_REVIEW: u8 = 0;
-pub const VERIFICATION_TEST_SUITE: u8 = 1;
-pub const VERIFICATION_JUDGE: u8 = 2;
+/// Absolute ceiling for `Config::max_window_secs` (30 days). The admin cannot
+/// configure windows that lock funds for longer than this.
+pub const WINDOW_HARD_CAP_SECS: u32 = 30 * 24 * 60 * 60;
 
-/// Review period: poster has 1 hour after proof submission to settle.
-/// If they don't, worker can call claim_timeout to auto-win.
-pub const REVIEW_PERIOD_SECS: i64 = 3600;
-pub const DISPUTE_WINDOW_SECS: i64 = 86400;
+/// `Hold::mint` value that marks a native SOL hold.
+pub const NATIVE_SOL_MINT: Pubkey = Pubkey::new_from_array([0u8; 32]);

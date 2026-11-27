@@ -1,21 +1,25 @@
-pub mod bidding;
-pub mod compressed;
-pub mod credential;
-pub mod delegation;
-pub mod dispute;
-pub mod job;
-pub mod proof;
-pub mod settlement;
-pub mod tee;
-pub mod ttd;
+//! One module per instruction family. Account structs are re-exported so the
+//! `#[program]` module and clients can name them directly.
 
-pub use bidding::*;
-pub use compressed::*;
-pub use credential::*;
-pub use delegation::*;
-pub use dispute::*;
-pub use job::*;
-pub use proof::*;
-pub use settlement::*;
-pub use tee::*;
-pub use ttd::*;
+pub mod close_hold;
+pub mod config;
+pub mod create_hold;
+pub mod deposit_box;
+pub mod extend_window;
+pub mod flag;
+pub mod instant;
+pub mod reclaim;
+pub mod release;
+pub mod shared;
+pub mod trust;
+
+pub use close_hold::*;
+pub use config::*;
+pub use create_hold::*;
+pub use deposit_box::*;
+pub use extend_window::*;
+pub use flag::*;
+pub use instant::*;
+pub use reclaim::*;
+pub use release::*;
+pub use trust::*;
