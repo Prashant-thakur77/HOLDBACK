@@ -54,7 +54,7 @@ sequenceDiagram
   else new evidence appears while it waits
     G->>P: extend_window (oracle key: can only lengthen)
   else the window ends
-    R->>P: release (anyone can crank; ours does every minute)
+    R->>P: release (anyone can crank, ours does every minute)
     P-->>R: funds
   end
 ```
