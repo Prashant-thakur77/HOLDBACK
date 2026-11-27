@@ -26,7 +26,7 @@ Say what smells wrong or right, what each clue changes, and commit out loud befo
 {
   "name": "HOLDBACK Scam Dojo",
   "api": {
-    "baseUrl": "https://holdback.example",
+    "baseUrl": "https://holdback.prashantthakur.dev",
     "start": {
       "method": "POST",
       "path": "/api/dojo/runs",
@@ -102,7 +102,7 @@ Say what smells wrong or right, what each clue changes, and commit out loud befo
       "win": { "path": "status", "equals": ["won"] },
       "score": { "path": "score", "label": "pts" }
     },
-    "watchUrl": "https://holdback.example/dojo/watch/{{dojoRun}}",
+    "watchUrl": "https://holdback.prashantthakur.dev/dojo/watch/{{dojoRun}}",
     "bets": [
       { "id": "wins", "type": "win" },
       {

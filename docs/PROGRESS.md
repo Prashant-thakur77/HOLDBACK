@@ -37,7 +37,8 @@ Checked items are built, tested and committed.
 
 ## Phase 5: voice
 
-- [ ] Guardian agent (hi, en, es, pt), TTS notes, outbound call, SFX: code complete, never run (needs an ElevenLabs key)
+- [x] Guardian voice agent created on ElevenLabs with its five tools; live Hindi voice note served and cached; three sound effects generated and bundled in the app
+- [ ] Outbound call (needs a Twilio number connected in ElevenLabs)
 
 ## Phase 6: Seeker app
 
@@ -52,7 +53,8 @@ Checked items are built, tested and committed.
 ## Phase 8: Scam Dojo
 
 - [x] Engine, 65 scenarios, API, memo, `BYTE_GAME.md` (101 tests)
-- [ ] Upload to Byte and one recorded run
+- [x] Live run on the deployed site: 8 rounds, `check_address` answered by the live risk agent each round, memo `5HDADarVCjyP6ZKm1vUfPsDJgZJCphDHwP92Wg8365WwPm48LFLqrAf6MahF43xjyv9cTDsj4WDx6tZ7fiWiSpep`
+- [ ] Upload to Byte and one recorded Byte run
 
 ## Phase 9: eval and bench
 

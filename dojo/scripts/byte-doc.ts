@@ -14,7 +14,7 @@ import { startRun } from '../src/engine';
 import { RULES } from '../src/rules';
 import { DECISIONS, MOVES } from '../src/types';
 
-export const PLACEHOLDER_ORIGIN = 'https://holdback.example';
+export const PLACEHOLDER_ORIGIN = 'https://holdback.prashantthakur.dev';
 export const BYTE_DOC_PATH = join(__dirname, '..', 'BYTE_GAME.md');
 
 /** The prose enters the playing agent's prompt on every step and is cut off at this length. */
