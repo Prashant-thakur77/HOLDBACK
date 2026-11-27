@@ -22,6 +22,7 @@ export function createApp(): Hono<AppEnv> {
       origin: '*',
       allowMethods: ['GET', 'POST', 'OPTIONS'],
       allowHeaders: ['authorization', 'content-type', 'x-crank-secret'],
+      exposeHeaders: ['x-holdback-storage'],
       maxAge: 86_400,
     }),
   );
@@ -33,11 +34,16 @@ export function createApp(): Hono<AppEnv> {
     } catch {
       // No execution context outside the Workers runtime (tests).
     }
-    c.set('services', createServices(c.env ?? {}, background));
+    const services = createServices(c.env ?? {}, background);
+    c.set('services', services);
     await next();
+    // Every answer says what kind of storage stands behind it.
+    c.header('x-holdback-storage', services.storage.info.kind);
   });
 
-  app.get('/', (c) => c.json({ service: 'holdback-guardian', ok: true }));
+  app.get('/', (c) =>
+    c.json({ service: 'holdback-guardian', ok: true, storage: c.var.services.storage.info }),
+  );
 
   assessRoutes(app);
   holdRoutes(app);

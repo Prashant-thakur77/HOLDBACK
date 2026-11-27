@@ -18,23 +18,23 @@ A language model is used for three things only: to label social-engineering cues
 | -------------------- | ----------- | ---------- |
 | `onchain_reputation` | 3.5 s       | not cached |
 | `helius`             | 7 s         | 15 min     |
-| `blocklist`          | 3 s         | 10 min     |
+| `blocklist`          | 4 s         | 10 min     |
 | `chainabuse`         | 6 s         | 48 h       |
 | `web_reports`        | 12 s        | 6 h        |
 | `sns`                | 4 s         | 6 h        |
 | `context`            | 6 s         | not cached |
 | `baseline`           | 3 s         | not cached |
 
-| Collector            | What it reads                                                                                                                                                                                    | Needs                  |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------- |
-| `onchain_reputation` | The program's `SubjectStats` for the recipient (flags, holds received, undone, completed), the sender's `Trust` account, and reports stored by `POST /v1/flags`                                  | `SOLANA_RPC_URL`       |
-| `helius`             | Mainnet history of the recipient: age, transaction count, first funder, four behaviour heuristics, counterparties on a list, earlier transfers from the sender                                   | `HELIUS_API_KEY`       |
-| `blocklist`          | OFAC sanctioned addresses and the ScamSniffer address list (exact match); Phantom, ScamSniffer and MetaMask phishing domains for sites named in the sender's note (exact or parent-suffix match) | Supabase, lists loaded |
-| `chainabuse`         | Scam reports for the address                                                                                                                                                                     | `CHAINABUSE_API_KEY`   |
-| `web_reports`        | Firecrawl search for the exact address (and its primary .sol name) with scam terms, pages as markdown; DeFiLlama token data through Firecrawl when the recipient is a token mint                 | `FIRECRAWL_API_KEY`    |
-| `sns`                | The recipient's .sol names, checked for imitation of well-known names                                                                                                                            | none                   |
-| `context`            | The sender's answer to "why are you sending this?": cue patterns in English, Hindi, Spanish and Portuguese, plus the model classifier                                                            | none (model optional)  |
-| `baseline`           | The sender's own HOLDBACK history: typical amount, time of day, earlier payments to this recipient                                                                                               | Supabase               |
+| Collector            | What it reads                                                                                                                                                                                    | Needs                                                                        |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| `onchain_reputation` | The program's `SubjectStats` for the recipient (flags, holds received, undone, completed), the sender's `Trust` account, and reports stored by `POST /v1/flags`                                  | `SOLANA_RPC_URL`                                                             |
+| `helius`             | Mainnet history of the recipient: age, transaction count, first funder, four behaviour heuristics, counterparties on a list, earlier transfers from the sender                                   | `HELIUS_API_KEY`                                                             |
+| `blocklist`          | OFAC sanctioned addresses and the ScamSniffer address list (exact match); Phantom, ScamSniffer and MetaMask phishing domains for sites named in the sender's note (exact or parent-suffix match) | none: the lists are read from Supabase, or downloaded into memory without it |
+| `chainabuse`         | Scam reports for the address                                                                                                                                                                     | `CHAINABUSE_API_KEY`                                                         |
+| `web_reports`        | Firecrawl search for the exact address (and its primary .sol name) with scam terms, pages as markdown; DeFiLlama token data through Firecrawl when the recipient is a token mint                 | `FIRECRAWL_API_KEY`                                                          |
+| `sns`                | The recipient's .sol names, checked for imitation of well-known names                                                                                                                            | none                                                                         |
+| `context`            | The sender's answer to "why are you sending this?": cue patterns in English, Hindi, Spanish and Portuguese, plus the model classifier                                                            | none (model optional)                                                        |
+| `baseline`           | The sender's own HOLDBACK history: typical amount, time of day, earlier payments to this recipient                                                                                               | Supabase                                                                     |
 
 Limits worth knowing:
 
@@ -218,9 +218,26 @@ curl -s -X POST http://localhost:8787/v1/assess \
   -d '{"sender":"<address>","recipient":"<address>","mint":null,"amount":"10000000","lang":"en"}'
 ```
 
-With an empty `.dev.vars` the service still answers: every collector that needs a key or the database is listed in `unavailable`, the tier is UNKNOWN and the window is the default.
+With an empty `.dev.vars` the service still answers: every collector that needs a key is listed in `unavailable`, and an address that is on no list is rated UNKNOWN with the default window. See "Running without a database" below for what works with no Supabase project.
 
 Solana's public RPC endpoints refuse requests from the Workers runtime, including the local one `wrangler dev` runs. Set `SOLANA_RPC_URL` (and `MAINNET_RPC_URL`, unless `HELIUS_API_KEY` is set) to a private RPC to use anything that reads or writes the chain. This is required when deployed.
+
+## Running without a database
+
+When `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are not both set, the service keeps what it needs in the memory of its own process instead. This is for local development and evaluation runs. Nothing in this mode persists: it is lost on restart and is not shared between instances (on Workers, between isolates).
+
+What works in this mode:
+
+- **Blocklists.** The address lists (OFAC, ScamSniffer) are downloaded from their public URLs the first time an assessment needs them, kept exactly, and downloaded again when they are an hour old. An OFAC-listed address is rated SANCTIONED. The three phishing domain lists are large, so they are downloaded only once a sender's note actually names a site, and kept as the same hashed shards the database uses. If a download fails, the copy already in memory keeps answering; if the sanctions list was never loaded, the collector reports `unavailable` rather than "not listed", and the download is retried after a minute.
+- **Evidence documents.** The last 500 assessments can be read back with `GET /v1/evidence/:hash` and verify against their hash. Older ones answer 404.
+- **Cached collector answers** and the once-only guards, which are per process in any case.
+
+What does not:
+
+- **`baseline`** stays in `unavailable`. It reads the sender's own history from the mirrored holds, and without a database there is no history to read.
+- Everything else that is a database feature: hold lists and receipts fall back to the chain, and reports, push registration, relay sign-in and statistics answer 503.
+
+Every answer says which mode produced it: `POST /v1/assess` returns `storage: { "kind": "memory", "persistent": false }` (`"supabase"` and `true` with a database), every response carries the header `x-holdback-storage`, `GET /` reports the same, and the first request logs a line that starts with `storage: IN-MEMORY, NOT PERSISTENT`. The in-memory stores are a stand-in for a missing database only: with a database configured they are never created, and a database error is reported as an error, not answered from memory.
 
 ```sh
 npm run typecheck --workspace services/agent
@@ -262,7 +279,8 @@ src/
   llm/                           model client, spoken explanation, per-language copy
   chain/                         oracle, relayer, crank, proof-by-transfer, memo
   routes/                        HTTP routes
-  db/, lib/                      Supabase access; HTTP, cache, JWT, keys, Solana helpers
+  store/                         evidence and blocklist stores: Supabase, or memory without it
+  db/, lib/                      Supabase tables; HTTP, cache, JWT, keys, Solana helpers
   push/, voice/, seeker.ts       Expo pushes, ElevenLabs, Seeker checks
 scripts/                         voice agent setup, sound effects, list refresh, devnet smoke test
 test/                            vitest suites (network access is replaced inside tests only)

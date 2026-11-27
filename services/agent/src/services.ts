@@ -9,11 +9,14 @@ import type { Connection, PublicKey } from '@solana/web3.js';
 import type { Background, Env } from './env';
 import { EvidenceCache } from './lib/cache';
 import { clusterConnection, mainnetConnection, programId } from './lib/solana';
+import { selectStorage, type Storage } from './store';
 
 export interface Services {
   env: Env;
-  /** `null` when Supabase is not configured; callers degrade to memory or chain. */
+  /** `null` when Supabase is not configured. Tables with no in-memory stand-in need it. */
   db: SupabaseClient | null;
+  /** Evidence documents and blocklists: Supabase, or this process's memory without it. */
+  storage: Storage;
   cache: EvidenceCache;
   cluster: Connection;
   mainnet: Connection;
@@ -39,6 +42,7 @@ export function createServices(env: Env, background: Background = inlineBackgrou
   return {
     env,
     db,
+    storage: selectStorage(db),
     cache: new EvidenceCache(db),
     cluster: clusterConnection(env),
     mainnet: mainnetConnection(env),

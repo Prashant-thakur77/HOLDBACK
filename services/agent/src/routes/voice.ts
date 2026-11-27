@@ -5,7 +5,6 @@ import { LANGS, type Lang, type VoiceSession } from '@holdback/sdk';
 
 import { requireWallet, walletFromAuthorization } from '../auth';
 import { MAX_EXTEND_HOURS, extendByHours } from '../chain/oracle';
-import { getEvidence } from '../db/evidence';
 import { evidenceInUse } from '../db/holds';
 import { flag } from '../env';
 import { forbidden, notFound, unauthorized } from '../errors';
@@ -57,7 +56,7 @@ export function voiceRoutes(app: App): void {
       ? (requested as Lang)
       : 'en';
     const services = c.var.services;
-    const evidence = await getEvidence(services.db, hash);
+    const evidence = await services.storage.evidence.get(hash);
     if (!evidence) throw notFound('No evidence document with this hash');
 
     const key = noteKey(hash, language);
@@ -91,7 +90,7 @@ export function voiceRoutes(app: App): void {
       if (caller === null) throw unauthorized();
       if (caller !== row.sender) throw forbidden('Only the sender can talk about this hold');
     }
-    const evidence = await getEvidence(services.db, row.evidence_hash);
+    const evidence = await services.storage.evidence.get(row.evidence_hash).catch(() => null);
     const credentials = await sessionCredentials(c.env);
     const session: VoiceSession = {
       ...credentials,

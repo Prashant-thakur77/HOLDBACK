@@ -2,10 +2,8 @@
  * Hourly refresh of the static lists. One list failing leaves its previous
  * copy in place (stale beats empty) and does not stop the others.
  */
-import type { SupabaseClient } from '@supabase/supabase-js';
-
-import { replaceAddresses, saveDomainShards, saveMeta } from '../db/blocklist';
 import { request } from '../lib/http';
+import type { BlocklistWriter, ListKind } from '../store/types';
 import {
   buildDomainShards,
   normaliseAddress,
@@ -89,35 +87,40 @@ async function download(url: string): Promise<string> {
 }
 
 async function refreshOne(
-  db: SupabaseClient,
+  store: BlocklistWriter,
   source: DomainSource | AddressSource,
 ): Promise<number> {
   if (source.kind === 'address') {
     const values = new Set<string>();
-    for (const url of source.urls) {
-      for (const address of source.parse(await download(url))) {
-        values.add(normaliseAddress(address));
-      }
+    const files = await Promise.all(source.urls.map(download));
+    for (const file of files) {
+      for (const address of source.parse(file)) values.add(normaliseAddress(address));
     }
     // An empty answer is treated as a broken download, not as "nobody is listed".
     if (values.size === 0) throw new Error('list came back empty');
-    await replaceAddresses(db, source.list, [...values]);
-    await saveMeta(db, metaName(source.list, 'address'), values.size, source.urls[0]!);
+    await store.replaceAddresses(source.list, [...values]);
+    await store.saveMeta(metaName(source.list, 'address'), values.size, source.urls[0]!);
     return values.size;
   }
   const { shards, count } = buildDomainShards(source.parse(await download(source.url)));
   if (count === 0) throw new Error('list came back empty');
-  await saveDomainShards(db, source.list, shards);
-  await saveMeta(db, metaName(source.list, 'domain'), count, source.url);
+  await store.saveDomainShards(source.list, shards);
+  await store.saveMeta(metaName(source.list, 'domain'), count, source.url);
   return count;
 }
 
-/** Refreshes every list, one at a time to keep memory flat. */
-export async function refreshBlocklists(db: SupabaseClient): Promise<RefreshResult[]> {
+/**
+ * Refreshes every list (or only the lists of one kind), one at a time to
+ * keep memory flat. The store decides where the entries live.
+ */
+export async function refreshBlocklists(
+  store: BlocklistWriter,
+  only?: ListKind,
+): Promise<RefreshResult[]> {
   const results: RefreshResult[] = [];
-  for (const source of SOURCES) {
+  for (const source of SOURCES.filter((candidate) => !only || candidate.kind === only)) {
     try {
-      const entries = await refreshOne(db, source);
+      const entries = await refreshOne(store, source);
       results.push({ list: source.list, kind: source.kind, ok: true, entries });
     } catch (error) {
       results.push({

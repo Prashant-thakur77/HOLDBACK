@@ -9,8 +9,7 @@ import { HoldStatus, Tier } from '@holdback/sdk';
 
 import { runCrank, type CrankSummary } from './chain/crank';
 import { reassessHold } from './chain/oracle';
-import { refreshBlocklists, type RefreshResult } from './collectors/blocklist-refresh';
-import { getEvidence } from './db/evidence';
+import type { RefreshResult } from './collectors/blocklist-refresh';
 import {
   holdsCreatedSince,
   holdsReleasingBetween,
@@ -61,7 +60,7 @@ export async function notifyTransitions(services: Services, now = new Date()): P
   for (const hold of created.filter((row) => row.status === HoldStatus.PENDING)) {
     if (await announce(services, 'hold_placed', hold)) sent++;
     if (hold.tier >= Tier.FLAGGED) {
-      const evidence = await getEvidence(db, hold.evidence_hash).catch(() => null);
+      const evidence = await services.storage.evidence.get(hold.evidence_hash).catch(() => null);
       await maybeCallSender(services, hold, evidence?.document ?? null);
     }
   }
@@ -107,8 +106,9 @@ export async function runMinute(services: Services, now = new Date()): Promise<M
   return { crank, notified };
 }
 
-export async function runHourly(services: Services): Promise<RefreshResult[]> {
-  return services.db ? refreshBlocklists(services.db) : [];
+/** Refreshes the lists in whichever store this process uses. */
+export function runHourly(services: Services): Promise<RefreshResult[]> {
+  return services.storage.blocklists.refresh();
 }
 
 /** Dispatches a Cron Trigger by its expression. */

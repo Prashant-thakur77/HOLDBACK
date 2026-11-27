@@ -38,6 +38,8 @@ export interface AssessResponse {
   /** True for SANCTIONED: the app must make the user type a confirmation phrase. */
   requiresConfirmation: boolean;
   latencyMs: number;
+  /** Where the service keeps evidence. `memory` is a local, non-persistent mode. */
+  storage?: { kind: 'supabase' | 'memory'; persistent: boolean };
 }
 
 /** A hold as mirrored off-chain, plus what the receipt page shows. */

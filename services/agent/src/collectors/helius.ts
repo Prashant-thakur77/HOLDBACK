@@ -3,12 +3,10 @@
  * wallets live on mainnet, so this looks there even while the HOLDBACK
  * program runs on devnet; an address is the same key on both.
  */
-import type { SupabaseClient } from '@supabase/supabase-js';
-
-import { lookupAddresses } from '../db/blocklist';
 import { CollectorUnavailable } from '../errors';
 import { postJson, requestJson } from '../lib/http';
 import type { Signal } from '../signals';
+import type { BlocklistStore } from '../store/types';
 import {
   counterparties,
   firstFunder,
@@ -246,10 +244,10 @@ export function profileSignals(
   return signals;
 }
 
-async function listedAmong(db: SupabaseClient | null, addresses: string[]): Promise<Set<string>> {
-  if (!db || addresses.length === 0) return new Set();
+async function listedAmong(store: BlocklistStore, addresses: string[]): Promise<Set<string>> {
+  if (addresses.length === 0) return new Set();
   try {
-    return new Set((await lookupAddresses(db, addresses)).map((hit) => hit.value));
+    return new Set((await store.lookupAddresses(addresses)).map((hit) => hit.value));
   } catch {
     return new Set();
   }
@@ -267,7 +265,7 @@ export const heliusCollector: Collector = {
     );
     const candidates = [...profile.counterparties];
     if (profile.firstFunder) candidates.push(profile.firstFunder);
-    const listed = await listedAmong(services.db, candidates);
+    const listed = await listedAmong(services.storage.blocklists, candidates);
     return profileSignals(profile, subject.sender, Math.floor(now.getTime() / 1000), listed);
   },
 };

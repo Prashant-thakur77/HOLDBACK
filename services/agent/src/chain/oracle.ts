@@ -20,7 +20,6 @@ import {
 } from '@holdback/sdk';
 
 import { assess, carriedSignals } from '../assess';
-import { getEvidence } from '../db/evidence';
 import { holdToRow, ingestEvents } from '../db/holds';
 import { getProfile } from '../db/profiles';
 import { badRequest } from '../errors';
@@ -105,7 +104,7 @@ export async function reassessHold(services: Services, pda: PublicKey): Promise<
   if (hold.status !== HoldStatus.PENDING || nowSecs >= hold.releaseAt) return unchanged(hold);
 
   const sender = hold.sender.toBase58();
-  const previous = await getEvidence(services.db, toHex(hold.evidenceHash));
+  const previous = await services.storage.evidence.get(toHex(hold.evidenceHash)).catch(() => null);
   const result = await assess(
     services,
     {

@@ -31,6 +31,11 @@ RELAYER_KEYPAIR=
 CRANK_KEYPAIR=
 
 # --- Supabase ---------------------------------------------------------------
+# Leave both SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY empty to run without
+# a database: evidence documents, cached answers and the blocklists are then
+# kept in the memory of the running process only (downloaded from the public
+# list URLs on first use) and are LOST ON RESTART. The sender-history
+# collector stays unavailable in that mode. Never deploy that way.
 # Project Settings -> API in https://supabase.com/dashboard
 SUPABASE_URL=
 # (secret) "service_role" key from the same page.

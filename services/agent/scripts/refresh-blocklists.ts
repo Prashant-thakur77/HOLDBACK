@@ -5,7 +5,6 @@
  *
  *   npm run blocklists:refresh --workspace services/agent
  */
-import { refreshBlocklists } from '../src/collectors/blocklist-refresh';
 import { createServices } from '../src/services';
 import { loadEnv, requireVar } from './env';
 
@@ -13,9 +12,7 @@ async function main(): Promise<void> {
   const env = loadEnv();
   requireVar(env, 'SUPABASE_URL');
   requireVar(env, 'SUPABASE_SERVICE_ROLE_KEY');
-  const { db } = createServices(env);
-  if (!db) throw new Error('Supabase is not configured');
-  const results = await refreshBlocklists(db);
+  const results = await createServices(env).storage.blocklists.refresh();
   for (const result of results) {
     const state = result.ok ? `${result.entries} entries` : `FAILED (${result.error})`;
     console.log(`${result.list} ${result.kind}: ${state}`);

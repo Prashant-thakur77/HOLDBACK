@@ -15,13 +15,13 @@ import { ALL_COLLECTORS } from './collectors';
 import { runCollectors } from './collectors/run';
 import { cachedNames } from './collectors/sns';
 import type { Collector, CollectorContext, Subject } from './collectors/types';
-import { putEvidence } from './db/evidence';
 import { withTimeout } from './lib/http';
 import { createLlm } from './llm/client';
 import { spokenExplanation, templateSpoken } from './llm/spoken';
 import { POLICY_VERSION, decide } from './policy';
 import type { Services } from './services';
 import type { Signal } from './signals';
+import type { StorageInfo } from './store';
 
 /** Longest the response waits for the evidence document to be stored. */
 const STORE_TIMEOUT_MS = 2_500;
@@ -81,11 +81,18 @@ function buildDocument(
   };
 }
 
+/**
+ * The assessment, plus where its evidence document was stored. `storage`
+ * tells a caller when the service runs without a database: the document
+ * can then be read back only from this process, and only until it restarts.
+ */
+export type Assessment = AssessResponse & { storage: StorageInfo };
+
 export async function assess(
   services: Services,
   subject: Subject,
   options: AssessOptions = {},
-): Promise<AssessResponse> {
+): Promise<Assessment> {
   const started = Date.now();
   const now = options.now ?? new Date();
   const llm = createLlm(services.env);
@@ -130,7 +137,7 @@ export async function assess(
   // The hash is about to go on-chain; the document should be readable by
   // then. A slow database must not hold the answer up for long, so the write
   // continues in the background once the response has waited long enough.
-  const stored = putEvidence(services.db, evidenceHash, { document, spoken });
+  const stored = services.storage.evidence.put(evidenceHash, { document, spoken });
   await withTimeout(stored, STORE_TIMEOUT_MS).catch(() =>
     services.background.waitUntil(stored.catch(() => undefined)),
   );
@@ -148,5 +155,6 @@ export async function assess(
     unavailable,
     requiresConfirmation,
     latencyMs: Date.now() - started,
+    storage: services.storage.info,
   };
 }

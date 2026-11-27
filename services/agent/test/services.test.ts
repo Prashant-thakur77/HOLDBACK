@@ -13,6 +13,7 @@ import { reputationSignals } from '../src/collectors/onchain';
 import type { PaymentHistory } from '../src/db/holds';
 import type { Env } from '../src/env';
 import { clearMemoryCache } from '../src/lib/cache';
+import { resetMemoryStorage } from '../src/store';
 import { bytesToBase64, decodeBase58, utf8 } from '../src/lib/encoding';
 import { signJwt, verifyJwt } from '../src/lib/jwt';
 import { parseKeypair } from '../src/lib/keys';
@@ -25,7 +26,10 @@ import { json, mockFetch, type FetchMock } from './helpers';
 
 const app = createApp();
 let fetchMock: FetchMock | undefined;
-beforeEach(() => clearMemoryCache());
+beforeEach(() => {
+  clearMemoryCache();
+  resetMemoryStorage();
+});
 afterEach(() => fetchMock?.restore());
 
 const post = (path: string, body: unknown, env: Env, headers: Record<string, string> = {}) =>

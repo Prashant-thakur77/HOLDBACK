@@ -10,7 +10,6 @@ import {
   type LiveStats,
 } from '@holdback/sdk';
 
-import { getEvidence } from '../db/evidence';
 import { getHoldRow, holdToRow, listHoldRows, rowToRecord, type HoldRow } from '../db/holds';
 import { notFound, unavailable } from '../errors';
 import type { Services } from '../services';
@@ -48,7 +47,8 @@ export function holdRoutes(app: App): void {
     const pda = parse(address, c.req.param('pda'));
     const row = await findHoldRow(c.var.services, pda);
     if (!row) throw notFound('No such hold');
-    const evidence = await getEvidence(c.var.services.db, row.evidence_hash);
+    // A receipt is still worth showing when the evidence cannot be read right now.
+    const evidence = await c.var.services.storage.evidence.get(row.evidence_hash).catch(() => null);
     const receipt: HoldReceipt = {
       hold: rowToRecord(row),
       document: evidence?.document ?? null,
@@ -75,7 +75,9 @@ export function holdRoutes(app: App): void {
 
   app.get('/v1/evidence/:hash', async (c) => {
     const hash = parse(evidenceHash, c.req.param('hash').toLowerCase());
-    const evidence = await getEvidence(c.var.services.db, hash);
+    const evidence = await c.var.services.storage.evidence.get(hash).catch(() => {
+      throw unavailable('Evidence cannot be read right now');
+    });
     if (!evidence) throw notFound('No evidence document with this hash');
     // Exactly the hashed document, so a client can recompute the hash.
     return c.json(evidence.document);

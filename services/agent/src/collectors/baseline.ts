@@ -130,7 +130,11 @@ export const baselineCollector: Collector = {
   timeoutMs: 3_000,
   cacheTtlSecs: null,
   async collect({ services, subject, now }) {
-    if (!services.db) throw new CollectorUnavailable('Supabase is not configured');
+    // The sender's history exists only in the database's mirror of holds;
+    // there is nothing honest to answer from without it.
+    if (!services.db) {
+      throw new CollectorUnavailable('needs the hold history in Supabase, which is not configured');
+    }
     const history = await senderHistory(services.db, subject.sender, HISTORY_LIMIT);
     const baseline = buildBaseline(history, subject.recipient, subject.mint);
     return baselineSignals(baseline, subject.amount, now);

@@ -3,12 +3,9 @@
  * against the address lists; domains the sender mentioned are matched
  * (exactly or by parent suffix) against the phishing lists.
  */
-import type { SupabaseClient } from '@supabase/supabase-js';
-
-import { listMeta, loadDomainShards, lookupAddresses, shardKey } from '../db/blocklist';
 import { CollectorUnavailable } from '../errors';
-import type { EvidenceCache } from '../lib/cache';
 import type { Signal } from '../signals';
+import { shardKey, type BlocklistStore } from '../store/types';
 import {
   domainCandidates,
   extractDomains,
@@ -35,7 +32,7 @@ export const LIST_URLS: Record<string, string> = {
 
 /** The first list that contains `domain` or one of its parents, with the matching entry. */
 export async function findListedDomain(
-  db: SupabaseClient,
+  store: BlocklistStore,
   domain: string,
 ): Promise<{ list: string; matched: string } | null> {
   const candidates = domainCandidates(domain).map((candidate) => ({
@@ -45,7 +42,7 @@ export async function findListedDomain(
   const wanted = DOMAIN_LISTS.flatMap((list) =>
     candidates.map(({ hash }) => ({ list, shard: shardOf(hash) })),
   );
-  const shards = await loadDomainShards(db, wanted);
+  const shards = await store.loadDomainShards(wanted);
   for (const list of DOMAIN_LISTS) {
     for (const { candidate, hash } of candidates) {
       const packed = shards.get(shardKey(list, shardOf(hash)));
@@ -55,35 +52,44 @@ export async function findListedDomain(
   return null;
 }
 
-async function loadedLists(db: SupabaseClient, cache: EvidenceCache): Promise<Set<string>> {
-  const names = await cache.wrap('blocklist_meta', 'loaded', META_TTL_SECS, async () => {
-    const meta = await listMeta(db);
-    // Do not cache "nothing loaded": the first refresh may finish any minute.
-    if (meta.length === 0) throw new CollectorUnavailable('blocklists have not been loaded yet');
-    return meta.filter((row) => row.entries > 0).map((row) => row.list);
-  });
-  return new Set(names);
+/** Names of the lists that hold entries. Throws while nothing has been loaded at all. */
+async function loadedLists(store: BlocklistStore): Promise<string[]> {
+  const meta = await store.listMeta();
+  if (meta.length === 0) throw new CollectorUnavailable('blocklists have not been loaded yet');
+  return meta.filter((row) => row.entries > 0).map((row) => row.list);
 }
 
 export const blocklistCollector: Collector = {
   name: 'blocklist',
-  timeoutMs: 3_000,
+  timeoutMs: 4_000,
   cacheTtlSecs: ADDRESS_TTL_SECS,
   async collect({ services, subject }) {
-    const { db, cache } = services;
-    if (!db) throw new CollectorUnavailable('Supabase is not configured');
+    const { cache } = services;
+    const store = services.storage.blocklists;
     const source = 'blocklist' as const;
 
-    const loaded = await loadedLists(db, cache);
+    // With a database this is a no-op; the in-memory store downloads the
+    // address lists here the first time they are needed.
+    await store.prepare('address');
+    // A database answer is worth caching for a few minutes; memory is read
+    // directly, so a list that finishes loading counts from the next call.
+    const inMemory = services.storage.info.kind === 'memory';
+    const loaded = new Set(
+      inMemory
+        ? await loadedLists(store)
+        : // "Nothing loaded" throws and so is not cached: the first refresh may finish any minute.
+          await cache.wrap('blocklist_meta', 'loaded', META_TTL_SECS, () => loadedLists(store)),
+    );
     // Without the sanctions list a "not listed" answer would be a guess.
     if (!loaded.has(metaName('ofac', 'address'))) {
       throw new CollectorUnavailable('the sanctions list has not been loaded yet');
     }
 
     const address = normaliseAddress(subject.recipient);
-    const hits = await cache.wrap('blocklist', address, ADDRESS_TTL_SECS, async () =>
-      (await lookupAddresses(db, [address])).map((hit) => hit.list),
-    );
+    const lookup = async () => (await store.lookupAddresses([address])).map((hit) => hit.list);
+    const hits = inMemory
+      ? await lookup()
+      : await cache.wrap('blocklist', address, ADDRESS_TTL_SECS, lookup);
 
     const signals: Signal[] = [];
     if (hits.includes('ofac')) {
@@ -106,8 +112,9 @@ export const blocklistCollector: Collector = {
     }
 
     const domains = extractDomains(subject.context ?? '').slice(0, MAX_CONTEXT_DOMAINS);
+    if (domains.length > 0) await store.prepare('domain');
     for (const domain of domains) {
-      const listed = await findListedDomain(db, domain).catch(() => null);
+      const listed = await findListedDomain(store, domain).catch(() => null);
       if (listed) {
         signals.push({
           source,

@@ -5,6 +5,7 @@ import { verifyEvidence, type AssessResponse, type EvidenceDocument } from '@hol
 import { createApp } from '../src/app';
 import type { Env } from '../src/env';
 import { clearMemoryCache } from '../src/lib/cache';
+import { resetMemoryStorage } from '../src/store';
 import { templateSpoken } from '../src/llm/spoken';
 import { emptyCluster, json, mockFetch, rpcHandler, type FetchMock } from './helpers';
 
@@ -32,7 +33,10 @@ async function assess(env: Env, body: unknown): Promise<{ status: number; body: 
 }
 
 let fetchMock: FetchMock;
-beforeEach(() => clearMemoryCache());
+beforeEach(() => {
+  clearMemoryCache();
+  resetMemoryStorage();
+});
 afterEach(() => fetchMock?.restore());
 
 describe('POST /v1/assess with nothing configured and no network', () => {
