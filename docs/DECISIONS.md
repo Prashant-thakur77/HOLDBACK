@@ -101,3 +101,22 @@ served only by the web app.
 sanctioned recipients, and falls back to the default window when a recipient is rated trusted
 but has no on-chain `Trust` account. Irreversible tools (`release_early`,
 `trust_recipient`) need an explicit acknowledgement argument. Amounts are in display units.
+
+## D17. Web: server-side reads need a private RPC
+The public Solana RPC endpoints answer 403 to requests coming from Cloudflare Workers. Server
+reads and the Solana Action therefore use `SOLANA_RPC_URL` (a Helius devnet URL); browsers
+keep using the public endpoint.
+
+## D18. The Solana Action refuses rather than guesses
+- If the risk agent cannot be reached, `POST /api/actions/pay` returns 503 and builds nothing.
+- A sanctioned recipient gets a disabled action and a 403: a Blink cannot collect the typed
+  confirmation the app requires.
+- When the agent rates a recipient trusted but the payer has no on-chain `Trust` account, the
+  payment is a hold with the default window, not an instant transfer.
+- The metadata request has no payer, so its verdict is computed for an anonymous sender.
+- `/pay` is the shareable page that `actions.json` maps to the API, and the fallback for
+  clients without Blink support.
+
+## D19. The Dojo watch page has its own content-security policy
+`/dojo/watch/*` sends exactly `frame-ancestors https://app.bytearena.fun`. Every other route
+sends the full policy with `frame-ancestors 'none'`.
