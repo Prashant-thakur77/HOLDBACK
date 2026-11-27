@@ -58,6 +58,9 @@ Checked items are built, tested and committed.
 
 - [x] Dataset, baseline, metrics, replay, latency, negative result (`make eval`; limited by missing keys, stated in the results)
 
+## Continuous integration
+- [x] CI green: secret scan, program (build, Rust tests, property test, localnet), packages, web, eval
+
 ## Phase 10: docs and submission
 
 - [x] README, architecture, threat model, references, demo script, submission text
