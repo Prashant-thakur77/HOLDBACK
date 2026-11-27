@@ -5,10 +5,16 @@ sizes that window from live, cited scam evidence: no wait for people you trust, 
 for a flagged wallet. When the recipient looks dangerous, a voice in your language explains
 why, and one tap brings the money back before a scammer can claim it.
 
-- Live: **https://holdback.prashantthakur.dev** (site, dashboard, receipts, Blink, Scam Dojo)
-- Risk agent API: https://holdback-api.prashantthakur.dev
-- Program (devnet): [`26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom`](https://explorer.solana.com/address/26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom?cluster=devnet)
-- Status: devnet, unaudited. [What has run where](#what-has-run-where) is listed honestly below.
+[![CI](https://github.com/Prashant-thakur77/HOLDBACK/actions/workflows/ci.yml/badge.svg)](https://github.com/Prashant-thakur77/HOLDBACK/actions/workflows/ci.yml)
+
+|                      |                                                                                                                                                   |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Live site**        | https://holdback.prashantthakur.dev                                                                                                               |
+| **Risk agent API**   | https://holdback-api.prashantthakur.dev                                                                                                           |
+| **Program (devnet)** | [`26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom`](https://explorer.solana.com/address/26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom?cluster=devnet) |
+| **A real receipt**   | [hold `GAVEL3zT…fhgWrg`](https://holdback.prashantthakur.dev/h/GAVEL3zT8wQDsS1LimSsaABMu4m8w4skmsmsz4fhgWrg): assessed, held, undone              |
+| **Blink**            | `https://holdback.prashantthakur.dev/api/actions/pay?to=<address>&amount=<n>`                                                                     |
+| **Status**           | Devnet, unaudited. See [what has run where](#what-has-run-where).                                                                                 |
 
 ## The problem
 
@@ -31,47 +37,87 @@ as the evidence about the recipient justifies. Sources and scope for every figur
 
 ```mermaid
 sequenceDiagram
-  participant S as Sender
+  autonumber
+  participant S as Sender (app or Blink)
   participant G as Guardian (risk agent)
   participant P as holdback program
   participant R as Recipient
   S->>G: assess(recipient, amount, "why are you paying?")
-  G->>G: 8 evidence collectors, deterministic policy
-  G-->>S: tier, window, evidence + sha256(evidence)
+  G->>G: 8 evidence collectors in parallel, deterministic policy
+  G-->>S: tier, window, cited evidence, sha256(evidence)
+  S->>S: simulate the transaction, show what will leave the wallet
   S->>P: create_hold(amount, window, tier, evidence hash)
   Note over P: funds sit in a vault owned by the hold PDA
-  alt sender changes their mind before release_at
+  alt the sender changes their mind before release_at
     S->>P: reclaim
     P-->>S: full amount back
-  else window ends
-    R->>P: release (anyone can crank)
+  else new evidence appears while it waits
+    G->>P: extend_window (oracle key: can only lengthen)
+  else the window ends
+    R->>P: release (anyone can crank; ours does every minute)
     P-->>R: funds
   end
 ```
 
-1. **Assess.** Eight collectors run in parallel: on-chain reputation, wallet-history
-   heuristics, blocklists and the sanctions list, abuse reports, web reports that mention the
-   exact address, name look-alikes, social-engineering cues in the sender's own words, and
-   the sender's own payment habits.
-2. **Decide.** A deterministic policy turns the evidence into a tier and a window. The
-   language model never decides either; it only writes the spoken explanation.
+### The life of a hold
 
-   | Tier       | When                                         | Window                            |
-   | ---------- | -------------------------------------------- | --------------------------------- |
-   | TRUSTED    | The sender's on-chain `Trust` account exists | none                              |
-   | UNKNOWN    | Default                                      | 30 minutes                        |
-   | SUSPICIOUS | Score 30–59                                  | 6 hours                           |
-   | FLAGGED    | Score 60+, or a confirmed scam report        | 24 hours                          |
-   | SANCTIONED | On the sanctions list                        | 72 hours, plus typed confirmation |
+```mermaid
+stateDiagram-v2
+  [*] --> Assessed: /v1/assess
+  Assessed --> Instant: TRUSTED and the Trust account exists
+  Assessed --> Pending: create_hold (window from the tier)
+  Instant --> [*]: paid directly, no vault
+  Pending --> Pending: extend_window (oracle, longer only)
+  Pending --> Reclaimed: reclaim before release_at (sender only)
+  Pending --> Released: release_early (sender) or release after release_at (anyone)
+  Reclaimed --> Closed: close_hold, rent back to the payer
+  Released --> Closed: close_hold, rent back to the payer
+  Closed --> [*]
+```
 
-3. **Commit.** The evidence document is hashed and the hash is written into the hold, so the
-   window can be checked against the evidence forever (see below).
-4. **Hold.** The sender signs. Until `release_at` only the sender can move the funds, and
-   only back to the sender.
-5. **Undo or settle.** One signature undoes it. Otherwise anyone can release to the recipient
-   once the window is over; a cranker does it every minute.
+### How the risk agent decides
 
-More detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+```mermaid
+flowchart LR
+  subgraph Collect["8 collectors, each with a timeout and a cache"]
+    direction TB
+    C1[On-chain reputation<br/>SubjectStats, Trust]
+    C2[Helius wallet history<br/>age, sweep, drain, dust, bursts]
+    C3[Blocklists<br/>OFAC, ScamSniffer, Phantom, MetaMask]
+    C4[Chainabuse reports]
+    C5[Firecrawl web reports<br/>exact address must appear]
+    C6[SNS names<br/>look-alikes]
+    C7[Context cues in en/hi/es/pt<br/>urgency, authority, secrecy, OTP]
+    C8[Sender's own habits]
+  end
+  Collect --> P{Deterministic policy<br/>no model involved}
+  P --> T[Tier and window]
+  P --> D[Evidence document]
+  D --> H[sha256 of canonical JSON]
+  H --> ONC[(Hold.evidence_hash<br/>on-chain)]
+  D --> DB[(Evidence store,<br/>public by hash)]
+  D --> L[Model writes 2-3 spoken sentences<br/>in the user's language]
+```
+
+| Tier       | When                                         | Window                            |
+| ---------- | -------------------------------------------- | --------------------------------- |
+| TRUSTED    | The sender's on-chain `Trust` account exists | none                              |
+| UNKNOWN    | Default                                      | 30 minutes                        |
+| SUSPICIOUS | Score 30–59                                  | 6 hours                           |
+| FLAGGED    | Score 60+, or a confirmed scam report        | 24 hours                          |
+| SANCTIONED | On the sanctions list                        | 72 hours, plus typed confirmation |
+
+```mermaid
+xychart-beta
+  title "Undo window by tier (hours)"
+  x-axis ["TRUSTED", "UNKNOWN", "SUSPICIOUS", "FLAGGED", "SANCTIONED"]
+  y-axis "hours" 0 --> 72
+  bar [0, 0.5, 6, 24, 72]
+```
+
+The language model never decides a tier or a window. It extracts quotes from web pages and
+writes the spoken explanation; both outputs are schema-validated, and a fixed template in each
+language is used when the model is unavailable.
 
 ## Verifiable by design
 
@@ -79,6 +125,18 @@ More detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 page fetches the document, recomputes the hash in the browser and compares it with the chain.
 If they match, the window was set from exactly that evidence by exactly that policy version,
 and nobody can have changed it afterwards.
+
+```mermaid
+flowchart LR
+  A[Receipt page] -->|GET /v1/evidence/:hash| B[Evidence document]
+  A -->|getAccountInfo| C[Hold account on devnet]
+  B --> D[sha256 of canonical JSON,<br/>computed in the browser]
+  C --> E[evidence_hash]
+  D --> F{equal?}
+  E --> F
+  F -->|yes| G[Window proven to come<br/>from this evidence]
+  F -->|no| X[Tampered or wrong document]
+```
 
 **Service keys are boxed in by the program, not by promises.**
 
@@ -88,16 +146,67 @@ and nobody can have changed it afterwards.
 | Relayer (for wallets that can only make transfers) | Return a deposit box's funds to its owner; open a hold whose sender is the owner, with at least the default window | Pay itself or a third party, release early                |
 | Admin                                              | Rotate keys, change limits, pause new holds                                                                        | Touch any vault; pausing never blocks undo or release     |
 
+```mermaid
+flowchart TB
+  V[(Vault of one hold)]
+  V -->|reclaim, before release_at| S[Sender's own token account]
+  V -->|release, from release_at| R[Recipient's token account]
+  O[Oracle key] -. extend_window only .-> V
+  RL[Relayer key] -. undo for box holds,<br/>refund still goes to the sender .-> S
+  AD[Admin key] -. no instruction touches a vault .-> X((x))
+```
+
 **Six invariants, checked after every instruction of a property test:** funds leave a vault
 only to the sender or the recipient; nothing reaches the recipient early unless the sender
 signs; the oracle never moves funds or shortens a window; the relayer only pays the box owner
 or opens a hold for them; supply is conserved; every settled hold can be closed with its rent
 returned. Full analysis: [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md).
 
+## Architecture
+
+```mermaid
+flowchart TB
+  subgraph Users
+    M[Seeker app<br/>Mobile Wallet Adapter or Pollar]
+    W[Web dashboard and receipts]
+    BL[Blink in any wallet or feed]
+    AI[AI agents via MCP]
+    BY[Byte plays Scam Dojo]
+  end
+  subgraph CF["Cloudflare Workers"]
+    WEB[holdback.prashantthakur.dev<br/>Next.js via OpenNext]
+    GUA[holdback-api.prashantthakur.dev<br/>Guardian: assess, oracle,<br/>relayer, crank every minute, voice]
+  end
+  subgraph SB["Supabase"]
+    PG[(Postgres with RLS<br/>holds, evidence, caches, runs)]
+    EF[helius-webhook<br/>Edge Function]
+  end
+  subgraph Ext["Providers"]
+    HEL[Helius: devnet RPC,<br/>mainnet history, webhooks]
+    FC[Firecrawl]
+    CA[Chainabuse]
+    AN[Anthropic]
+    EL[ElevenLabs: voice notes,<br/>Guardian agent, sounds]
+    PO[Pollar wallets]
+  end
+  SOL[(Solana devnet:<br/>holdback program)]
+  M & W & BL & BY --> WEB
+  M & W & AI --> GUA
+  WEB --> GUA
+  GUA --> HEL & FC & CA & AN & EL
+  GUA <--> PG
+  GUA -->|oracle, relayer, crank| SOL
+  M & W & BL -->|sender signs| SOL
+  M --> PO
+  SOL -->|program transactions| HEL -->|webhook| EF --> PG
+```
+
+More detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
 ## Results
 
 Every number below is produced by a script and stored in `eval/results.json`
-(`make eval` regenerates it; CI fails if this table is out of date).
+(`make eval` regenerates it; CI fails if this section is out of date).
 
 <!-- results:start -->
 
@@ -118,6 +227,33 @@ Run of 2026-11-27 at commit `0e96710`. Held-out means first published on or afte
 | `/v1/assess`, repeat request                               | n/a                                                  | p50 185 ms, p95 1,358 ms (n = 30)    |
 | `create_hold` to confirmed, devnet                         | n/a                                                  | p50 839 ms, p95 1,024 ms (n = 5)     |
 | `reclaim` to confirmed, devnet                             | n/a                                                  | p50 1,006 ms, p95 1,619 ms (n = 5)   |
+
+```mermaid
+xychart-beta
+  title "Latency in ms (bars: median, line: 95th percentile)"
+  x-axis ["assess, first", "assess, repeat", "create_hold", "reclaim"]
+  y-axis "ms" 0 --> 2000
+  bar [283, 185, 839, 1006]
+  line [621, 1358, 1024, 1619]
+```
+
+```mermaid
+xychart-beta
+  title "Held-out scam value still reclaimable, by how long the sender takes to react (%)"
+  x-axis ["10 min", "1 h", "6 h", "24 h"]
+  y-axis "% of value" 0 --> 100
+  bar [100, 100, 100, 100]
+  line [0, 0, 0, 0]
+```
+
+Bars: HOLDBACK. Line: a plain transfer, which cannot be reclaimed at any delay.
+
+```mermaid
+pie showData
+  title Tiers the risk agent assigned in this run
+  "UNKNOWN" : 98
+  "SANCTIONED" : 4
+```
 
 Every scam label comes from a public list that the `blocklist` collector also reads, so recall above repeats the label; without that list the Guardian caught 0 of 3. In this run these evidence collectors were unavailable for every assessment: `baseline`, `chainabuse`, `helius`, `web_reports`. Dataset sources that could not be used: `chainabuse`. The numbers describe that configuration and nothing more; [`eval/RESULTS.md`](eval/RESULTS.md) lists every limit and the full tables.
 
@@ -185,44 +321,104 @@ comparison.
 
 ## Integrations
 
-**Solana Mobile / Seeker.** Native Android app built from the official template. Users sign
-holds, undo, early release, trust and flags directly through Mobile Wallet Adapter. A
-"Verified Seeker owner" badge comes from a server-side Seeker Genesis Token check.
+| Partner                    | What HOLDBACK uses it for                                                                                                 | Where                                                                                  | Live proof                                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| **Solana Mobile / Seeker** | Native Android app; Mobile Wallet Adapter signs holds, undo, early release, trust and reports; Seeker Genesis Token badge | `apps/mobile`                                                                          | Signed release APK in Releases                                        |
+| **Pollar**                 | Seedless wallets that can only make transfers pay through an on-chain deposit box                                         | `apps/mobile/src/wallet`, `programs/holdback` (`DepositBox`), `services/agent` (relay) | Publishable key accepted by Pollar for native clients; Solana enabled |
+| **ElevenLabs**             | Voice notes in hi/en/es/pt for risky holds; the "Holdback Guardian" voice agent with five tools; three sound effects      | `services/agent/src/voice`, `apps/mobile/src/voice`                                    | Agent created; a live Hindi voice note served and cached              |
+| **Firecrawl**              | Search and scrape web reports that name the exact address; Dojo report collector                                          | `services/agent/src/collectors`, `dojo/scripts`                                        | Live `/v1/assess` with the web-reports collector answering            |
+| **Supabase**               | Evidence by hash, mirror of holds, caches, Dojo runs; RLS; Edge Function for Helius                                       | `supabase/`                                                                            | Webhook mirrored a live hold from PENDING to RECLAIMED                |
+| **Helius**                 | Private devnet RPC for Workers, mainnet wallet history, program webhook                                                   | `services/agent`, `supabase/functions`                                                 | Crank released a hold from inside Workers                             |
+| **Byte**                   | Scam Dojo: 8 rounds, real risk agent behind `check_address`, score written to devnet                                      | `dojo/`, `apps/web`                                                                    | Live run, memo `5HDADarV…iSpep`                                       |
+| **AI agents (MCP)**        | `assess_recipient`, `send_protected_payment`, `undo_payment` and 7 more tools; fails closed                               | `mcp/`                                                                                 | 45 tests                                                              |
 
-**Pollar.** A Pollar wallet can send tokens to an address and nothing else. The user pays into
-their own on-chain deposit box; the relayer opens the hold and can only ever return funds to
-the owner. Login is a proof by transfer: send an exact random amount to your own box.
+### Pollar: undo for wallets that can only send
 
-**ElevenLabs.** The "Holdback Guardian" voice agent speaks Hindi, English, Spanish and
-Portuguese, explains the evidence behind a hold and can trigger undo. Suspicious and flagged
-holds get a generated voice note.
+```mermaid
+sequenceDiagram
+  autonumber
+  participant U as User (Pollar wallet)
+  participant G as Guardian relayer
+  participant B as DepositBox PDA
+  participant P as holdback program
+  U->>G: relay/auth/start
+  G-->>U: send exactly 0.0xxxxx USDC to your box
+  U->>B: Pollar sendPayment (sponsored fee)
+  G->>G: verify on-chain: from the owner's account, exact amount, in time
+  G-->>U: session
+  U->>B: pay the amount into the box
+  U->>G: relay/open(recipient, amount)
+  G->>P: open_hold_from_deposit (sender = box owner, window ≥ default)
+  U->>G: relay/reclaim
+  G->>P: reclaim
+  P-->>U: refund to the owner's own wallet, the only destination allowed
+```
 
-**Firecrawl.** Searches the web for reports about the recipient and scrapes the results. A
-source counts only if its text contains the exact address; that check is done in code, not by
-the model.
+### ElevenLabs: a warning people actually hear
 
-**Supabase.** Evidence documents, a Realtime mirror of holds for countdowns, caches and
-profiles, with row-level security and service-role writes only.
+```mermaid
+flowchart LR
+  A[Hold is SUSPICIOUS or FLAGGED] --> B[Spoken explanation<br/>in the user's language]
+  B --> C[ElevenLabs TTS] --> D[(Cached voice note)] --> E[Plays on the hold screen<br/>and from the push]
+  A --> F[Talk to Guardian]
+  F --> G[ElevenLabs agent<br/>with the hold's evidence]
+  G -->|undo_hold| H[MWA reclaim or relayer reclaim]
+  G -->|extend_hold| I[Oracle lengthens the window]
+  G -->|explain_evidence, get_hold_status, mark_trusted| J[App tools]
+```
 
-**Byte.** Scam Dojo: eight rounds of real-world payment requests, about 40% of them
-legitimate, where `check_address` runs the real risk agent. The run result is written to
-devnet as a memo.
+Guardrails in the agent's instructions: it never tells the user to send money, never asks for
+or repeats seed phrases or one-time codes, and steers to undo when the user mentions police or
+arrest calls, remote-access apps or "verification payments".
 
-**AI agents.** The MCP server exposes `assess_recipient`, `send_protected_payment`,
-`undo_payment` and seven more tools. It fails closed: no risk verdict, no payment.
+### Firecrawl: only evidence that names the address
+
+```mermaid
+flowchart LR
+  A[Recipient address or .sol name] --> B[Firecrawl search:<br/>address + scam terms]
+  B --> C[Page markdown]
+  C --> D{Exact address in the text?<br/>checked in code}
+  D -->|no| X[Discarded]
+  D -->|yes| E[Model extracts claim, ≤20-word quote,<br/>URL, date, matched string]
+  E --> F[Evidence item with a link<br/>on the verdict card and in the hash]
+```
+
+### Supabase: a mirror the chain can always overrule
+
+```mermaid
+flowchart LR
+  P[holdback program] -->|every transaction| H[Helius raw webhook]
+  H -->|shared secret| E[Edge Function helius-webhook]
+  E -->|decode events only while the program is executing| I["ingest_hold_events(jsonb)<br/>idempotent, one transaction"]
+  I --> T[(holds, instant_transfers,<br/>metrics_daily)]
+  T --> R[Realtime and counters<br/>in the apps]
+```
+
+### Byte: Scam Dojo
+
+```mermaid
+flowchart LR
+  S[POST /api/dojo/runs] --> R[Round: a message or call<br/>plus a payment request]
+  R --> M{Move}
+  M -->|ask_question / verify_identity| R
+  M -->|check_address| G[Live risk agent verdict] --> R
+  M -->|pay / pay_with_holdback / refuse / report| N[Scored round]
+  N -->|8 rounds or no lives| E[Result]
+  E --> MEMO[Devnet memo:<br/>holdback-dojo:run:score:sha256 of history]
+```
 
 ## What has run where
 
-| Part               | Verified                                                                                                                            | Not yet                                                                                                                 |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Program            | 30 Rust tests, 100,000-case property test, 13 localnet scenarios, deployed and exercised on devnet                                  | Audit; reproducible Docker build                                                                                        |
-| SDK                | 27 unit tests; used by every other package                                                                                          |                                                                                                                         |
-| Guardian           | 240 tests; create, oracle extend, crank release and close, and a Dojo memo on devnet under Node                                     | Inside the Workers runtime with a private RPC; live calls to Helius, Chainabuse, Firecrawl, ElevenLabs; a real database |
-| Webhook and schema | 56 decoder tests; migrations and end-to-end ingest against a local Postgres                                                         | A hosted project, a real Helius delivery, Realtime                                                                      |
-| MCP server         | 45 tests; binary lists its tools                                                                                                    | Signing on a real cluster                                                                                               |
-| Web                | 98 tests; designed site, Lighthouse mobile 98-100 in every category; Action, Dojo API and headers under the Workers runtime locally | Deployment; a wallet in a browser; a Blink client                                                                       |
-| Mobile app         | 137 unit tests; typecheck, lint, `expo-doctor` and prebuild pass; signed arm64 release APK builds                                   | Any run on a device or emulator: wallet connect and signing, Pollar, voice, push are unexercised                        |
-| Scam Dojo          | 101 tests; a full run over HTTP                                                                                                     | Upload to Byte; the report collector (needs a Firecrawl key)                                                            |
+| Part               | Verified                                                                                                                                                                          | Not yet                                                        |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Program            | 30 Rust tests, 100,000-case property test, 13 localnet scenarios; deployed on devnet; on-chain hash equals the reproducible Docker build                                          | Audit; mainnet                                                 |
+| Live stack         | Assess, create hold, webhook mirror, evidence hash check, undo, receipt page, all on the deployed services; crank release and close inside Workers; a full Dojo run with its memo | A device run of the APK                                        |
+| Guardian           | 248 tests; deployed on Workers with rate limits and one cron trigger                                                                                                              | The outbound phone call (needs a Twilio number)                |
+| Webhook and schema | 56 decoder tests; deployed; mirrors live holds                                                                                                                                    | Realtime from the apps (needs the project's legacy JWT secret) |
+| Web                | 98 tests; deployed; Lighthouse mobile 98–100 in every category                                                                                                                    | A Blink unfurl in a third-party client                         |
+| Mobile app         | 137 tests; signed release APK built against the live services                                                                                                                     | Any run on a device or emulator                                |
+| MCP server         | 45 tests                                                                                                                                                                          | Signing on a real cluster                                      |
+| Scam Dojo          | 101 tests; live run with memo                                                                                                                                                     | Upload to Byte                                                 |
 
 ## Run it
 
@@ -233,12 +429,13 @@ cargo test -p holdback           # Rust tests + 2,000-case property test
 npm run program:fuzz             # 100,000 cases -> eval/program_invariants.json
 npm run program:test:localnet    # integration tests on a local validator
 npm test                         # all TypeScript packages
-make eval                        # dataset, baseline, metrics, bench, README table
+make eval                        # dataset, baseline, metrics, bench, this README's results
 ```
 
 Each service has its own README and `.env.example`: [services/agent](services/agent),
 [apps/web](apps/web), [apps/mobile](apps/mobile), [supabase](supabase), [mcp](mcp),
-[dojo](dojo), [eval](eval).
+[dojo](dojo), [eval](eval). Research and official figures behind the design:
+[docs/REFERENCES.md](docs/REFERENCES.md).
 
 ## Limits and roadmap
 

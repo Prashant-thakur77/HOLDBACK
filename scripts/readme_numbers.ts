@@ -164,7 +164,7 @@ function limits(results: Results): string {
   const missing = results.environment.guardian?.collectors_unavailable_in_every_assessment ?? [];
   const sources = results.environment.dataset_sources_unavailable ?? [];
   const parts: string[] = [];
-  const independent = results.holdback?.splits.heldout.independent_recall;
+  const independent = results.holdback?.splits.heldout?.independent_recall;
   if (independent && independent.n > 0) {
     parts.push(
       `Every scam label comes from a public list that the \`blocklist\` collector also reads, so recall above repeats the label; without that list the Guardian caught ${independent.successes} of ${independent.n}.`,
@@ -209,12 +209,101 @@ function invariants(results: Results): string {
   return `Program property test: ${number(data.invariant_cases)} random cases, ${number(data.instructions_executed)} instructions, ${number(data.violations)} invariant violations.`;
 }
 
+type TierCounts = Record<string, number>;
+
+const TIER_ORDER = ['TRUSTED', 'UNKNOWN', 'SUSPICIOUS', 'FLAGGED', 'SANCTIONED'];
+
+function addTiers(total: TierCounts, more: TierCounts | undefined): void {
+  for (const [tier, count] of Object.entries(more ?? {})) total[tier] = (total[tier] ?? 0) + count;
+}
+
+const round = (value: number) => Math.round(value);
+
+/** Mermaid charts drawn from the same results as the table; GitHub renders them. */
+function charts(results: Results): string {
+  const blocks: string[] = [];
+  const raw = results as unknown as {
+    holdback?: {
+      legit?: { tiers?: TierCounts };
+      splits?: Record<string, { tiers?: TierCounts }>;
+    };
+    negative_result?: { by_category?: Record<string, { tiers?: TierCounts }> };
+  };
+
+  const latency: [string, LatencySummary | undefined][] = [
+    ['assess, first', results.latency?.assess?.cold],
+    ['assess, repeat', results.latency?.assess?.warm],
+    [
+      'create_hold',
+      results.latency?.chain?.available ? results.latency.chain.create_hold : undefined,
+    ],
+    ['reclaim', results.latency?.chain?.available ? results.latency.chain.reclaim : undefined],
+  ];
+  const measured = latency.filter(
+    (entry): entry is [string, LatencySummary] =>
+      entry[1]?.p50_ms != null && entry[1]?.p95_ms != null,
+  );
+  if (measured.length > 0) {
+    const top = Math.ceil(Math.max(...measured.map(([, s]) => s.p95_ms ?? 0)) / 500) * 500;
+    blocks.push(
+      [
+        '```mermaid',
+        'xychart-beta',
+        '  title "Latency in ms (bars: median, line: 95th percentile)"',
+        `  x-axis [${measured.map(([name]) => `"${name}"`).join(', ')}]`,
+        `  y-axis "ms" 0 --> ${top}`,
+        `  bar [${measured.map(([, s]) => round(s.p50_ms ?? 0)).join(', ')}]`,
+        `  line [${measured.map(([, s]) => round(s.p95_ms ?? 0)).join(', ')}]`,
+        '```',
+      ].join('\n'),
+    );
+  }
+
+  const replay = results.holdback?.splits.heldout?.replay?.table ?? [];
+  if (replay.length > 0) {
+    blocks.push(
+      [
+        '```mermaid',
+        'xychart-beta',
+        '  title "Held-out scam value still reclaimable, by how long the sender takes to react (%)"',
+        `  x-axis [${replay.map((row) => `"${row.delay}"`).join(', ')}]`,
+        '  y-axis "% of value" 0 --> 100',
+        `  bar [${replay.map((row) => round((row.share_of_value ?? 0) * 100)).join(', ')}]`,
+        `  line [${replay.map(() => 0).join(', ')}]`,
+        '```',
+      ].join('\n'),
+      'Bars: HOLDBACK. Line: a plain transfer, which cannot be reclaimed at any delay.',
+    );
+  }
+
+  const tiers: TierCounts = {};
+  addTiers(tiers, raw.holdback?.legit?.tiers);
+  for (const split of Object.values(raw.holdback?.splits ?? {})) addTiers(tiers, split.tiers);
+  for (const category of Object.values(raw.negative_result?.by_category ?? {})) {
+    addTiers(tiers, category.tiers);
+  }
+  const assigned = TIER_ORDER.filter((tier) => (tiers[tier] ?? 0) > 0);
+  if (assigned.length > 0) {
+    blocks.push(
+      [
+        '```mermaid',
+        'pie showData',
+        '  title Tiers the risk agent assigned in this run',
+        ...assigned.map((tier) => `  "${tier}" : ${tiers[tier]}`),
+        '```',
+      ].join('\n'),
+    );
+  }
+  return blocks.join('\n\n');
+}
+
 /** The markdown that goes between the markers, formatted the way the repo's prettier would. */
 export async function renderBlock(results: Results, root = process.cwd()): Promise<string> {
   const commit = results.git.commit ? ` at commit \`${results.git.commit.slice(0, 7)}\`` : '';
   const body = [
     `Run of ${results.generated_at.slice(0, 10)}${commit}. Held-out means first published on or after ${results.config.cutoff_date}.`,
     resultsTable(results),
+    charts(results),
     limits(results),
     negativeResult(results),
     invariants(results),
