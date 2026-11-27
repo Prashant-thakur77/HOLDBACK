@@ -47,7 +47,7 @@ Checked items are built, tested and committed.
 ## Phase 7: web
 
 - [x] Functional layer: Action/Blink, Dojo API, receipt verification, hooks (88 tests)
-- [ ] Visual design and pages
+- [x] Designed site: home, how it works, evidence, results, integrations, Scam Dojo, docs, 404; dashboard, receipts, `/pay`, watch page (Lighthouse mobile home 98/100/100/100)
 
 ## Phase 8: Scam Dojo
 
@@ -56,7 +56,7 @@ Checked items are built, tested and committed.
 
 ## Phase 9: eval and bench
 
-- [ ] Dataset, baseline, metrics, replay, latency, negative result
+- [x] Dataset, baseline, metrics, replay, latency, negative result (`make eval`; limited by missing keys, stated in the results)
 
 ## Phase 10: docs and submission
 
