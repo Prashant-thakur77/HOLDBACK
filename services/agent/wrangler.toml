@@ -4,11 +4,12 @@ compatibility_date = "2026-11-01"
 compatibility_flags = ["nodejs_compat"]
 routes = [{ pattern = "holdback-api.prashantthakur.dev", custom_domain = true }]
 
-# Every minute: release due holds, close settled ones, send pushes.
-# Every ten minutes: re-assess pending holds (the oracle extends when risk rose).
-# Hourly: refresh the static blocklists.
+# One trigger, every minute: release due holds, close settled ones, send
+# pushes; on minutes divisible by ten it also re-assesses pending holds, and on
+# minute 0 it refreshes the static blocklists (see jobsFor in src/cron.ts).
+# Free plans cap Cron Triggers per account, so the jobs share one trigger.
 [triggers]
-crons = ["* * * * *", "*/10 * * * *", "0 * * * *"]
+crons = ["* * * * *"]
 
 [observability]
 enabled = true

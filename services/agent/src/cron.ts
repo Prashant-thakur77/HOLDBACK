@@ -1,8 +1,12 @@
 /**
- * Scheduled work. Three schedules share one handler:
+ * Scheduled work. One handler covers three jobs:
  *   every minute      release and close holds, send pushes
  *   every ten minutes re-assess pending holds
  *   hourly            refresh the static lists
+ *
+ * Deployments can register each job as its own Cron Trigger, or register only
+ * the every-minute trigger (free plans cap the number of triggers per account)
+ * and let the clock decide which extra jobs are due on that tick.
  */
 import { PublicKey } from '@solana/web3.js';
 import { HoldStatus, Tier } from '@holdback/sdk';
@@ -112,8 +116,31 @@ export function runHourly(services: Services): Promise<RefreshResult[]> {
 }
 
 /** Dispatches a Cron Trigger by its expression. */
-export async function runScheduled(services: Services, cron: string): Promise<void> {
-  if (cron === CRON_HOURLY) await runHourly(services);
-  else if (cron === CRON_REASSESS) await reassessPending(services);
-  else await runMinute(services);
+export async function runScheduled(
+  services: Services,
+  cron: string,
+  scheduledTime = Date.now(),
+): Promise<void> {
+  for (const job of jobsFor(cron, scheduledTime)) {
+    if (job === 'hourly') await runHourly(services);
+    else if (job === 'reassess') await reassessPending(services);
+    else await runMinute(services);
+  }
+}
+
+export type CronJob = 'minute' | 'reassess' | 'hourly';
+
+/**
+ * The jobs one trigger runs. A dedicated trigger runs its own job; the
+ * every-minute trigger also runs the ten-minute and hourly jobs when the tick
+ * falls on their minute, so one trigger is enough.
+ */
+export function jobsFor(cron: string, scheduledTime: number): CronJob[] {
+  if (cron === CRON_HOURLY) return ['hourly'];
+  if (cron === CRON_REASSESS) return ['reassess'];
+  const minute = new Date(scheduledTime).getUTCMinutes();
+  const jobs: CronJob[] = ['minute'];
+  if (minute % 10 === 0) jobs.push('reassess');
+  if (minute === 0) jobs.push('hourly');
+  return jobs;
 }

@@ -8,7 +8,9 @@ const app = createApp();
 
 export default {
   fetch: app.fetch,
-  scheduled(controller: { cron: string }, env: Env, ctx: Background): void {
-    ctx.waitUntil(runScheduled(createServices(env, ctx), controller.cron));
+  scheduled(controller: { cron: string; scheduledTime: number }, env: Env, ctx: Background): void {
+    ctx.waitUntil(
+      runScheduled(createServices(env, ctx), controller.cron, controller.scheduledTime),
+    );
   },
 };
