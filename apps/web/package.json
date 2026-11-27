@@ -1,0 +1,45 @@
+{
+  "name": "@holdback/web",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "HOLDBACK web app: dashboard data layer, public hold receipts, Solana Action and the Scam Dojo API, on Cloudflare Workers",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "cf:build": "opennextjs-cloudflare build",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+  },
+  "dependencies": {
+    "@holdback/dojo": "file:../../dojo",
+    "@holdback/sdk": "file:../../sdk",
+    "@opennextjs/cloudflare": "^1.20.19",
+    "@solana/wallet-adapter-base": "^0.9.28",
+    "@solana/wallet-adapter-react": "^0.15.40",
+    "@solana/web3.js": "^1.99.0",
+    "@supabase/supabase-js": "^2.119.2",
+    "next": "15.5.29",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "server-only": "^0.0.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@solana/actions-spec": "^2.4.2",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.4",
+    "wrangler": "^4.168.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

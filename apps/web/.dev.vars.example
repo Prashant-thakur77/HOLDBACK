@@ -1,0 +1,11 @@
+# Server-only values for `npm run preview` (the local Workers runtime).
+# Copy to .dev.vars. The same names are set in production with
+# `npx wrangler secret put NAME`. See .env.example for what each one is.
+
+# Which Next.js .env files the Worker loads: development | production
+NEXTJS_ENV=development
+
+SOLANA_RPC_URL=
+AGENT_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+DOJO_SECRET=

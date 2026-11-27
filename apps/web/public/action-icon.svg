@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="HOLDBACK">
+  <!-- Placeholder mark for Solana Action cards. The design pass replaces this file; keep the path. -->
+  <rect width="512" height="512" fill="#111111"/>
+  <path d="M176 144v224M336 144v224M176 256h160" fill="none" stroke="#ffffff" stroke-width="40" stroke-linecap="square"/>
+</svg>
