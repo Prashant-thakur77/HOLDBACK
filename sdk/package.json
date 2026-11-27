@@ -1,0 +1,41 @@
+{
+  "name": "@holdback/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for Holdback — the verifiable task layer for agents and humans on Solana · ZK compressed",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "solana",
+    "holdback",
+    "agents",
+    "ai",
+    "mcp",
+    "escrow",
+    "task",
+    "sdk"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Prashant-thakur77/HOLDBACK"
+  },
+  "homepage": "https://github.com/Prashant-thakur77/HOLDBACK#readme",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.30.1",
+    "@solana/web3.js": "^1.95.0",
+    "tweetnacl": "^1.0.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^4.0.18"
+  }
+}
