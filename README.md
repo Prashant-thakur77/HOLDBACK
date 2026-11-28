@@ -7,14 +7,15 @@ why, and one tap brings the money back before a scammer can claim it.
 
 [![CI](https://github.com/Prashant-thakur77/HOLDBACK/actions/workflows/ci.yml/badge.svg)](https://github.com/Prashant-thakur77/HOLDBACK/actions/workflows/ci.yml)
 
-|                      |                                                                                                                                                   |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Live site**        | https://holdback.prashantthakur.dev                                                                                                               |
-| **Risk agent API**   | https://holdback-api.prashantthakur.dev                                                                                                           |
-| **Program (devnet)** | [`26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom`](https://explorer.solana.com/address/26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom?cluster=devnet) |
-| **A real receipt**   | [hold `GAVEL3zT…fhgWrg`](https://holdback.prashantthakur.dev/h/GAVEL3zT8wQDsS1LimSsaABMu4m8w4skmsmsz4fhgWrg): assessed, held, undone              |
-| **Blink**            | `https://holdback.prashantthakur.dev/api/actions/pay?to=<address>&amount=<n>`                                                                     |
-| **Status**           | Devnet, unaudited. See [what has run where](#what-has-run-where).                                                                                 |
+|                              |                                                                                                                                                        |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Live site**                | https://holdback.prashantthakur.dev                                                                                                                    |
+| **Try it, no wallet needed** | https://holdback.prashantthakur.dev/try: a throwaway devnet wallet, a scam message, the verdict, an attested hold, and the undo, all real transactions |
+| **Risk agent API**           | https://holdback-api.prashantthakur.dev                                                                                                                |
+| **Program (devnet)**         | [`26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom`](https://explorer.solana.com/address/26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom?cluster=devnet)      |
+| **A real receipt**           | [hold `GAVEL3zT…fhgWrg`](https://holdback.prashantthakur.dev/h/GAVEL3zT8wQDsS1LimSsaABMu4m8w4skmsmsz4fhgWrg): assessed, held, undone                   |
+| **Blink**                    | `https://holdback.prashantthakur.dev/api/actions/pay?to=<address>&amount=<n>`                                                                          |
+| **Status**                   | Devnet, unaudited. See [what has run where](#what-has-run-where).                                                                                      |
 
 ## The problem
 

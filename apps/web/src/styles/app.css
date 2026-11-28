@@ -684,3 +684,72 @@ div.holds__empty {
     grid-column: 1 / -1;
   }
 }
+
+/* ---------- Try it ---------- */
+
+.try__steps {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s5);
+}
+@media (max-width: 860px) {
+  .try__steps {
+    grid-template-columns: 1fr;
+  }
+}
+.try__step {
+  position: relative;
+  border-top-width: 8px;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+.try__step[aria-disabled='true'] {
+  opacity: 0.55;
+}
+.try__step[data-done='true']::after {
+  content: '✓';
+  position: absolute;
+  top: var(--s3);
+  right: var(--s4);
+  font-weight: 800;
+  font-size: 1.4rem;
+}
+.try__address {
+  font-size: 1.15rem;
+  word-break: break-all;
+}
+.try__balance strong {
+  font-size: 1.6rem;
+}
+.try__message {
+  margin: 0;
+  border: 2px dashed var(--ink);
+  background: var(--paper);
+  padding: var(--s4);
+}
+.try__message > * + * {
+  margin-top: var(--s3);
+}
+.try__message .mono {
+  word-break: break-all;
+}
+.try__ticket {
+  max-width: 360px;
+}
+.try__record {
+  margin-top: var(--s5);
+}
+.try__txs {
+  padding-left: 1.4em;
+}
+.try__txs li + li {
+  margin-top: var(--s2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .try__step {
+    transition: none;
+  }
+}
