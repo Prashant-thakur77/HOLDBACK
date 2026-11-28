@@ -2,6 +2,7 @@
  * One assessment, end to end: run the collectors, apply the policy, build
  * and hash the evidence document, store it, and word the explanation.
  */
+import { attest } from './chain/attest';
 import {
   LANGS,
   hashEvidence,
@@ -156,5 +157,11 @@ export async function assess(
     requiresConfirmation,
     latencyMs: Date.now() - started,
     storage: services.storage.info,
+    attestation: attest(
+      services.env,
+      subject,
+      { windowSecs: document.windowSecs, tier: tierIndex, evidenceHash },
+      now,
+    ),
   };
 }
