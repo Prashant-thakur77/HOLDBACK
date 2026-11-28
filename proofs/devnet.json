@@ -1,0 +1,439 @@
+{
+  "generated_at": "2026-11-28T19:20:14.901Z",
+  "cluster": "devnet",
+  "program": "26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom",
+  "test_mints": {
+    "spl": "2EhNYY25Z3YfmmR2g8WLLecSBbYtDzaVWfksA6e5m8TY",
+    "token_2022": "9sqv9uitvCoGCmLACWDz8SAPynETTbYPKLmL5LX8nz1R"
+  },
+  "parties": {
+    "sender": "9QTdX2fpisCQWXvHk2p83F7TAs3bPLq3MRVtcRYvuMwR",
+    "recipient": "GtBXDPGu5VXzx4w87tk5zm4vKJM2ZthdPMN5Kepxrhad",
+    "attacker": "CBwAXcnYUj7xVZvFmjgc8frfwNy78B7V3KRgVT963Gko",
+    "deposit_box_owner": "GxT21196jXz2R77kdWxckXrzqhUF2pr16phzGTrVS5LA",
+    "oracle": "FatEZCZyMDZxVNd3mJ6eMbZgF6KTvshaAesXqZbKbbKG",
+    "relayer": "5XWGmKPqdLcs9JPswiaKLzEp239hYPAPdno9FjHv6A2j"
+  },
+  "balances_after": {
+    "sender_spl": "949000000",
+    "recipient_spl": "50000000",
+    "deposit_box_owner_spl": "60000000",
+    "deposit_box_spl": "0"
+  },
+  "counts": {
+    "happy_paths": 22,
+    "attacks_refused": 19
+  },
+  "proofs": [
+    {
+      "id": "H1",
+      "kind": "happy path",
+      "description": "create_hold: 25 test tokens held for 10 minutes",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "2MbokCDy9F2XMgATCaKRVwr8gLtXYAZDLz6hqxeQcsJaLR9pYxYk3WJHqP4WnhH1aKZ1JynTTVtqAgQwyaUaafLA",
+      "explorer": "https://explorer.solana.com/tx/2MbokCDy9F2XMgATCaKRVwr8gLtXYAZDLz6hqxeQcsJaLR9pYxYk3WJHqP4WnhH1aKZ1JynTTVtqAgQwyaUaafLA?cluster=devnet"
+    },
+    {
+      "id": "A1",
+      "kind": "attack",
+      "description": "A stranger tries to undo someone else\u2019s hold",
+      "expected": "Unauthorized",
+      "outcome": "refused",
+      "error": "Unauthorized",
+      "signature": "cx6NJsp51hWwqaQKNNa8phS4kXHNwJS44xMb9yQyCzVbhqYQSoCUHT9kNKG7Qj7f3aMuK4xuoRzquAbjzUBng4V",
+      "explorer": "https://explorer.solana.com/tx/cx6NJsp51hWwqaQKNNa8phS4kXHNwJS44xMb9yQyCzVbhqYQSoCUHT9kNKG7Qj7f3aMuK4xuoRzquAbjzUBng4V?cluster=devnet"
+    },
+    {
+      "id": "A2",
+      "kind": "attack",
+      "description": "The sender\u2019s undo is pointed at the attacker\u2019s token account",
+      "expected": "refused by the token-owner constraint",
+      "outcome": "refused",
+      "error": "ConstraintTokenOwner",
+      "signature": "3fUaxTs4kTiCpFGpPavN2mkiVgMdVx7UZeiu2fY9mQjcgGdT75qHZDtuGwMBz7rDoZyDCsPXRSVawfo2geepxMDU",
+      "explorer": "https://explorer.solana.com/tx/3fUaxTs4kTiCpFGpPavN2mkiVgMdVx7UZeiu2fY9mQjcgGdT75qHZDtuGwMBz7rDoZyDCsPXRSVawfo2geepxMDU?cluster=devnet"
+    },
+    {
+      "id": "A3",
+      "kind": "attack",
+      "description": "A stranger tries to release the hold before the window ends",
+      "expected": "WindowNotOver",
+      "outcome": "refused",
+      "error": "WindowNotOver",
+      "signature": "513k7raKQPJ7n3B2tPu4g85CF6THzrseX1GEG14hBC5F4LgHvfFpqkJzdNYXDyPnK18CY7VCjdnrjjjcC9MWtcZM",
+      "explorer": "https://explorer.solana.com/tx/513k7raKQPJ7n3B2tPu4g85CF6THzrseX1GEG14hBC5F4LgHvfFpqkJzdNYXDyPnK18CY7VCjdnrjjjcC9MWtcZM?cluster=devnet"
+    },
+    {
+      "id": "A4",
+      "kind": "attack",
+      "description": "The relayer tries an early release of a wallet hold",
+      "expected": "Unauthorized",
+      "outcome": "refused",
+      "error": "Unauthorized",
+      "signature": "Rjx5JJiroUyn7yL7sMdN2RJp6QXLkFVMbT9PybnSZGZ2wcoB249ug3ytZxnXeZfRVpvZTkjeYzLg3hvm9tMUb9M",
+      "explorer": "https://explorer.solana.com/tx/Rjx5JJiroUyn7yL7sMdN2RJp6QXLkFVMbT9PybnSZGZ2wcoB249ug3ytZxnXeZfRVpvZTkjeYzLg3hvm9tMUb9M?cluster=devnet"
+    },
+    {
+      "id": "A5",
+      "kind": "attack",
+      "description": "The oracle tries to shorten the window by one second",
+      "expected": "WindowCannotShrink",
+      "outcome": "refused",
+      "error": "WindowCannotShrink",
+      "signature": "2W4QaDLRmCmayNDovqV1TuguR6K1hGhWjTh15Fb1b7bRdqZ6MHwrHFasoH2vb8RHTdGr39TLpcfHd9w5kV3bjGoP",
+      "explorer": "https://explorer.solana.com/tx/2W4QaDLRmCmayNDovqV1TuguR6K1hGhWjTh15Fb1b7bRdqZ6MHwrHFasoH2vb8RHTdGr39TLpcfHd9w5kV3bjGoP?cluster=devnet"
+    },
+    {
+      "id": "A6",
+      "kind": "attack",
+      "description": "A stranger signs as the risk oracle",
+      "expected": "Unauthorized",
+      "outcome": "refused",
+      "error": "Unauthorized",
+      "signature": "29dzrBWQ5rRT3Ey5FJemNHUVXFFZdQEg59ZShxBoUp38r8JoGdS9uoZqLJ6Yc3D7HQ5AhVUnXgqeECaJxDBF4EU3",
+      "explorer": "https://explorer.solana.com/tx/29dzrBWQ5rRT3Ey5FJemNHUVXFFZdQEg59ZShxBoUp38r8JoGdS9uoZqLJ6Yc3D7HQ5AhVUnXgqeECaJxDBF4EU3?cluster=devnet"
+    },
+    {
+      "id": "H2",
+      "kind": "happy path",
+      "description": "extend_window: the oracle lengthens the window by one hour and raises the tier",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "2A6UzkojgyiCVRtMD8G1soMixHd7gVQfZE7Fb1quEg5bnAmzsj8rXWg5QuZZcqcWvmF7z61GD2GdFMdXYPCnjFDR",
+      "explorer": "https://explorer.solana.com/tx/2A6UzkojgyiCVRtMD8G1soMixHd7gVQfZE7Fb1quEg5bnAmzsj8rXWg5QuZZcqcWvmF7z61GD2GdFMdXYPCnjFDR?cluster=devnet"
+    },
+    {
+      "id": "A7",
+      "kind": "attack",
+      "description": "A stranger closes a pending hold to take its rent",
+      "expected": "HoldStillPending",
+      "outcome": "refused",
+      "error": "HoldStillPending",
+      "signature": "3pC7enWQ3QXkLSTXsQhJjtynnavKiYGfTf9RAuEMKT8CCZCe14HwzvvQ4nympQ8D3yCUVMDdQfetMCNUdYJAPvhd",
+      "explorer": "https://explorer.solana.com/tx/3pC7enWQ3QXkLSTXsQhJjtynnavKiYGfTf9RAuEMKT8CCZCe14HwzvvQ4nympQ8D3yCUVMDdQfetMCNUdYJAPvhd?cluster=devnet"
+    },
+    {
+      "id": "H3",
+      "kind": "happy path",
+      "description": "reclaim: the sender undoes the hold; all 25 tokens return",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "uqMQxBBccD4FAoLWNUUFiqTHh1vpcbEysSwhuBs3zZA6uNuF9girs2sFHJTEfnECmgyQZTyNeFDmouiKC5PNq2d",
+      "explorer": "https://explorer.solana.com/tx/uqMQxBBccD4FAoLWNUUFiqTHh1vpcbEysSwhuBs3zZA6uNuF9girs2sFHJTEfnECmgyQZTyNeFDmouiKC5PNq2d?cluster=devnet"
+    },
+    {
+      "id": "A8",
+      "kind": "attack",
+      "description": "The sender tries to undo the same hold twice",
+      "expected": "refused (vault closed, hold settled)",
+      "outcome": "refused",
+      "error": "AccountNotInitialized",
+      "signature": "3aeqDB19c1uQh2BGnHj3QnPQQ13jYFkxTKzBSQ8w19XQL4uHVyuxeMpQsdQ3QENxEr1UKwqWqvtevKuDKG1y3DN2",
+      "explorer": "https://explorer.solana.com/tx/3aeqDB19c1uQh2BGnHj3QnPQQ13jYFkxTKzBSQ8w19XQL4uHVyuxeMpQsdQ3QENxEr1UKwqWqvtevKuDKG1y3DN2?cluster=devnet"
+    },
+    {
+      "id": "A9",
+      "kind": "attack",
+      "description": "A stranger closes the settled hold but sends the rent to themselves",
+      "expected": "WrongParty",
+      "outcome": "refused",
+      "error": "WrongParty",
+      "signature": "2GEHvgbuRhTH39ACPrWnJooJdcbMx5JEkMfBZbrtKvCC9TnMrKsbFK9E6uZX2cwAa2hNNJWFdKC3qsgehACsfhrP",
+      "explorer": "https://explorer.solana.com/tx/2GEHvgbuRhTH39ACPrWnJooJdcbMx5JEkMfBZbrtKvCC9TnMrKsbFK9E6uZX2cwAa2hNNJWFdKC3qsgehACsfhrP?cluster=devnet"
+    },
+    {
+      "id": "H4",
+      "kind": "happy path",
+      "description": "close_hold: anyone closes the settled hold; rent returns to the sender",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "42vBhFseWXrFWETs2eBqyXfCgNpjg7t8fqqM1PnoFciaCSmNcDgmY2wqYXhLCW5V93ixNVSDnV12df9pHmBjnsq",
+      "explorer": "https://explorer.solana.com/tx/42vBhFseWXrFWETs2eBqyXfCgNpjg7t8fqqM1PnoFciaCSmNcDgmY2wqYXhLCW5V93ixNVSDnV12df9pHmBjnsq?cluster=devnet"
+    },
+    {
+      "id": "H5",
+      "kind": "happy path",
+      "description": "create_hold: 25 test tokens held for 15 seconds",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "4Sr66SKNo7bQahZJzttF2KtZfsvQan3gftVUgjQQ8BLZGwYVyhYwo8za9gnC8MhbEgW6MHEdDnAH55B25LmZk5se",
+      "explorer": "https://explorer.solana.com/tx/4Sr66SKNo7bQahZJzttF2KtZfsvQan3gftVUgjQQ8BLZGwYVyhYwo8za9gnC8MhbEgW6MHEdDnAH55B25LmZk5se?cluster=devnet"
+    },
+    {
+      "id": "A10",
+      "kind": "attack",
+      "description": "A crank names itself as the recipient",
+      "expected": "refused (accounts derived for a different recipient do not exist)",
+      "outcome": "refused",
+      "error": "AccountNotInitialized",
+      "signature": "5PyHcscr15m712mkXjmGmxttPRVwza67eBdDaBPmjiVF3qV2txVFFMqLue2pK54iJStwU2u6TkRtBJsRbPrN1mo3",
+      "explorer": "https://explorer.solana.com/tx/5PyHcscr15m712mkXjmGmxttPRVwza67eBdDaBPmjiVF3qV2txVFFMqLue2pK54iJStwU2u6TkRtBJsRbPrN1mo3?cluster=devnet"
+    },
+    {
+      "id": "A11",
+      "kind": "attack",
+      "description": "The sender tries to undo after the window has ended",
+      "expected": "WindowOver",
+      "outcome": "refused",
+      "error": "WindowOver",
+      "signature": "22Hs9kBZuj4hN3ScErKGv8GrnhahJdYCDvP7acYSfmkT7cGqk6rrELciZVLEr5Jt5835fd3r8vPkxZpwSP2abXHn",
+      "explorer": "https://explorer.solana.com/tx/22Hs9kBZuj4hN3ScErKGv8GrnhahJdYCDvP7acYSfmkT7cGqk6rrELciZVLEr5Jt5835fd3r8vPkxZpwSP2abXHn?cluster=devnet"
+    },
+    {
+      "id": "H6",
+      "kind": "happy path",
+      "description": "release: a stranger cranks the hold to the recipient after the window",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "4A8xRgRrArz97uX5AdWG8mhJiWgxzA92yW1StjxKaRBTXzAkQuphd3yj3hc9DTq7JxkCyNxJPtmtvaeisXkTF6YZ",
+      "explorer": "https://explorer.solana.com/tx/4A8xRgRrArz97uX5AdWG8mhJiWgxzA92yW1StjxKaRBTXzAkQuphd3yj3hc9DTq7JxkCyNxJPtmtvaeisXkTF6YZ?cluster=devnet"
+    },
+    {
+      "id": "H7",
+      "kind": "happy path",
+      "description": "close_hold after release",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "48up7bamFKna1yTYUcXo4DWkZJEYygY8HrRH1EYuYpfXsJhYmHY66t5M9ANYjspJps7581VPgJAXmgMeRDrQBppk",
+      "explorer": "https://explorer.solana.com/tx/48up7bamFKna1yTYUcXo4DWkZJEYygY8HrRH1EYuYpfXsJhYmHY66t5M9ANYjspJps7581VPgJAXmgMeRDrQBppk?cluster=devnet"
+    },
+    {
+      "id": "H8",
+      "kind": "happy path",
+      "description": "create_hold: 25 test tokens held for 6 hours",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "5BadDtG4Da85H6d35in64w8KRLZ36bUZuU24gDHvxmty9nm5PbfzT52xyR69mS35YjsUnwJPKJRQKWnfoTer7Ygp",
+      "explorer": "https://explorer.solana.com/tx/5BadDtG4Da85H6d35in64w8KRLZ36bUZuU24gDHvxmty9nm5PbfzT52xyR69mS35YjsUnwJPKJRQKWnfoTer7Ygp?cluster=devnet"
+    },
+    {
+      "id": "H9",
+      "kind": "happy path",
+      "description": "release_early: the sender ends the window and pays the recipient now",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "5xsDU5YqVZctbpQji6gpPfzZ9pom4dWVtLnvM71jvE78J5ADTRiVwxUFyMZTa2RNscFEYEphq1Da3WAsStW5Hdpq",
+      "explorer": "https://explorer.solana.com/tx/5xsDU5YqVZctbpQji6gpPfzZ9pom4dWVtLnvM71jvE78J5ADTRiVwxUFyMZTa2RNscFEYEphq1Da3WAsStW5Hdpq?cluster=devnet"
+    },
+    {
+      "id": "H10",
+      "kind": "happy path",
+      "description": "create_hold with a Token-2022 mint",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "4iva67cr2gHFzJvPWce8amH7P7rxViT2qE61rf5BxAXmtvTiack9F5taFLTk44PDoE9FhcEC8VBVMwZywa93axN3",
+      "explorer": "https://explorer.solana.com/tx/4iva67cr2gHFzJvPWce8amH7P7rxViT2qE61rf5BxAXmtvTiack9F5taFLTk44PDoE9FhcEC8VBVMwZywa93axN3?cluster=devnet"
+    },
+    {
+      "id": "H11",
+      "kind": "happy path",
+      "description": "reclaim a Token-2022 hold",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "5qAGbkwFTCwZDPZmj5VEArnR9NP3c5X6dWmxzjxrdVmVdneQqd8uCW1cHP5x9R6w8WfGUrsCkqjDwq3bKXJVoh6w",
+      "explorer": "https://explorer.solana.com/tx/5qAGbkwFTCwZDPZmj5VEArnR9NP3c5X6dWmxzjxrdVmVdneQqd8uCW1cHP5x9R6w8WfGUrsCkqjDwq3bKXJVoh6w?cluster=devnet"
+    },
+    {
+      "id": "A12",
+      "kind": "attack",
+      "description": "An instant transfer to someone the sender never trusted",
+      "expected": "refused (no Trust account)",
+      "outcome": "refused",
+      "error": "AccountNotInitialized",
+      "signature": "mt1mrEfM4WbqNPtMGSGx84YLhF6MJb86d459HdqijqqCpj4iSfDUksoxKoUMSNSEks37zjNoTA2mundjZ5b9R4U",
+      "explorer": "https://explorer.solana.com/tx/mt1mrEfM4WbqNPtMGSGx84YLhF6MJb86d459HdqijqqCpj4iSfDUksoxKoUMSNSEks37zjNoTA2mundjZ5b9R4U?cluster=devnet"
+    },
+    {
+      "id": "H12",
+      "kind": "happy path",
+      "description": "set_trust: the sender trusts a friend",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "5iCwU5qxkkLk813SPDiJAFNQKVhGbTgTtqhGHTC1BK9CeG4D8VB24simAkPozESpG3xzH2mkZiobWR1bHDgP5oF6",
+      "explorer": "https://explorer.solana.com/tx/5iCwU5qxkkLk813SPDiJAFNQKVhGbTgTtqhGHTC1BK9CeG4D8VB24simAkPozESpG3xzH2mkZiobWR1bHDgP5oF6?cluster=devnet"
+    },
+    {
+      "id": "H13",
+      "kind": "happy path",
+      "description": "instant_transfer: 1 test token paid to the trusted friend with no wait",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "2kEwHTeke5YaNdut9TfSm8MFuBcPfCvjL3jRyQaryNccpa8zu4u3FCowcw1rAa9rpboZxHAuRoAdg15m2smY2bH2",
+      "explorer": "https://explorer.solana.com/tx/2kEwHTeke5YaNdut9TfSm8MFuBcPfCvjL3jRyQaryNccpa8zu4u3FCowcw1rAa9rpboZxHAuRoAdg15m2smY2bH2?cluster=devnet"
+    },
+    {
+      "id": "H14",
+      "kind": "happy path",
+      "description": "instant_transfer_sol: 0.002 SOL paid to the trusted friend",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "EKUkdZvqib1ygkiv3oKjPNWQfDQZF7Ni6P4gLTzycJHivqycEsKoipZEi1rVabnyzGfJfGzJ9cZ82M77HCrrzQt",
+      "explorer": "https://explorer.solana.com/tx/EKUkdZvqib1ygkiv3oKjPNWQfDQZF7Ni6P4gLTzycJHivqycEsKoipZEi1rVabnyzGfJfGzJ9cZ82M77HCrrzQt?cluster=devnet"
+    },
+    {
+      "id": "A13",
+      "kind": "attack",
+      "description": "Someone else tries to use the sender\u2019s trust to pay instantly",
+      "expected": "refused (no Trust account for this sender)",
+      "outcome": "refused",
+      "error": "AccountNotInitialized",
+      "signature": "2QV3TLL4W1rpsCpcQCX8Dz6E6QYZA9e6TqqAVLbvowfrnyp75uPWXE3az3Va1mEgAuc7vUh9pqRhhLDMGDdDYeAv",
+      "explorer": "https://explorer.solana.com/tx/2QV3TLL4W1rpsCpcQCX8Dz6E6QYZA9e6TqqAVLbvowfrnyp75uPWXE3az3Va1mEgAuc7vUh9pqRhhLDMGDdDYeAv?cluster=devnet"
+    },
+    {
+      "id": "H15",
+      "kind": "happy path",
+      "description": "remove_trust",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "4kLqjoWRXWGpuqBJxyRnbEcRhee2dm8xmhURmqTGF6tU4Zr7VnB7K9tNugjhqnKYg5QWENJANtGhBfD3bKNSqyeJ",
+      "explorer": "https://explorer.solana.com/tx/4kLqjoWRXWGpuqBJxyRnbEcRhee2dm8xmhURmqTGF6tU4Zr7VnB7K9tNugjhqnKYg5QWENJANtGhBfD3bKNSqyeJ?cluster=devnet"
+    },
+    {
+      "id": "H16",
+      "kind": "happy path",
+      "description": "flag_subject: a report against an address",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "3fsWE9Hfgkyf1EoxzXf7JgCwY4eSHMts6Jd9e6gQ2ZSD7mCqnrR5beUjuDDhcFsAE8atb2giVbxbiYi4yCyXVdJd",
+      "explorer": "https://explorer.solana.com/tx/3fsWE9Hfgkyf1EoxzXf7JgCwY4eSHMts6Jd9e6gQ2ZSD7mCqnrR5beUjuDDhcFsAE8atb2giVbxbiYi4yCyXVdJd?cluster=devnet"
+    },
+    {
+      "id": "A14",
+      "kind": "attack",
+      "description": "The same reporter flags the same address twice",
+      "expected": "refused (the flag account already exists)",
+      "outcome": "refused",
+      "error": "AccountAlreadyInUse (system program)",
+      "signature": "5hvYpRQ4b9b6atYkzzhHS6rzB4EQnBhqpEywc7z9pvwJyEQq27TosR1uZoGaMaugLZ7uqQg6y5fyX18hw9qoqtGL",
+      "explorer": "https://explorer.solana.com/tx/5hvYpRQ4b9b6atYkzzhHS6rzB4EQnBhqpEywc7z9pvwJyEQq27TosR1uZoGaMaugLZ7uqQg6y5fyX18hw9qoqtGL?cluster=devnet"
+    },
+    {
+      "id": "H17",
+      "kind": "happy path",
+      "description": "init_deposit_box: the relayer opens a deposit box for the owner",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "3e89YBH6M3XuETbDPC3qx4Wriy7ZRAs9FTRfvycSVrxmoJM5uw6xb7p1rGriadXqz7C4yoFDHtuh3aJMFB3wKL2t",
+      "explorer": "https://explorer.solana.com/tx/3e89YBH6M3XuETbDPC3qx4Wriy7ZRAs9FTRfvycSVrxmoJM5uw6xb7p1rGriadXqz7C4yoFDHtuh3aJMFB3wKL2t?cluster=devnet"
+    },
+    {
+      "id": "H18",
+      "kind": "happy path",
+      "description": "The owner makes a plain token transfer of 60 test tokens into their deposit box",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "2MG7Ax78PXVaSFAnXuQdx92RdbDeqrjGWvjPuWrxSSU6q4jD14mgKdGiWZU2YN11sYs1o9Lj9pTWyDzfixNKs9MM",
+      "explorer": "https://explorer.solana.com/tx/2MG7Ax78PXVaSFAnXuQdx92RdbDeqrjGWvjPuWrxSSU6q4jD14mgKdGiWZU2YN11sYs1o9Lj9pTWyDzfixNKs9MM?cluster=devnet"
+    },
+    {
+      "id": "A15",
+      "kind": "attack",
+      "description": "A stranger tries to open a hold from someone\u2019s deposit box",
+      "expected": "Unauthorized",
+      "outcome": "refused",
+      "error": "Unauthorized",
+      "signature": "5gdt37go9gvcxAgiFrkrw9qhiw5dYWPwpFWhV3Xdus6t5Xy7kQHi7EfmAsnDpKMT9vBdtpBko9T9n7YC2AenqRLe",
+      "explorer": "https://explorer.solana.com/tx/5gdt37go9gvcxAgiFrkrw9qhiw5dYWPwpFWhV3Xdus6t5Xy7kQHi7EfmAsnDpKMT9vBdtpBko9T9n7YC2AenqRLe?cluster=devnet"
+    },
+    {
+      "id": "A16",
+      "kind": "attack",
+      "description": "The relayer tries a window shorter than the default",
+      "expected": "WindowTooShort",
+      "outcome": "refused",
+      "error": "WindowTooShort",
+      "signature": "4NC59SVgLpcDGGkADgvD1fRCQqi5M2obRccVjfGtCGsAq3DoDwSDexbS3QarpjprDoWzRTda7f7aKUiAnGn4HwY",
+      "explorer": "https://explorer.solana.com/tx/4NC59SVgLpcDGGkADgvD1fRCQqi5M2obRccVjfGtCGsAq3DoDwSDexbS3QarpjprDoWzRTda7f7aKUiAnGn4HwY?cluster=devnet"
+    },
+    {
+      "id": "H19",
+      "kind": "happy path",
+      "description": "open_hold_from_deposit: the relayer opens a 30-minute hold; the sender is the box owner",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "kLjh4jbx4rVUb4xQP8JzEcugHsU82qg8b1iWKuxkjfAbKvsjQUzY1LNmzs5vWu1ns8QwYMBH49iEHaYb1ByEXqm",
+      "explorer": "https://explorer.solana.com/tx/kLjh4jbx4rVUb4xQP8JzEcugHsU82qg8b1iWKuxkjfAbKvsjQUzY1LNmzs5vWu1ns8QwYMBH49iEHaYb1ByEXqm?cluster=devnet"
+    },
+    {
+      "id": "A17",
+      "kind": "attack",
+      "description": "The relayer points the undo at its own token account",
+      "expected": "refused by the token-owner constraint",
+      "outcome": "refused",
+      "error": "ConstraintTokenOwner",
+      "signature": "5B59icFNN9myVz25zxn77nhAU1s1msHZj1soQFPPtkeZku8ZXF5UpU8XQR1fiE2bBqry2VLxMCDKvHXSN4bsWnen",
+      "explorer": "https://explorer.solana.com/tx/5B59icFNN9myVz25zxn77nhAU1s1msHZj1soQFPPtkeZku8ZXF5UpU8XQR1fiE2bBqry2VLxMCDKvHXSN4bsWnen?cluster=devnet"
+    },
+    {
+      "id": "H20",
+      "kind": "happy path",
+      "description": "reclaim by the relayer: the refund lands in the owner\u2019s own wallet",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "2L7qd9XqN5pSFH1sKYypBESTB8PeeSyaagupv73wyUfKw99hiUkMgPX9kcQ6LMR6XNcbZsB2dcjQKZS3DY4GZcsq",
+      "explorer": "https://explorer.solana.com/tx/2L7qd9XqN5pSFH1sKYypBESTB8PeeSyaagupv73wyUfKw99hiUkMgPX9kcQ6LMR6XNcbZsB2dcjQKZS3DY4GZcsq?cluster=devnet"
+    },
+    {
+      "id": "A18",
+      "kind": "attack",
+      "description": "A stranger tries to withdraw from the deposit box",
+      "expected": "Unauthorized",
+      "outcome": "refused",
+      "error": "Unauthorized",
+      "signature": "3GyBeakRxur7YovG7xgbyvyzrASx22yYgSUTF6iggfYRPzjkLnXSixEecfJDXub9tpZj5GGD5iR8XDB2rvkCGGB3",
+      "explorer": "https://explorer.solana.com/tx/3GyBeakRxur7YovG7xgbyvyzrASx22yYgSUTF6iggfYRPzjkLnXSixEecfJDXub9tpZj5GGD5iR8XDB2rvkCGGB3?cluster=devnet"
+    },
+    {
+      "id": "A19",
+      "kind": "attack",
+      "description": "The relayer withdraws box funds to itself",
+      "expected": "refused by the token-owner constraint",
+      "outcome": "refused",
+      "error": "ConstraintTokenOwner",
+      "signature": "3F1BR6asSMaHWg98z6e4XjB28pdvDCe53Nu99nGzguSQRD6vteGWdBuDPREKXfb4vaYheGLXujctyuB5o2i8PFnQ",
+      "explorer": "https://explorer.solana.com/tx/3F1BR6asSMaHWg98z6e4XjB28pdvDCe53Nu99nGzguSQRD6vteGWdBuDPREKXfb4vaYheGLXujctyuB5o2i8PFnQ?cluster=devnet"
+    },
+    {
+      "id": "H21",
+      "kind": "happy path",
+      "description": "withdraw_deposit: the relayer returns the rest of the box to the owner",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "595Zzfw9BKrC2cPEHMDTJa2VhRAEFE5uGDGYMAWG6fPVu1t7F8AmiiVW5AZykmYmKy2h15QGmdB4eNpcdvYzqCu4",
+      "explorer": "https://explorer.solana.com/tx/595Zzfw9BKrC2cPEHMDTJa2VhRAEFE5uGDGYMAWG6fPVu1t7F8AmiiVW5AZykmYmKy2h15QGmdB4eNpcdvYzqCu4?cluster=devnet"
+    },
+    {
+      "id": "H22",
+      "kind": "happy path",
+      "description": "close_hold for the deposit-box hold; rent returns to the relayer",
+      "expected": "executes",
+      "outcome": "executed",
+      "error": null,
+      "signature": "4SFrthRARqAK3E4xMgWoEsH3RZ8zzd2HzKRPQrEF48FP8NTAyKyYCcfcVHP2WhRgER1mraG63o66R2AC8pRUGMqA",
+      "explorer": "https://explorer.solana.com/tx/4SFrthRARqAK3E4xMgWoEsH3RZ8zzd2HzKRPQrEF48FP8NTAyKyYCcfcVHP2WhRgER1mraG63o66R2AC8pRUGMqA?cluster=devnet"
+    }
+  ]
+}

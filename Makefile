@@ -39,3 +39,11 @@ readme:
 eval-test:
 	$(PYTHON) -m pytest eval -q
 	node --import tsx --test bench/test/*.test.ts
+
+# Re-check every devnet proof from public RPC, with no keys.
+verify:
+	npx tsx scripts/verify-proofs.ts
+
+# Re-run the devnet proofs (needs keys/; writes proofs/).
+prove:
+	npx tsx scripts/prove-devnet.ts

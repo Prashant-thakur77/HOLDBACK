@@ -21,7 +21,9 @@
     "idl:sync": "node scripts/sync-idl.mjs",
     "readme:numbers": "tsx scripts/readme_numbers.ts",
     "lint": "prettier --check \"**/*.{ts,tsx,js,mjs,json,md}\"",
-    "lint:fix": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md}\""
+    "lint:fix": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md}\"",
+    "proofs:verify": "tsx scripts/verify-proofs.ts",
+    "proofs:run": "tsx scripts/prove-devnet.ts"
   },
   "devDependencies": {
     "@anchor-lang/core": "^1.2.2",
