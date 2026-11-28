@@ -63,7 +63,14 @@ pub mod holdback {
         tier: u8,
         evidence_hash: [u8; 32],
     ) -> Result<()> {
-        instructions::create_hold::create_token(ctx, nonce, amount, window_secs, tier, evidence_hash)
+        instructions::create_hold::create_token(
+            ctx,
+            nonce,
+            amount,
+            window_secs,
+            tier,
+            evidence_hash,
+        )
     }
 
     /// Places `amount` lamports in a new hold.
@@ -76,6 +83,56 @@ pub mod holdback {
         evidence_hash: [u8; 32],
     ) -> Result<()> {
         instructions::create_hold::create_sol(ctx, nonce, amount, window_secs, tier, evidence_hash)
+    }
+
+    /// Places tokens in a new hold whose window, tier and evidence hash carry
+    /// the risk oracle's signature, verified on-chain. The instruction must be
+    /// preceded by an Ed25519 verification of the signed assessment.
+    #[allow(clippy::too_many_arguments)]
+    pub fn create_hold_attested(
+        ctx: Context<CreateHoldAttested>,
+        nonce: u64,
+        amount: u64,
+        window_secs: u32,
+        attested_window_secs: u32,
+        tier: u8,
+        evidence_hash: [u8; 32],
+        expires_at: i64,
+    ) -> Result<()> {
+        instructions::attested::create_token_attested(
+            ctx,
+            nonce,
+            amount,
+            window_secs,
+            attested_window_secs,
+            tier,
+            evidence_hash,
+            expires_at,
+        )
+    }
+
+    /// The attested path for native SOL.
+    #[allow(clippy::too_many_arguments)]
+    pub fn create_hold_sol_attested(
+        ctx: Context<CreateHoldSolAttested>,
+        nonce: u64,
+        amount: u64,
+        window_secs: u32,
+        attested_window_secs: u32,
+        tier: u8,
+        evidence_hash: [u8; 32],
+        expires_at: i64,
+    ) -> Result<()> {
+        instructions::attested::create_sol_attested(
+            ctx,
+            nonce,
+            amount,
+            window_secs,
+            attested_window_secs,
+            tier,
+            evidence_hash,
+            expires_at,
+        )
     }
 
     /// Zero-window path: pays a recipient the sender has marked as trusted
@@ -104,7 +161,14 @@ pub mod holdback {
         tier: u8,
         evidence_hash: [u8; 32],
     ) -> Result<()> {
-        instructions::deposit_box::open_hold_from_box(ctx, nonce, amount, window_secs, tier, evidence_hash)
+        instructions::deposit_box::open_hold_from_box(
+            ctx,
+            nonce,
+            amount,
+            window_secs,
+            tier,
+            evidence_hash,
+        )
     }
 
     /// Returns tokens from a deposit box to its owner. Owner or relayer signs.

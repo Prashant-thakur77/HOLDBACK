@@ -50,4 +50,12 @@ pub enum HoldbackError {
     AmountBelowRentFloor,
     #[msg("The account does not belong to the expected party")]
     WrongParty,
+    #[msg("No risk-oracle signature over this assessment precedes the instruction")]
+    MissingAttestation,
+    #[msg("The assessment was not signed by the configured risk oracle")]
+    WrongAttester,
+    #[msg("The signed assessment does not match this payment")]
+    AttestationMismatch,
+    #[msg("The signed assessment has expired; ask for a new one")]
+    AttestationExpired,
 }

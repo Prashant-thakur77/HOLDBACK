@@ -75,49 +75,74 @@ pub fn create_token(
     tier: u8,
     evidence_hash: [u8; 32],
 ) -> Result<()> {
-    let config = &ctx.accounts.config;
+    let bumps = ctx.bumps;
+    open_token_hold(
+        ctx.accounts,
+        &bumps,
+        nonce,
+        amount,
+        window_secs,
+        tier,
+        evidence_hash,
+        origin::WALLET,
+    )
+}
+
+/// The body of a token hold, shared by the plain and the attested instruction.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn open_token_hold(
+    accounts: &mut CreateHold,
+    bumps: &CreateHoldBumps,
+    nonce: u64,
+    amount: u64,
+    window_secs: u32,
+    tier: u8,
+    evidence_hash: [u8; 32],
+    hold_origin: u8,
+) -> Result<()> {
+    let config = &accounts.config;
     let (now, release_at) =
         validate_new_hold(config, amount, window_secs, config.min_window_secs, tier)?;
 
     transfer_checked(
         CpiContext::new(
-            ctx.accounts.token_program.key(),
+            accounts.token_program.key(),
             TransferChecked {
-                from: ctx.accounts.sender_token.to_account_info(),
-                mint: ctx.accounts.mint.to_account_info(),
-                to: ctx.accounts.vault.to_account_info(),
-                authority: ctx.accounts.sender.to_account_info(),
+                from: accounts.sender_token.to_account_info(),
+                mint: accounts.mint.to_account_info(),
+                to: accounts.vault.to_account_info(),
+                authority: accounts.sender.to_account_info(),
             },
         ),
         amount,
-        ctx.accounts.mint.decimals,
+        accounts.mint.decimals,
     )?;
 
     // A fee-on-transfer mint would leave the vault short of `amount` and its
     // withheld fees would block closing the vault later. Refuse it up front.
-    ctx.accounts.vault.reload()?;
+    accounts.vault.reload()?;
     require!(
-        ctx.accounts.vault.amount == amount,
+        accounts.vault.amount == amount,
         HoldbackError::UnsupportedMint
     );
 
-    let hold = &mut ctx.accounts.hold;
-    hold.sender = ctx.accounts.sender.key();
-    hold.recipient = ctx.accounts.recipient.key();
-    hold.mint = ctx.accounts.mint.key();
+    let hold = &mut accounts.hold;
+    hold.sender = accounts.sender.key();
+    hold.recipient = accounts.recipient.key();
+    hold.mint = accounts.mint.key();
     hold.amount = amount;
     hold.created_at = now;
     hold.release_at = release_at;
     hold.tier = tier;
     hold.evidence_hash = evidence_hash;
-    hold.origin = origin::WALLET;
+    hold.origin = hold_origin;
     hold.status = status::PENDING;
-    hold.rent_payer = ctx.accounts.sender.key();
+    hold.rent_payer = accounts.sender.key();
     hold.nonce = nonce;
-    hold.bump = ctx.bumps.hold;
+    hold.bump = bumps.hold;
 
-    let stats = &mut ctx.accounts.recipient_stats;
-    stats.touch(hold.recipient, ctx.bumps.recipient_stats);
+    let stats = &mut accounts.recipient_stats;
+    stats.touch(hold.recipient, bumps.recipient_stats);
     stats.holds_received = bump_counter(stats.holds_received)?;
 
     emit!(HoldCreated {
@@ -178,7 +203,32 @@ pub fn create_sol(
     tier: u8,
     evidence_hash: [u8; 32],
 ) -> Result<()> {
-    let config = &ctx.accounts.config;
+    let bumps = ctx.bumps;
+    open_sol_hold(
+        ctx.accounts,
+        &bumps,
+        nonce,
+        amount,
+        window_secs,
+        tier,
+        evidence_hash,
+        origin::WALLET,
+    )
+}
+
+/// The body of a SOL hold, shared by the plain and the attested instruction.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn open_sol_hold(
+    accounts: &mut CreateHoldSol,
+    bumps: &CreateHoldSolBumps,
+    nonce: u64,
+    amount: u64,
+    window_secs: u32,
+    tier: u8,
+    evidence_hash: [u8; 32],
+    hold_origin: u8,
+) -> Result<()> {
+    let config = &accounts.config;
     let (now, release_at) =
         validate_new_hold(config, amount, window_secs, config.min_window_secs, tier)?;
 
@@ -192,32 +242,32 @@ pub fn create_sol(
 
     system_program::transfer(
         CpiContext::new(
-            ctx.accounts.system_program.key(),
+            accounts.system_program.key(),
             system_program::Transfer {
-                from: ctx.accounts.sender.to_account_info(),
-                to: ctx.accounts.hold.to_account_info(),
+                from: accounts.sender.to_account_info(),
+                to: accounts.hold.to_account_info(),
             },
         ),
         amount,
     )?;
 
-    let hold = &mut ctx.accounts.hold;
-    hold.sender = ctx.accounts.sender.key();
-    hold.recipient = ctx.accounts.recipient.key();
+    let hold = &mut accounts.hold;
+    hold.sender = accounts.sender.key();
+    hold.recipient = accounts.recipient.key();
     hold.mint = NATIVE_SOL_MINT;
     hold.amount = amount;
     hold.created_at = now;
     hold.release_at = release_at;
     hold.tier = tier;
     hold.evidence_hash = evidence_hash;
-    hold.origin = origin::WALLET;
+    hold.origin = hold_origin;
     hold.status = status::PENDING;
-    hold.rent_payer = ctx.accounts.sender.key();
+    hold.rent_payer = accounts.sender.key();
     hold.nonce = nonce;
-    hold.bump = ctx.bumps.hold;
+    hold.bump = bumps.hold;
 
-    let stats = &mut ctx.accounts.recipient_stats;
-    stats.touch(hold.recipient, ctx.bumps.recipient_stats);
+    let stats = &mut accounts.recipient_stats;
+    stats.touch(hold.recipient, bumps.recipient_stats);
     stats.holds_received = bump_counter(stats.holds_received)?;
 
     emit!(HoldCreated {

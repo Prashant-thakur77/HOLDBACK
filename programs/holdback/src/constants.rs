@@ -37,7 +37,13 @@ pub mod origin {
     pub const WALLET: u8 = 0;
     /// The relayer moved funds out of the sender's deposit box.
     pub const DEPOSIT_BOX: u8 = 1;
+    /// The sender signed, and the window, tier and evidence hash carry the
+    /// risk oracle's signature, checked on-chain (`create_hold_attested`).
+    pub const ATTESTED: u8 = 2;
 }
+
+/// Domain tag at the start of every assessment the risk oracle signs.
+pub const ASSESSMENT_DOMAIN: &[u8] = b"HOLDBACK_ASSESSMENT_V1";
 
 /// Lifecycle of a hold. `PENDING` is the only non-terminal state.
 pub mod status {

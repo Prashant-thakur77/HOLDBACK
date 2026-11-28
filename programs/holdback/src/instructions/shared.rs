@@ -44,7 +44,10 @@ pub fn validate_new_hold(
 
 /// Requires the hold to be pending and returns the current time.
 pub fn require_pending(hold: &Hold) -> Result<i64> {
-    require!(hold.status == status::PENDING, HoldbackError::HoldNotPending);
+    require!(
+        hold.status == status::PENDING,
+        HoldbackError::HoldNotPending
+    );
     Ok(Clock::get()?.unix_timestamp)
 }
 
@@ -98,7 +101,10 @@ pub fn drain_and_close_vault<'info>(
 
 /// Moves a SOL hold's lamports out of the hold account. The hold keeps its
 /// rent, which `close_hold` later refunds to the rent payer.
-pub fn pay_out_sol<'info>(hold: &Account<'info, Hold>, destination: &AccountInfo<'info>) -> Result<u64> {
+pub fn pay_out_sol<'info>(
+    hold: &Account<'info, Hold>,
+    destination: &AccountInfo<'info>,
+) -> Result<u64> {
     let amount = hold.amount;
     hold.sub_lamports(amount)?;
     destination.add_lamports(amount)?;

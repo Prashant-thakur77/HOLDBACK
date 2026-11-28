@@ -1,6 +1,7 @@
 //! One module per instruction family. Account structs are re-exported so the
 //! `#[program]` module and clients can name them directly.
 
+pub mod attested;
 pub mod close_hold;
 pub mod config;
 pub mod create_hold;
@@ -13,6 +14,7 @@ pub mod release;
 pub mod shared;
 pub mod trust;
 
+pub use attested::*;
 pub use close_hold::*;
 pub use config::*;
 pub use create_hold::*;

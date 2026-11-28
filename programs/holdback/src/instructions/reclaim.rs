@@ -68,7 +68,10 @@ pub struct Reclaim<'info> {
 
 pub fn reclaim_token(ctx: Context<Reclaim>) -> Result<()> {
     let now = require_pending(&ctx.accounts.hold)?;
-    require!(now < ctx.accounts.hold.release_at, HoldbackError::WindowOver);
+    require!(
+        now < ctx.accounts.hold.release_at,
+        HoldbackError::WindowOver
+    );
 
     let amount = drain_and_close_vault(
         &ctx.accounts.hold,
@@ -118,7 +121,10 @@ pub struct ReclaimSol<'info> {
 
 pub fn reclaim_sol(ctx: Context<ReclaimSol>) -> Result<()> {
     let now = require_pending(&ctx.accounts.hold)?;
-    require!(now < ctx.accounts.hold.release_at, HoldbackError::WindowOver);
+    require!(
+        now < ctx.accounts.hold.release_at,
+        HoldbackError::WindowOver
+    );
 
     let amount = pay_out_sol(&ctx.accounts.hold, &ctx.accounts.sender.to_account_info())?;
 

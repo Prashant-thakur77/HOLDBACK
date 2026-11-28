@@ -46,15 +46,57 @@ enum Actor {
 
 #[derive(Debug, Clone)]
 enum Op {
-    CreateToken { sender: usize, recipient: usize, token22: bool, amount: u64, window: u32, tier: u8 },
-    CreateSol { sender: usize, recipient: usize, amount: u64, window: u32, tier: u8 },
-    OpenFromBox { by: Actor, recipient: usize, amount: u64, window: u32, tier: u8 },
-    Withdraw { by: Actor, amount: u64, to_attacker: bool },
-    Reclaim { hold: usize, by: Actor, to_attacker: bool },
-    Release { hold: usize, by: Actor, early: bool, to_attacker: bool },
-    Extend { hold: usize, by: Actor, delta: i64, tier: u8 },
-    Close { hold: usize, rent_to_attacker: bool },
-    Warp { secs: u32 },
+    CreateToken {
+        sender: usize,
+        recipient: usize,
+        token22: bool,
+        amount: u64,
+        window: u32,
+        tier: u8,
+    },
+    CreateSol {
+        sender: usize,
+        recipient: usize,
+        amount: u64,
+        window: u32,
+        tier: u8,
+    },
+    OpenFromBox {
+        by: Actor,
+        recipient: usize,
+        amount: u64,
+        window: u32,
+        tier: u8,
+    },
+    Withdraw {
+        by: Actor,
+        amount: u64,
+        to_attacker: bool,
+    },
+    Reclaim {
+        hold: usize,
+        by: Actor,
+        to_attacker: bool,
+    },
+    Release {
+        hold: usize,
+        by: Actor,
+        early: bool,
+        to_attacker: bool,
+    },
+    Extend {
+        hold: usize,
+        by: Actor,
+        delta: i64,
+        tier: u8,
+    },
+    Close {
+        hold: usize,
+        rent_to_attacker: bool,
+    },
+    Warp {
+        secs: u32,
+    },
 }
 
 fn actor() -> impl Strategy<Value = Actor> {
@@ -161,8 +203,16 @@ struct Harness {
 impl Harness {
     fn new() -> Self {
         let mut world = World::new();
-        let senders = [world.funded_keypair(), world.funded_keypair(), world.funded_keypair()];
-        let recipients = [Address::new_unique(), Address::new_unique(), Address::new_unique()];
+        let senders = [
+            world.funded_keypair(),
+            world.funded_keypair(),
+            world.funded_keypair(),
+        ];
+        let recipients = [
+            Address::new_unique(),
+            Address::new_unique(),
+            Address::new_unique(),
+        ];
         let attacker = world.funded_keypair();
         let mints = [world.usdc, world.token22];
 
@@ -208,7 +258,11 @@ impl Harness {
     }
 
     fn mint(&self, token22: bool) -> MintRef {
-        if token22 { self.world.token22 } else { self.world.usdc }
+        if token22 {
+            self.world.token22
+        } else {
+            self.world.usdc
+        }
     }
 
     fn signer(&self, by: Actor, owner: usize) -> Keypair {
@@ -240,12 +294,27 @@ impl Harness {
                 Ok(())
             }
 
-            Op::CreateToken { sender, recipient, token22, amount, window, tier } => {
+            Op::CreateToken {
+                sender,
+                recipient,
+                token22,
+                amount,
+                window,
+                tier,
+            } => {
                 let expect = amount > 0 && (1..=MAX_WINDOW).contains(&window) && tier <= 4;
                 let mint = self.mint(token22);
                 let key = self.senders[sender].insecure_clone();
                 let nonce = self.take_nonce();
-                let ix = self.world.ix_create_hold(&key.pubkey(), &self.recipients[recipient], mint, nonce, amount, window, tier);
+                let ix = self.world.ix_create_hold(
+                    &key.pubkey(),
+                    &self.recipients[recipient],
+                    mint,
+                    nonce,
+                    amount,
+                    window,
+                    tier,
+                );
                 let ok = self.exec(ix, &key, expect, op)?;
                 if ok {
                     self.model.sender_tokens[sender][usize::from(token22)] -= amount;
@@ -267,11 +336,25 @@ impl Harness {
                 Ok(())
             }
 
-            Op::CreateSol { sender, recipient, amount, window, tier } => {
-                let expect = amount >= self.rent_floor && (1..=MAX_WINDOW).contains(&window) && tier <= 4;
+            Op::CreateSol {
+                sender,
+                recipient,
+                amount,
+                window,
+                tier,
+            } => {
+                let expect =
+                    amount >= self.rent_floor && (1..=MAX_WINDOW).contains(&window) && tier <= 4;
                 let key = self.senders[sender].insecure_clone();
                 let nonce = self.take_nonce();
-                let ix = self.world.ix_create_hold_sol(&key.pubkey(), &self.recipients[recipient], nonce, amount, window, tier);
+                let ix = self.world.ix_create_hold_sol(
+                    &key.pubkey(),
+                    &self.recipients[recipient],
+                    nonce,
+                    amount,
+                    window,
+                    tier,
+                );
                 let ok = self.exec(ix, &key, expect, op)?;
                 if ok {
                     self.model.received[recipient] += 1;
@@ -292,7 +375,13 @@ impl Harness {
                 Ok(())
             }
 
-            Op::OpenFromBox { by, recipient, amount, window, tier } => {
+            Op::OpenFromBox {
+                by,
+                recipient,
+                amount,
+                window,
+                tier,
+            } => {
                 // I4: only the relayer, never below the default window.
                 let expect = by == Actor::Relayer
                     && amount > 0
@@ -303,7 +392,14 @@ impl Harness {
                 let owner = self.senders[BOX_OWNER].pubkey();
                 let nonce = self.take_nonce();
                 let ix = self.world.ix_open_hold_from_deposit(
-                    &key.pubkey(), &owner, &self.recipients[recipient], self.world.usdc, nonce, amount, window, tier,
+                    &key.pubkey(),
+                    &owner,
+                    &self.recipients[recipient],
+                    self.world.usdc,
+                    nonce,
+                    amount,
+                    window,
+                    tier,
                 );
                 let ok = self.exec(ix, &key, expect, op)?;
                 if ok {
@@ -326,7 +422,11 @@ impl Harness {
                 Ok(())
             }
 
-            Op::Withdraw { by, amount, to_attacker } => {
+            Op::Withdraw {
+                by,
+                amount,
+                to_attacker,
+            } => {
                 // I4: owner or relayer may sign, the owner is the only payee.
                 let expect = matches!(by, Actor::Owner | Actor::Relayer)
                     && !to_attacker
@@ -335,9 +435,19 @@ impl Harness {
                 let key = self.signer(by, BOX_OWNER);
                 let owner = self.senders[BOX_OWNER].pubkey();
                 let usdc = self.world.usdc;
-                let payee = if to_attacker { self.attacker.pubkey() } else { owner };
+                let payee = if to_attacker {
+                    self.attacker.pubkey()
+                } else {
+                    owner
+                };
                 let destination = ata(&payee, &usdc.mint, &usdc.program);
-                let ix = self.world.ix_withdraw_deposit(&key.pubkey(), &owner, usdc, &destination, amount);
+                let ix = self.world.ix_withdraw_deposit(
+                    &key.pubkey(),
+                    &owner,
+                    usdc,
+                    &destination,
+                    amount,
+                );
                 let ok = self.exec(ix, &key, expect, op)?;
                 if ok {
                     self.model.box_tokens -= amount;
@@ -346,8 +456,14 @@ impl Harness {
                 Ok(())
             }
 
-            Op::Reclaim { hold, by, to_attacker } => {
-                let Some(index) = self.pick(hold, first) else { return Ok(()) };
+            Op::Reclaim {
+                hold,
+                by,
+                to_attacker,
+            } => {
+                let Some(index) = self.pick(hold, first) else {
+                    return Ok(());
+                };
                 let h = self.model.holds[index].clone();
                 // I1 + I4: sender, or relayer for box holds; refund to sender only.
                 let expect = h.status == status::PENDING
@@ -356,14 +472,25 @@ impl Harness {
                     && (by == Actor::Owner || (h.from_box && by == Actor::Relayer));
                 let key = self.signer(by, h.sender);
                 let sender = self.senders[h.sender].pubkey();
-                let payee = if to_attacker { self.attacker.pubkey() } else { sender };
+                let payee = if to_attacker {
+                    self.attacker.pubkey()
+                } else {
+                    sender
+                };
                 let (ix, rent_before) = match h.kind {
-                    Kind::Sol => (self.world.ix_reclaim_sol(&key.pubkey(), &h.address, &payee), 0),
+                    Kind::Sol => (
+                        self.world.ix_reclaim_sol(&key.pubkey(), &h.address, &payee),
+                        0,
+                    ),
                     Kind::Token { token22 } => {
                         let mint = self.mint(token22);
                         let vault = ata(&h.address, &mint.mint, &mint.program);
                         let destination = ata(&payee, &mint.mint, &mint.program);
-                        (self.world.ix_reclaim(&key.pubkey(), &h.address, &destination), self.world.lamports(&vault))
+                        (
+                            self.world
+                                .ix_reclaim(&key.pubkey(), &h.address, &destination),
+                            self.world.lamports(&vault),
+                        )
                     }
                 };
                 let payer_before = self.rent_payer_lamports(&h);
@@ -372,11 +499,19 @@ impl Harness {
                 if ok {
                     match h.kind {
                         Kind::Sol => {
-                            prop_assert_eq!(self.world.lamports(&sender), sender_before + h.amount, "SOL refund amount");
+                            prop_assert_eq!(
+                                self.world.lamports(&sender),
+                                sender_before + h.amount,
+                                "SOL refund amount"
+                            );
                         }
                         Kind::Token { token22 } => {
                             self.model.sender_tokens[h.sender][usize::from(token22)] += h.amount;
-                            prop_assert_eq!(self.rent_payer_lamports(&h), payer_before + rent_before, "I6 vault rent");
+                            prop_assert_eq!(
+                                self.rent_payer_lamports(&h),
+                                payer_before + rent_before,
+                                "I6 vault rent"
+                            );
                         }
                     }
                     self.model.reclaimed[h.recipient] += 1;
@@ -385,21 +520,44 @@ impl Harness {
                 Ok(())
             }
 
-            Op::Release { hold, by, early, to_attacker } => {
-                let Some(index) = self.pick(hold, first) else { return Ok(()) };
+            Op::Release {
+                hold,
+                by,
+                early,
+                to_attacker,
+            } => {
+                let Some(index) = self.pick(hold, first) else {
+                    return Ok(());
+                };
                 let h = self.model.holds[index].clone();
                 // I2: after the window anyone may crank; before it only the sender.
                 let expect = h.status == status::PENDING
                     && !to_attacker
-                    && if early { by == Actor::Owner } else { now >= h.release_at };
+                    && if early {
+                        by == Actor::Owner
+                    } else {
+                        now >= h.release_at
+                    };
                 let key = self.signer(by, h.sender);
-                let payee = if to_attacker { self.attacker.pubkey() } else { self.recipients[h.recipient] };
+                let payee = if to_attacker {
+                    self.attacker.pubkey()
+                } else {
+                    self.recipients[h.recipient]
+                };
                 let (ix, rent_before) = match h.kind {
-                    Kind::Sol => (self.world.ix_release_sol(&key.pubkey(), &h.address, &payee, early), 0),
+                    Kind::Sol => (
+                        self.world
+                            .ix_release_sol(&key.pubkey(), &h.address, &payee, early),
+                        0,
+                    ),
                     Kind::Token { token22 } => {
                         let mint = self.mint(token22);
                         let vault = ata(&h.address, &mint.mint, &mint.program);
-                        (self.world.ix_release(&key.pubkey(), &h.address, &payee, early), self.world.lamports(&vault))
+                        (
+                            self.world
+                                .ix_release(&key.pubkey(), &h.address, &payee, early),
+                            self.world.lamports(&vault),
+                        )
                     }
                 };
                 let payer_before = self.rent_payer_lamports(&h);
@@ -408,8 +566,13 @@ impl Harness {
                     match h.kind {
                         Kind::Sol => self.model.recipient_lamports[h.recipient] += h.amount,
                         Kind::Token { token22 } => {
-                            self.model.recipient_tokens[h.recipient][usize::from(token22)] += h.amount;
-                            prop_assert_eq!(self.rent_payer_lamports(&h), payer_before + rent_before, "I6 vault rent");
+                            self.model.recipient_tokens[h.recipient][usize::from(token22)] +=
+                                h.amount;
+                            prop_assert_eq!(
+                                self.rent_payer_lamports(&h),
+                                payer_before + rent_before,
+                                "I6 vault rent"
+                            );
                         }
                     }
                     self.model.released[h.recipient] += 1;
@@ -418,8 +581,15 @@ impl Harness {
                 Ok(())
             }
 
-            Op::Extend { hold, by, delta, tier } => {
-                let Some(index) = self.pick(hold, first) else { return Ok(()) };
+            Op::Extend {
+                hold,
+                by,
+                delta,
+                tier,
+            } => {
+                let Some(index) = self.pick(hold, first) else {
+                    return Ok(());
+                };
                 let h = self.model.holds[index].clone();
                 let new_release_at = h.release_at + delta;
                 // I3: oracle only, never shorter, never past max, tier never drops.
@@ -432,33 +602,55 @@ impl Harness {
                     && new_release_at <= h.created_at + i64::from(MAX_WINDOW);
                 let key = self.signer(by, h.sender);
                 let lamports_before = self.world.lamports(&h.address);
-                let ix = self.world.ix_extend_window(&key.pubkey(), &h.address, new_release_at, tier);
+                let ix =
+                    self.world
+                        .ix_extend_window(&key.pubkey(), &h.address, new_release_at, tier);
                 let ok = self.exec(ix, &key, expect, op)?;
-                prop_assert_eq!(self.world.lamports(&h.address), lamports_before, "I3 oracle moved lamports");
+                prop_assert_eq!(
+                    self.world.lamports(&h.address),
+                    lamports_before,
+                    "I3 oracle moved lamports"
+                );
                 if ok {
                     self.model.holds[index].release_at = new_release_at;
                     self.model.holds[index].tier = tier;
                 }
                 let on_chain = self.world.hold(&h.address).expect("hold exists");
-                prop_assert!(on_chain.release_at >= h.release_at, "I3 release_at went backwards");
+                prop_assert!(
+                    on_chain.release_at >= h.release_at,
+                    "I3 release_at went backwards"
+                );
                 prop_assert_eq!(on_chain.release_at, self.model.holds[index].release_at);
                 prop_assert_eq!(on_chain.tier, self.model.holds[index].tier);
                 Ok(())
             }
 
-            Op::Close { hold, rent_to_attacker } => {
-                let Some(index) = self.pick(hold, first) else { return Ok(()) };
+            Op::Close {
+                hold,
+                rent_to_attacker,
+            } => {
+                let Some(index) = self.pick(hold, first) else {
+                    return Ok(());
+                };
                 let h = self.model.holds[index].clone();
                 let expect = h.status != status::PENDING && !rent_to_attacker;
                 let key = self.attacker.insecure_clone();
-                let payer = if rent_to_attacker { self.attacker.pubkey() } else { self.rent_payer(&h) };
+                let payer = if rent_to_attacker {
+                    self.attacker.pubkey()
+                } else {
+                    self.rent_payer(&h)
+                };
                 let hold_rent = self.world.lamports(&h.address);
                 let payer_before = self.rent_payer_lamports(&h);
                 let ix = self.world.ix_close_hold(&key.pubkey(), &h.address, &payer);
                 let ok = self.exec(ix, &key, expect, op)?;
                 if ok {
                     prop_assert!(!self.world.exists(&h.address), "I6 hold still exists");
-                    prop_assert_eq!(self.rent_payer_lamports(&h), payer_before + hold_rent, "I6 hold rent");
+                    prop_assert_eq!(
+                        self.rent_payer_lamports(&h),
+                        payer_before + hold_rent,
+                        "I6 hold rent"
+                    );
                     self.model.holds[index].closed = true;
                 }
                 Ok(())
@@ -498,11 +690,19 @@ impl Harness {
         let open: Vec<usize> = (first..self.model.holds.len())
             .filter(|&i| !self.model.holds[i].closed)
             .collect();
-        if open.is_empty() { None } else { Some(open[selector % open.len()]) }
+        if open.is_empty() {
+            None
+        } else {
+            Some(open[selector % open.len()])
+        }
     }
 
     fn rent_payer(&self, hold: &ModelHold) -> Address {
-        if hold.from_box { self.world.relayer.pubkey() } else { self.senders[hold.sender].pubkey() }
+        if hold.from_box {
+            self.world.relayer.pubkey()
+        } else {
+            self.senders[hold.sender].pubkey()
+        }
     }
 
     fn rent_payer_lamports(&self, hold: &ModelHold) -> u64 {
@@ -513,7 +713,12 @@ impl Harness {
     /// nothing, and each mint's supply is fully accounted for.
     fn check_balances(&self, op: &Op) -> Result<(), TestCaseError> {
         let attacker = self.attacker.pubkey();
-        prop_assert_eq!(self.world.lamports(&attacker), self.attacker_lamports, "attacker gained lamports after {:?}", op);
+        prop_assert_eq!(
+            self.world.lamports(&attacker),
+            self.attacker_lamports,
+            "attacker gained lamports after {:?}",
+            op
+        );
 
         for (m, token22) in [false, true].into_iter().enumerate() {
             let mint = self.mint(token22);
@@ -523,12 +728,24 @@ impl Harness {
             let mut total = 0u128;
             for (i, sender) in self.senders.iter().enumerate() {
                 let balance = at(&sender.pubkey());
-                prop_assert_eq!(balance, self.model.sender_tokens[i][m], "sender {} balance after {:?}", i, op);
+                prop_assert_eq!(
+                    balance,
+                    self.model.sender_tokens[i][m],
+                    "sender {} balance after {:?}",
+                    i,
+                    op
+                );
                 total += u128::from(balance);
             }
             for (i, recipient) in self.recipients.iter().enumerate() {
                 let balance = at(recipient);
-                prop_assert_eq!(balance, self.model.recipient_tokens[i][m], "I2 recipient {} balance after {:?}", i, op);
+                prop_assert_eq!(
+                    balance,
+                    self.model.recipient_tokens[i][m],
+                    "I2 recipient {} balance after {:?}",
+                    i,
+                    op
+                );
                 total += u128::from(balance);
             }
             if !token22 {
@@ -536,7 +753,12 @@ impl Harness {
                 prop_assert_eq!(in_box, self.model.box_tokens, "box balance after {:?}", op);
                 total += u128::from(in_box);
             }
-            for hold in self.model.holds.iter().filter(|h| h.status == status::PENDING) {
+            for hold in self
+                .model
+                .holds
+                .iter()
+                .filter(|h| h.status == status::PENDING)
+            {
                 if hold.kind == (Kind::Token { token22 }) {
                     let in_vault = at(&hold.address);
                     prop_assert_eq!(in_vault, hold.amount, "vault balance after {:?}", op);
@@ -572,12 +794,22 @@ impl Harness {
             if h.status == status::PENDING {
                 let recipient = self.recipients[h.recipient];
                 let ix = match h.kind {
-                    Kind::Sol => self.world.ix_release_sol(&stranger.pubkey(), &h.address, &recipient, false),
-                    Kind::Token { .. } => self.world.ix_release(&stranger.pubkey(), &h.address, &recipient, false),
+                    Kind::Sol => {
+                        self.world
+                            .ix_release_sol(&stranger.pubkey(), &h.address, &recipient, false)
+                    }
+                    Kind::Token { .. } => {
+                        self.world
+                            .ix_release(&stranger.pubkey(), &h.address, &recipient, false)
+                    }
                 };
                 self.executed += 1;
                 let result = self.world.send(ix, &[&stranger]);
-                prop_assert!(result.is_ok(), "I6 release after the window failed: {:?}", result);
+                prop_assert!(
+                    result.is_ok(),
+                    "I6 release after the window failed: {:?}",
+                    result
+                );
                 match h.kind {
                     Kind::Sol => self.model.recipient_lamports[h.recipient] += h.amount,
                     Kind::Token { token22 } => {
@@ -590,15 +822,29 @@ impl Harness {
             let payer = self.rent_payer(&h);
             let hold_rent = self.world.lamports(&h.address);
             let payer_before = self.world.lamports(&payer);
-            let ix = self.world.ix_close_hold(&stranger.pubkey(), &h.address, &payer);
+            let ix = self
+                .world
+                .ix_close_hold(&stranger.pubkey(), &h.address, &payer);
             self.executed += 1;
             let result = self.world.send(ix, &[&stranger]);
             prop_assert!(result.is_ok(), "I6 close failed: {:?}", result);
-            prop_assert!(!self.world.exists(&h.address), "I6 hold account survived close");
-            prop_assert_eq!(self.world.lamports(&payer), payer_before + hold_rent, "I6 rent refund");
+            prop_assert!(
+                !self.world.exists(&h.address),
+                "I6 hold account survived close"
+            );
+            prop_assert_eq!(
+                self.world.lamports(&payer),
+                payer_before + hold_rent,
+                "I6 rent refund"
+            );
             if let Kind::Token { token22 } = h.kind {
                 let mint = self.mint(token22);
-                prop_assert!(!self.world.exists(&ata(&h.address, &mint.mint, &mint.program)), "I6 vault survived");
+                prop_assert!(
+                    !self
+                        .world
+                        .exists(&ata(&h.address, &mint.mint, &mint.program)),
+                    "I6 vault survived"
+                );
             }
             self.model.holds[index].closed = true;
         }
@@ -612,9 +858,21 @@ impl Harness {
                 prop_assert_eq!(self.model.received[i], 0);
                 continue;
             };
-            prop_assert_eq!(stats.holds_received, self.model.received[i], "holds_received");
-            prop_assert_eq!(stats.holds_reclaimed_against, self.model.reclaimed[i], "holds_reclaimed_against");
-            prop_assert_eq!(stats.holds_released_to, self.model.released[i], "holds_released_to");
+            prop_assert_eq!(
+                stats.holds_received,
+                self.model.received[i],
+                "holds_received"
+            );
+            prop_assert_eq!(
+                stats.holds_reclaimed_against,
+                self.model.reclaimed[i],
+                "holds_reclaimed_against"
+            );
+            prop_assert_eq!(
+                stats.holds_released_to,
+                self.model.released[i],
+                "holds_released_to"
+            );
         }
         Ok(())
     }

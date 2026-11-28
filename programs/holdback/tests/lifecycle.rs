@@ -29,10 +29,25 @@ fn scene(mint: fn(&World) -> MintRef) -> Scene {
     let mint = mint(&world);
     let sender_token = world.fund_tokens(&sender.pubkey(), mint, 100 * AMOUNT);
     let created_at = world.now();
-    let ix = world.ix_create_hold(&sender.pubkey(), &recipient, mint, 1, AMOUNT, WINDOW, tier::UNKNOWN);
+    let ix = world.ix_create_hold(
+        &sender.pubkey(),
+        &recipient,
+        mint,
+        1,
+        AMOUNT,
+        WINDOW,
+        tier::UNKNOWN,
+    );
     world.send(ix, &[&sender]).expect("create_hold");
     let hold = hold_pda(&sender.pubkey(), 1);
-    Scene { world, sender, recipient, hold, sender_token, created_at }
+    Scene {
+        world,
+        sender,
+        recipient,
+        hold,
+        sender_token,
+        created_at,
+    }
 }
 
 fn usdc(world: &World) -> MintRef {
@@ -62,7 +77,11 @@ fn config_can_only_be_initialized_by_the_upgrade_authority() {
     assert_eq!(addr(&config.relayer), world.relayer.pubkey());
     assert_eq!(addr(&config.risk_oracle), world.oracle.pubkey());
     assert_eq!(
-        (config.min_window_secs, config.default_window_secs, config.max_window_secs),
+        (
+            config.min_window_secs,
+            config.default_window_secs,
+            config.max_window_secs
+        ),
         (0, 1_800, 259_200)
     );
     assert!(!config.paused);
@@ -86,7 +105,10 @@ fn config_rejects_inconsistent_windows() {
 fn only_the_admin_updates_config() {
     let mut world = World::new();
     let attacker = world.funded_keypair();
-    let args = UpdateConfigArgs { paused: Some(true), ..Default::default() };
+    let args = UpdateConfigArgs {
+        paused: Some(true),
+        ..Default::default()
+    };
 
     let ix = world.ix_update_config(&attacker.pubkey(), args.clone());
     assert_eq!(world.send(ix, &[&attacker]), Err(code(E::Unauthorized)));
@@ -96,7 +118,10 @@ fn only_the_admin_updates_config() {
     world.send(ix, &[&admin]).unwrap();
     assert!(world.config().paused);
 
-    let bad = UpdateConfigArgs { max_window_secs: Some(10), ..Default::default() };
+    let bad = UpdateConfigArgs {
+        max_window_secs: Some(10),
+        ..Default::default()
+    };
     let ix = world.ix_update_config(&admin.pubkey(), bad);
     assert_eq!(world.send(ix, &[&admin]), Err(code(E::InvalidWindowConfig)));
 }
@@ -135,11 +160,26 @@ fn create_hold_validates_amount_window_tier_and_parties() {
     let me = sender.pubkey();
 
     let cases = [
-        (world.ix_create_hold(&me, &recipient, mint, 1, 0, WINDOW, 1), E::ZeroAmount),
-        (world.ix_create_hold(&me, &recipient, mint, 1, 1, 0, 1), E::WindowTooShort),
-        (world.ix_create_hold(&me, &recipient, mint, 1, 1, MAX_WINDOW + 1, 1), E::WindowTooLong),
-        (world.ix_create_hold(&me, &recipient, mint, 1, 1, WINDOW, 5), E::InvalidTier),
-        (world.ix_create_hold(&me, &me, mint, 1, 1, WINDOW, 1), E::SelfTransfer),
+        (
+            world.ix_create_hold(&me, &recipient, mint, 1, 0, WINDOW, 1),
+            E::ZeroAmount,
+        ),
+        (
+            world.ix_create_hold(&me, &recipient, mint, 1, 1, 0, 1),
+            E::WindowTooShort,
+        ),
+        (
+            world.ix_create_hold(&me, &recipient, mint, 1, 1, MAX_WINDOW + 1, 1),
+            E::WindowTooLong,
+        ),
+        (
+            world.ix_create_hold(&me, &recipient, mint, 1, 1, WINDOW, 5),
+            E::InvalidTier,
+        ),
+        (
+            world.ix_create_hold(&me, &me, mint, 1, 1, WINDOW, 1),
+            E::SelfTransfer,
+        ),
     ];
     for (ix, expected) in cases {
         assert_eq!(world.send(ix, &[&sender]), Err(code(expected)));
@@ -160,7 +200,10 @@ fn create_hold_validates_amount_window_tier_and_parties() {
 fn create_hold_respects_a_raised_minimum_window() {
     let mut world = World::new();
     let admin = world.admin.insecure_clone();
-    let args = UpdateConfigArgs { min_window_secs: Some(600), ..Default::default() };
+    let args = UpdateConfigArgs {
+        min_window_secs: Some(600),
+        ..Default::default()
+    };
     let ix = world.ix_update_config(&admin.pubkey(), args);
     world.send(ix, &[&admin]).unwrap();
 
@@ -178,17 +221,26 @@ fn create_hold_respects_a_raised_minimum_window() {
 fn pause_blocks_new_holds_but_never_refunds() {
     let mut s = scene(usdc);
     let admin = s.world.admin.insecure_clone();
-    let args = UpdateConfigArgs { paused: Some(true), ..Default::default() };
+    let args = UpdateConfigArgs {
+        paused: Some(true),
+        ..Default::default()
+    };
     let ix = s.world.ix_update_config(&admin.pubkey(), args);
     s.world.send(ix, &[&admin]).unwrap();
 
     let mint = s.world.usdc;
-    let ix = s.world.ix_create_hold(&s.sender.pubkey(), &s.recipient, mint, 2, 1, WINDOW, 1);
+    let ix = s
+        .world
+        .ix_create_hold(&s.sender.pubkey(), &s.recipient, mint, 2, 1, WINDOW, 1);
     assert_eq!(s.world.send(ix, &[&s.sender]), Err(code(E::Paused)));
-    let ix = s.world.ix_create_hold_sol(&s.sender.pubkey(), &s.recipient, 3, LAMPORTS, WINDOW, 1);
+    let ix = s
+        .world
+        .ix_create_hold_sol(&s.sender.pubkey(), &s.recipient, 3, LAMPORTS, WINDOW, 1);
     assert_eq!(s.world.send(ix, &[&s.sender]), Err(code(E::Paused)));
 
-    let ix = s.world.ix_reclaim(&s.sender.pubkey(), &s.hold, &s.sender_token);
+    let ix = s
+        .world
+        .ix_reclaim(&s.sender.pubkey(), &s.hold, &s.sender_token);
     s.world.send(ix, &[&s.sender]).unwrap();
     assert_eq!(s.world.tokens(&s.sender_token), 100 * AMOUNT);
 }
@@ -201,7 +253,9 @@ fn sender_reclaims_until_the_last_second_of_the_window() {
     let release_at = s.created_at + i64::from(WINDOW);
     s.world.warp_to(release_at - 1);
 
-    let ix = s.world.ix_reclaim(&s.sender.pubkey(), &s.hold, &s.sender_token);
+    let ix = s
+        .world
+        .ix_reclaim(&s.sender.pubkey(), &s.hold, &s.sender_token);
     s.world.send(ix, &[&s.sender]).unwrap();
 
     assert_eq!(s.world.tokens(&s.sender_token), 100 * AMOUNT);
@@ -209,14 +263,23 @@ fn sender_reclaims_until_the_last_second_of_the_window() {
     assert!(!s.world.exists(&vault), "vault is closed");
     assert_eq!(s.world.hold(&s.hold).unwrap().status, status::RECLAIMED);
     let stats = s.world.stats(&s.recipient).unwrap();
-    assert_eq!((stats.holds_received, stats.holds_reclaimed_against, stats.holds_released_to), (1, 1, 0));
+    assert_eq!(
+        (
+            stats.holds_received,
+            stats.holds_reclaimed_against,
+            stats.holds_released_to
+        ),
+        (1, 1, 0)
+    );
 }
 
 #[test]
 fn reclaim_fails_from_the_release_second_onwards() {
     let mut s = scene(usdc);
     s.world.warp_to(s.created_at + i64::from(WINDOW));
-    let ix = s.world.ix_reclaim(&s.sender.pubkey(), &s.hold, &s.sender_token);
+    let ix = s
+        .world
+        .ix_reclaim(&s.sender.pubkey(), &s.hold, &s.sender_token);
     assert_eq!(s.world.send(ix, &[&s.sender]), Err(code(E::WindowOver)));
 }
 
@@ -231,12 +294,16 @@ fn nobody_else_can_reclaim_and_refunds_only_reach_the_sender() {
     let oracle = s.world.oracle.insecure_clone();
     let relayer = s.world.relayer.insecure_clone();
     for signer in [&attacker, &oracle, &relayer] {
-        let ix = s.world.ix_reclaim(&signer.pubkey(), &s.hold, &s.sender_token);
+        let ix = s
+            .world
+            .ix_reclaim(&signer.pubkey(), &s.hold, &s.sender_token);
         assert_eq!(s.world.send(ix, &[signer]), Err(code(E::Unauthorized)));
     }
 
     // Even the sender cannot redirect the refund to someone else's account.
-    let ix = s.world.ix_reclaim(&s.sender.pubkey(), &s.hold, &attacker_token);
+    let ix = s
+        .world
+        .ix_reclaim(&s.sender.pubkey(), &s.hold, &attacker_token);
     assert!(s.world.send(ix, &[&s.sender]).is_err());
     assert_eq!(s.world.tokens(&attacker_token), 0);
 }
@@ -244,13 +311,17 @@ fn nobody_else_can_reclaim_and_refunds_only_reach_the_sender() {
 #[test]
 fn a_settled_hold_cannot_be_settled_again() {
     let mut s = scene(usdc);
-    let ix = s.world.ix_reclaim(&s.sender.pubkey(), &s.hold, &s.sender_token);
+    let ix = s
+        .world
+        .ix_reclaim(&s.sender.pubkey(), &s.hold, &s.sender_token);
     s.world.send(ix.clone(), &[&s.sender]).unwrap();
     // The vault is gone, so every further settlement attempt fails.
     assert!(s.world.send(ix, &[&s.sender]).is_err());
     s.world.warp(i64::from(WINDOW) + 1);
     let cranker = s.world.funded_keypair();
-    let ix = s.world.ix_release(&cranker.pubkey(), &s.hold, &s.recipient, false);
+    let ix = s
+        .world
+        .ix_release(&cranker.pubkey(), &s.hold, &s.recipient, false);
     assert!(s.world.send(ix, &[&cranker]).is_err());
 }
 
@@ -263,18 +334,25 @@ fn anyone_releases_from_the_release_second_and_not_before() {
     let release_at = s.created_at + i64::from(WINDOW);
 
     s.world.warp_to(release_at - 1);
-    let ix = s.world.ix_release(&cranker.pubkey(), &s.hold, &s.recipient, false);
+    let ix = s
+        .world
+        .ix_release(&cranker.pubkey(), &s.hold, &s.recipient, false);
     assert_eq!(s.world.send(ix, &[&cranker]), Err(code(E::WindowNotOver)));
 
     s.world.warp_to(release_at);
-    let ix = s.world.ix_release(&cranker.pubkey(), &s.hold, &s.recipient, false);
+    let ix = s
+        .world
+        .ix_release(&cranker.pubkey(), &s.hold, &s.recipient, false);
     s.world.send(ix, &[&cranker]).unwrap();
 
     let recipient_token = ata(&s.recipient, &s.world.usdc.mint, &s.world.usdc.program);
     assert_eq!(s.world.tokens(&recipient_token), AMOUNT);
     assert_eq!(s.world.hold(&s.hold).unwrap().status, status::RELEASED);
     let stats = s.world.stats(&s.recipient).unwrap();
-    assert_eq!((stats.holds_reclaimed_against, stats.holds_released_to), (0, 1));
+    assert_eq!(
+        (stats.holds_reclaimed_against, stats.holds_released_to),
+        (0, 1)
+    );
 }
 
 #[test]
@@ -282,7 +360,9 @@ fn release_cannot_pay_anyone_but_the_recipient() {
     let mut s = scene(usdc);
     let attacker = s.world.funded_keypair();
     s.world.warp(i64::from(WINDOW));
-    let ix = s.world.ix_release(&attacker.pubkey(), &s.hold, &attacker.pubkey(), false);
+    let ix = s
+        .world
+        .ix_release(&attacker.pubkey(), &s.hold, &attacker.pubkey(), false);
     assert_eq!(s.world.send(ix, &[&attacker]), Err(code(E::WrongParty)));
 }
 
@@ -292,16 +372,22 @@ fn only_the_sender_releases_early() {
     let attacker = s.world.funded_keypair();
     let relayer = s.world.relayer.insecure_clone();
     for signer in [&attacker, &relayer] {
-        let ix = s.world.ix_release(&signer.pubkey(), &s.hold, &s.recipient, true);
+        let ix = s
+            .world
+            .ix_release(&signer.pubkey(), &s.hold, &s.recipient, true);
         assert_eq!(s.world.send(ix, &[signer]), Err(code(E::Unauthorized)));
     }
-    let ix = s.world.ix_release(&s.sender.pubkey(), &s.hold, &s.recipient, true);
+    let ix = s
+        .world
+        .ix_release(&s.sender.pubkey(), &s.hold, &s.recipient, true);
     s.world.send(ix, &[&s.sender]).unwrap();
     let recipient_token = ata(&s.recipient, &s.world.usdc.mint, &s.world.usdc.program);
     assert_eq!(s.world.tokens(&recipient_token), AMOUNT);
 
     // Early release is final: the sender cannot undo afterwards.
-    let ix = s.world.ix_reclaim(&s.sender.pubkey(), &s.hold, &s.sender_token);
+    let ix = s
+        .world
+        .ix_reclaim(&s.sender.pubkey(), &s.hold, &s.sender_token);
     assert!(s.world.send(ix, &[&s.sender]).is_err());
 }
 
@@ -313,32 +399,52 @@ fn oracle_extends_but_never_shortens_and_never_beyond_max() {
     let oracle = s.world.oracle.insecure_clone();
     let release_at = s.created_at + i64::from(WINDOW);
 
-    let ix = s.world.ix_extend_window(&oracle.pubkey(), &s.hold, release_at - 1, tier::FLAGGED);
-    assert_eq!(s.world.send(ix, &[&oracle]), Err(code(E::WindowCannotShrink)));
+    let ix = s
+        .world
+        .ix_extend_window(&oracle.pubkey(), &s.hold, release_at - 1, tier::FLAGGED);
+    assert_eq!(
+        s.world.send(ix, &[&oracle]),
+        Err(code(E::WindowCannotShrink))
+    );
 
     let too_late = s.created_at + i64::from(MAX_WINDOW) + 1;
-    let ix = s.world.ix_extend_window(&oracle.pubkey(), &s.hold, too_late, tier::FLAGGED);
+    let ix = s
+        .world
+        .ix_extend_window(&oracle.pubkey(), &s.hold, too_late, tier::FLAGGED);
     assert_eq!(s.world.send(ix, &[&oracle]), Err(code(E::WindowTooLong)));
 
-    let ix = s.world.ix_extend_window(&oracle.pubkey(), &s.hold, release_at, tier::TRUSTED);
+    let ix = s
+        .world
+        .ix_extend_window(&oracle.pubkey(), &s.hold, release_at, tier::TRUSTED);
     assert_eq!(s.world.send(ix, &[&oracle]), Err(code(E::TierCannotDrop)));
 
-    let ix = s.world.ix_extend_window(&oracle.pubkey(), &s.hold, release_at, 9);
+    let ix = s
+        .world
+        .ix_extend_window(&oracle.pubkey(), &s.hold, release_at, 9);
     assert_eq!(s.world.send(ix, &[&oracle]), Err(code(E::InvalidTier)));
 
     let new_release = s.created_at + 86_400;
-    let ix = s.world.ix_extend_window(&oracle.pubkey(), &s.hold, new_release, tier::FLAGGED);
+    let ix = s
+        .world
+        .ix_extend_window(&oracle.pubkey(), &s.hold, new_release, tier::FLAGGED);
     s.world.send(ix, &[&oracle]).unwrap();
     let hold = s.world.hold(&s.hold).unwrap();
-    assert_eq!((hold.release_at, hold.tier, hold.evidence_hash), (new_release, tier::FLAGGED, [8u8; 32]));
+    assert_eq!(
+        (hold.release_at, hold.tier, hold.evidence_hash),
+        (new_release, tier::FLAGGED, [8u8; 32])
+    );
 
     // The original window has passed, but the extension keeps the funds
     // reclaimable and unreleasable.
     s.world.warp_to(release_at + 10);
     let cranker = s.world.funded_keypair();
-    let ix = s.world.ix_release(&cranker.pubkey(), &s.hold, &s.recipient, false);
+    let ix = s
+        .world
+        .ix_release(&cranker.pubkey(), &s.hold, &s.recipient, false);
     assert_eq!(s.world.send(ix, &[&cranker]), Err(code(E::WindowNotOver)));
-    let ix = s.world.ix_reclaim(&s.sender.pubkey(), &s.hold, &s.sender_token);
+    let ix = s
+        .world
+        .ix_reclaim(&s.sender.pubkey(), &s.hold, &s.sender_token);
     s.world.send(ix, &[&s.sender]).unwrap();
 }
 
@@ -349,14 +455,18 @@ fn only_the_oracle_extends_and_only_while_the_window_runs() {
     let attacker = s.world.funded_keypair();
     let relayer = s.world.relayer.insecure_clone();
     for signer in [&attacker, &relayer, &s.sender.insecure_clone()] {
-        let ix = s.world.ix_extend_window(&signer.pubkey(), &s.hold, release_at + 60, tier::FLAGGED);
+        let ix =
+            s.world
+                .ix_extend_window(&signer.pubkey(), &s.hold, release_at + 60, tier::FLAGGED);
         assert_eq!(s.world.send(ix, &[signer]), Err(code(E::Unauthorized)));
     }
 
     // Once the window is over the recipient is owed the money.
     s.world.warp_to(release_at);
     let oracle = s.world.oracle.insecure_clone();
-    let ix = s.world.ix_extend_window(&oracle.pubkey(), &s.hold, release_at + 60, tier::FLAGGED);
+    let ix = s
+        .world
+        .ix_extend_window(&oracle.pubkey(), &s.hold, release_at + 60, tier::FLAGGED);
     assert_eq!(s.world.send(ix, &[&oracle]), Err(code(E::WindowOver)));
 }
 
@@ -365,10 +475,23 @@ fn extending_moves_no_funds() {
     let mut s = scene(usdc);
     let oracle = s.world.oracle.insecure_clone();
     let vault = ata(&s.hold, &s.world.usdc.mint, &s.world.usdc.program);
-    let before = (s.world.tokens(&vault), s.world.tokens(&s.sender_token), s.world.lamports(&s.hold));
-    let ix = s.world.ix_extend_window(&oracle.pubkey(), &s.hold, s.created_at + 7_200, tier::SUSPICIOUS);
+    let before = (
+        s.world.tokens(&vault),
+        s.world.tokens(&s.sender_token),
+        s.world.lamports(&s.hold),
+    );
+    let ix = s.world.ix_extend_window(
+        &oracle.pubkey(),
+        &s.hold,
+        s.created_at + 7_200,
+        tier::SUSPICIOUS,
+    );
     s.world.send(ix, &[&oracle]).unwrap();
-    let after = (s.world.tokens(&vault), s.world.tokens(&s.sender_token), s.world.lamports(&s.hold));
+    let after = (
+        s.world.tokens(&vault),
+        s.world.tokens(&s.sender_token),
+        s.world.lamports(&s.hold),
+    );
     assert_eq!(before, after);
 }
 
@@ -422,7 +545,10 @@ fn instant_transfer_needs_the_trust_account() {
     let recipient_token = ata(&recipient, &mint.mint, &mint.program);
 
     let ix = world.ix_instant_transfer(&sender.pubkey(), &recipient, mint, 10);
-    assert!(world.send(ix, &[&sender]).is_err(), "no trust account, no instant transfer");
+    assert!(
+        world.send(ix, &[&sender]).is_err(),
+        "no trust account, no instant transfer"
+    );
 
     let ix = world.ix_set_trust(&sender.pubkey(), &recipient);
     world.send(ix, &[&sender]).unwrap();
@@ -454,7 +580,10 @@ fn instant_transfer_needs_the_trust_account() {
 fn instant_transfer_is_off_when_the_minimum_window_is_positive() {
     let mut world = World::new();
     let admin = world.admin.insecure_clone();
-    let args = UpdateConfigArgs { min_window_secs: Some(60), ..Default::default() };
+    let args = UpdateConfigArgs {
+        min_window_secs: Some(60),
+        ..Default::default()
+    };
     let ix = world.ix_update_config(&admin.pubkey(), args);
     world.send(ix, &[&admin]).unwrap();
 
@@ -488,7 +617,10 @@ fn sol_hold_reclaim_and_release() {
     let me = sender.pubkey();
 
     let ix = world.ix_create_hold_sol(&me, &recipient, 1, 1_000, WINDOW, 1);
-    assert_eq!(world.send(ix, &[&sender]), Err(code(E::AmountBelowRentFloor)));
+    assert_eq!(
+        world.send(ix, &[&sender]),
+        Err(code(E::AmountBelowRentFloor))
+    );
 
     let ix = world.ix_create_hold_sol(&me, &recipient, 1, 3 * LAMPORTS, WINDOW, 1);
     world.send(ix, &[&sender]).unwrap();
@@ -557,18 +689,28 @@ fn token_2022_mints_follow_the_same_lifecycle() {
     let vault = ata(&s.hold, &mint.mint, &mint.program);
     assert_eq!(s.world.tokens(&vault), AMOUNT);
 
-    let ix = s.world.ix_reclaim(&s.sender.pubkey(), &s.hold, &s.sender_token);
+    let ix = s
+        .world
+        .ix_reclaim(&s.sender.pubkey(), &s.hold, &s.sender_token);
     s.world.send(ix, &[&s.sender]).unwrap();
     assert_eq!(s.world.tokens(&s.sender_token), 100 * AMOUNT);
 
-    let ix = s.world.ix_create_hold(&s.sender.pubkey(), &s.recipient, mint, 2, AMOUNT, WINDOW, 1);
+    let ix = s
+        .world
+        .ix_create_hold(&s.sender.pubkey(), &s.recipient, mint, 2, AMOUNT, WINDOW, 1);
     s.world.send(ix, &[&s.sender]).unwrap();
     s.world.warp(i64::from(WINDOW));
     let cranker = s.world.funded_keypair();
     let hold = hold_pda(&s.sender.pubkey(), 2);
-    let ix = s.world.ix_release(&cranker.pubkey(), &hold, &s.recipient, false);
+    let ix = s
+        .world
+        .ix_release(&cranker.pubkey(), &hold, &s.recipient, false);
     s.world.send(ix, &[&cranker]).unwrap();
-    assert_eq!(s.world.tokens(&ata(&s.recipient, &mint.mint, &mint.program)), AMOUNT);
+    assert_eq!(
+        s.world
+            .tokens(&ata(&s.recipient, &mint.mint, &mint.program)),
+        AMOUNT
+    );
 }
 
 #[test]
@@ -577,7 +719,9 @@ fn a_hold_cannot_be_settled_with_a_different_mint() {
     let other = s.world.create_mint(TOKEN_PROGRAM);
     let other_token = s.world.fund_tokens(&s.sender.pubkey(), other, 0);
 
-    let mut ix = s.world.ix_reclaim(&s.sender.pubkey(), &s.hold, &other_token);
+    let mut ix = s
+        .world
+        .ix_reclaim(&s.sender.pubkey(), &s.hold, &other_token);
     // Swap the mint account (index 3) for the other mint.
     ix.accounts[3].pubkey = other.mint;
     assert_eq!(s.world.send(ix, &[&s.sender]), Err(code(E::MintMismatch)));
@@ -604,7 +748,13 @@ fn box_scene() -> BoxScene {
     world.send(ix, &[&relayer]).unwrap();
     // The owner "sends a payment" to the box, as an embedded wallet would.
     let box_token = world.fund_tokens(&box_pda(&owner.pubkey()), mint, 10 * AMOUNT);
-    BoxScene { world, owner, owner_token, box_token, recipient: solana_address::Address::new_unique() }
+    BoxScene {
+        world,
+        owner,
+        owner_token,
+        box_token,
+        recipient: solana_address::Address::new_unique(),
+    }
 }
 
 #[test]
@@ -615,14 +765,41 @@ fn relayer_opens_a_hold_whose_sender_is_the_box_owner() {
     let owner = b.owner.pubkey();
 
     let attacker = b.world.funded_keypair();
-    let ix = b.world.ix_open_hold_from_deposit(&attacker.pubkey(), &owner, &b.recipient, mint, 1, AMOUNT, DEFAULT_WINDOW, 1);
+    let ix = b.world.ix_open_hold_from_deposit(
+        &attacker.pubkey(),
+        &owner,
+        &b.recipient,
+        mint,
+        1,
+        AMOUNT,
+        DEFAULT_WINDOW,
+        1,
+    );
     assert_eq!(b.world.send(ix, &[&attacker]), Err(code(E::Unauthorized)));
 
     // The relayer cannot go below the default window.
-    let ix = b.world.ix_open_hold_from_deposit(&relayer.pubkey(), &owner, &b.recipient, mint, 1, AMOUNT, DEFAULT_WINDOW - 1, 1);
+    let ix = b.world.ix_open_hold_from_deposit(
+        &relayer.pubkey(),
+        &owner,
+        &b.recipient,
+        mint,
+        1,
+        AMOUNT,
+        DEFAULT_WINDOW - 1,
+        1,
+    );
     assert_eq!(b.world.send(ix, &[&relayer]), Err(code(E::WindowTooShort)));
 
-    let ix = b.world.ix_open_hold_from_deposit(&relayer.pubkey(), &owner, &b.recipient, mint, 1, AMOUNT, DEFAULT_WINDOW, 2);
+    let ix = b.world.ix_open_hold_from_deposit(
+        &relayer.pubkey(),
+        &owner,
+        &b.recipient,
+        mint,
+        1,
+        AMOUNT,
+        DEFAULT_WINDOW,
+        2,
+    );
     b.world.send(ix, &[&relayer]).unwrap();
 
     let hold_address = hold_pda(&owner, 1);
@@ -633,14 +810,20 @@ fn relayer_opens_a_hold_whose_sender_is_the_box_owner() {
     assert_eq!(b.world.tokens(&b.box_token), 9 * AMOUNT);
 
     // The relayer cannot release early and cannot refund to itself.
-    let ix = b.world.ix_release(&relayer.pubkey(), &hold_address, &b.recipient, true);
+    let ix = b
+        .world
+        .ix_release(&relayer.pubkey(), &hold_address, &b.recipient, true);
     assert_eq!(b.world.send(ix, &[&relayer]), Err(code(E::Unauthorized)));
     let relayer_token = b.world.fund_tokens(&relayer.pubkey(), mint, 0);
-    let ix = b.world.ix_reclaim(&relayer.pubkey(), &hold_address, &relayer_token);
+    let ix = b
+        .world
+        .ix_reclaim(&relayer.pubkey(), &hold_address, &relayer_token);
     assert!(b.world.send(ix, &[&relayer]).is_err());
 
     // The relayer's undo sends the money to the owner's own wallet.
-    let ix = b.world.ix_reclaim(&relayer.pubkey(), &hold_address, &b.owner_token);
+    let ix = b
+        .world
+        .ix_reclaim(&relayer.pubkey(), &hold_address, &b.owner_token);
     b.world.send(ix, &[&relayer]).unwrap();
     assert_eq!(b.world.tokens(&b.owner_token), AMOUNT);
 }
@@ -651,9 +834,20 @@ fn the_owner_can_also_undo_a_box_hold_directly() {
     let mint = b.world.usdc;
     let relayer = b.world.relayer.insecure_clone();
     let owner = b.owner.pubkey();
-    let ix = b.world.ix_open_hold_from_deposit(&relayer.pubkey(), &owner, &b.recipient, mint, 1, AMOUNT, DEFAULT_WINDOW, 1);
+    let ix = b.world.ix_open_hold_from_deposit(
+        &relayer.pubkey(),
+        &owner,
+        &b.recipient,
+        mint,
+        1,
+        AMOUNT,
+        DEFAULT_WINDOW,
+        1,
+    );
     b.world.send(ix, &[&relayer]).unwrap();
-    let ix = b.world.ix_reclaim(&owner, &hold_pda(&owner, 1), &b.owner_token);
+    let ix = b
+        .world
+        .ix_reclaim(&owner, &hold_pda(&owner, 1), &b.owner_token);
     b.world.send(ix, &[&b.owner]).unwrap();
     assert_eq!(b.world.tokens(&b.owner_token), AMOUNT);
 }
@@ -668,20 +862,36 @@ fn withdrawals_from_a_box_only_reach_the_owner() {
     let attacker_token = b.world.fund_tokens(&attacker.pubkey(), mint, 0);
     let relayer_token = b.world.fund_tokens(&relayer.pubkey(), mint, 0);
 
-    let ix = b.world.ix_withdraw_deposit(&attacker.pubkey(), &owner, mint, &attacker_token, AMOUNT);
+    let ix = b
+        .world
+        .ix_withdraw_deposit(&attacker.pubkey(), &owner, mint, &attacker_token, AMOUNT);
     assert_eq!(b.world.send(ix, &[&attacker]), Err(code(E::Unauthorized)));
-    let ix = b.world.ix_withdraw_deposit(&relayer.pubkey(), &owner, mint, &relayer_token, AMOUNT);
-    assert!(b.world.send(ix, &[&relayer]).is_err(), "relayer cannot pay itself");
-    let ix = b.world.ix_withdraw_deposit(&relayer.pubkey(), &owner, mint, &b.owner_token, 0);
+    let ix = b
+        .world
+        .ix_withdraw_deposit(&relayer.pubkey(), &owner, mint, &relayer_token, AMOUNT);
+    assert!(
+        b.world.send(ix, &[&relayer]).is_err(),
+        "relayer cannot pay itself"
+    );
+    let ix = b
+        .world
+        .ix_withdraw_deposit(&relayer.pubkey(), &owner, mint, &b.owner_token, 0);
     assert_eq!(b.world.send(ix, &[&relayer]), Err(code(E::ZeroAmount)));
 
-    let ix = b.world.ix_withdraw_deposit(&relayer.pubkey(), &owner, mint, &b.owner_token, AMOUNT);
+    let ix = b
+        .world
+        .ix_withdraw_deposit(&relayer.pubkey(), &owner, mint, &b.owner_token, AMOUNT);
     b.world.send(ix, &[&relayer]).unwrap();
-    let ix = b.world.ix_withdraw_deposit(&owner, &owner, mint, &b.owner_token, AMOUNT);
+    let ix = b
+        .world
+        .ix_withdraw_deposit(&owner, &owner, mint, &b.owner_token, AMOUNT);
     b.world.send(ix, &[&b.owner]).unwrap();
     assert_eq!(b.world.tokens(&b.owner_token), 2 * AMOUNT);
     assert_eq!(b.world.tokens(&b.box_token), 8 * AMOUNT);
-    assert_eq!(b.world.tokens(&attacker_token) + b.world.tokens(&relayer_token), 0);
+    assert_eq!(
+        b.world.tokens(&attacker_token) + b.world.tokens(&relayer_token),
+        0
+    );
 }
 
 #[test]
@@ -699,10 +909,27 @@ fn a_rotated_relayer_key_loses_all_powers() {
     let ix = b.world.ix_update_config(&admin.pubkey(), args);
     b.world.send(ix, &[&admin]).unwrap();
 
-    let ix = b.world.ix_open_hold_from_deposit(&old_relayer.pubkey(), &owner, &b.recipient, mint, 1, AMOUNT, DEFAULT_WINDOW, 1);
-    assert_eq!(b.world.send(ix, &[&old_relayer]), Err(code(E::Unauthorized)));
-    let ix = b.world.ix_withdraw_deposit(&old_relayer.pubkey(), &owner, mint, &b.owner_token, 1);
-    assert_eq!(b.world.send(ix, &[&old_relayer]), Err(code(E::Unauthorized)));
+    let ix = b.world.ix_open_hold_from_deposit(
+        &old_relayer.pubkey(),
+        &owner,
+        &b.recipient,
+        mint,
+        1,
+        AMOUNT,
+        DEFAULT_WINDOW,
+        1,
+    );
+    assert_eq!(
+        b.world.send(ix, &[&old_relayer]),
+        Err(code(E::Unauthorized))
+    );
+    let ix = b
+        .world
+        .ix_withdraw_deposit(&old_relayer.pubkey(), &owner, mint, &b.owner_token, 1);
+    assert_eq!(
+        b.world.send(ix, &[&old_relayer]),
+        Err(code(E::Unauthorized))
+    );
 }
 
 // ---- flags ----------------------------------------------------------------------
@@ -722,7 +949,10 @@ fn one_flag_per_reporter_per_subject() {
     let ix = world.ix_flag_subject(&alice.pubkey(), &subject, 1);
     world.send(ix, &[&alice]).unwrap();
     let ix = world.ix_flag_subject(&alice.pubkey(), &subject, 2);
-    assert!(world.send(ix, &[&alice]).is_err(), "second flag by the same reporter");
+    assert!(
+        world.send(ix, &[&alice]).is_err(),
+        "second flag by the same reporter"
+    );
     let ix = world.ix_flag_subject(&bob.pubkey(), &subject, 6);
     world.send(ix, &[&bob]).unwrap();
 

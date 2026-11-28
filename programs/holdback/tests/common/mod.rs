@@ -134,11 +134,15 @@ impl World {
 
     pub fn without_config() -> Self {
         let mut svm = LiteSVM::new()
+            .with_precompiles()
             .with_sigverify(false)
             .with_blockhash_check(false)
             .with_transaction_history(0);
 
-        let so = concat!(env!("CARGO_MANIFEST_DIR"), "/../../target/deploy/holdback.so");
+        let so = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../target/deploy/holdback.so"
+        );
         let bytes = std::fs::read(so).expect("run `anchor build` before the Rust tests");
         svm.add_program(program_id(), &bytes).expect("load program");
 
@@ -164,8 +168,14 @@ impl World {
             admin,
             oracle,
             relayer,
-            usdc: MintRef { mint: Address::default(), program: TOKEN_PROGRAM },
-            token22: MintRef { mint: Address::default(), program: TOKEN_2022_PROGRAM },
+            usdc: MintRef {
+                mint: Address::default(),
+                program: TOKEN_PROGRAM,
+            },
+            token22: MintRef {
+                mint: Address::default(),
+                program: TOKEN_2022_PROGRAM,
+            },
         };
         world.usdc = world.create_mint(TOKEN_PROGRAM);
         world.token22 = world.create_mint(TOKEN_2022_PROGRAM);
@@ -193,7 +203,10 @@ impl World {
         data[44] = DECIMALS;
         data[45] = 1;
         self.set_raw(mint, token_program, data);
-        MintRef { mint, program: token_program }
+        MintRef {
+            mint,
+            program: token_program,
+        }
     }
 
     /// Creates (or overwrites) `owner`'s associated token account with
@@ -214,7 +227,13 @@ impl World {
         self.svm
             .set_account(
                 address,
-                Account { lamports, data, owner, executable: false, rent_epoch: 0 },
+                Account {
+                    lamports,
+                    data,
+                    owner,
+                    executable: false,
+                    rent_epoch: 0,
+                },
             )
             .unwrap();
     }
@@ -270,16 +289,27 @@ impl World {
     // ---- sending --------------------------------------------------------------
 
     pub fn send(&mut self, ix: Instruction, signers: &[&Keypair]) -> Result<(), Failure> {
+        self.send_all(&[ix], signers)
+    }
+
+    /// Sends several instructions in one transaction.
+    pub fn send_all(&mut self, ixs: &[Instruction], signers: &[&Keypair]) -> Result<(), Failure> {
         let mut all: Vec<&Keypair> = vec![&self.fee_payer];
         all.extend_from_slice(signers);
-        let message = Message::new(&[ix], Some(&self.fee_payer.pubkey()));
+        let message = Message::new(ixs, Some(&self.fee_payer.pubkey()));
         let tx = Transaction::new(&all, message, self.svm.latest_blockhash());
         self.svm.send_transaction(tx).map(|_| ()).map_err(reduce)
     }
 
     // ---- instruction builders ----------------------------------------------------
 
-    pub fn ix_initialize_config(&self, admin: &Address, min: u32, default: u32, max: u32) -> Instruction {
+    pub fn ix_initialize_config(
+        &self,
+        admin: &Address,
+        min: u32,
+        default: u32,
+        max: u32,
+    ) -> Instruction {
         let program_data = Address::find_program_address(&[program_id().as_ref()], &LOADER_V3).0;
         build(
             holdback::accounts::InitializeConfig {
@@ -299,9 +329,16 @@ impl World {
         )
     }
 
-    pub fn ix_update_config(&self, admin: &Address, args: holdback::instructions::UpdateConfigArgs) -> Instruction {
+    pub fn ix_update_config(
+        &self,
+        admin: &Address,
+        args: holdback::instructions::UpdateConfigArgs,
+    ) -> Instruction {
         build(
-            holdback::accounts::UpdateConfig { admin: pk(admin), config: pk(&config_pda()) },
+            holdback::accounts::UpdateConfig {
+                admin: pk(admin),
+                config: pk(&config_pda()),
+            },
             holdback::instruction::UpdateConfig { args },
         )
     }
@@ -342,6 +379,142 @@ impl World {
         )
     }
 
+    /// The Ed25519 program instruction that carries `signer`'s signature over
+    /// `message`, in the single-instruction layout clients produce.
+    pub fn ix_ed25519(signer: &Keypair, message: &[u8]) -> Instruction {
+        let signature = signer.sign_message(message);
+        let key_offset = 16u16;
+        let sig_offset = key_offset + 32;
+        let msg_offset = sig_offset + 64;
+        let mut data = vec![1u8, 0];
+        for v in [
+            sig_offset,
+            u16::MAX,
+            key_offset,
+            u16::MAX,
+            msg_offset,
+            message.len() as u16,
+            u16::MAX,
+        ] {
+            data.extend_from_slice(&v.to_le_bytes());
+        }
+        data.extend_from_slice(signer.pubkey().as_ref());
+        data.extend_from_slice(signature.as_ref());
+        data.extend_from_slice(message);
+        Instruction {
+            program_id: Address::from_str_const("Ed25519SigVerify111111111111111111111111111"),
+            accounts: vec![],
+            data,
+        }
+    }
+
+    /// The assessment bytes the oracle signs.
+    #[allow(clippy::too_many_arguments)]
+    pub fn assessment(
+        sender: &Address,
+        recipient: &Address,
+        mint: &Address,
+        amount: u64,
+        window_secs: u32,
+        tier: u8,
+        expires_at: i64,
+    ) -> Vec<u8> {
+        holdback::instructions::Assessment {
+            sender: pk(sender),
+            recipient: pk(recipient),
+            mint: pk(mint),
+            amount,
+            window_secs,
+            tier,
+            evidence_hash: [7u8; 32],
+            expires_at,
+        }
+        .message(&holdback::ID)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn ix_create_hold_attested(
+        &self,
+        sender: &Address,
+        recipient: &Address,
+        mint: MintRef,
+        nonce: u64,
+        amount: u64,
+        window_secs: u32,
+        attested_window_secs: u32,
+        tier: u8,
+        expires_at: i64,
+    ) -> Instruction {
+        let hold = hold_pda(sender, nonce);
+        build(
+            holdback::accounts::CreateHoldAttested {
+                base: holdback::accounts::CreateHold {
+                    sender: pk(sender),
+                    recipient: pk(recipient),
+                    config: pk(&config_pda()),
+                    mint: pk(&mint.mint),
+                    sender_token: pk(&ata(sender, &mint.mint, &mint.program)),
+                    hold: pk(&hold),
+                    vault: pk(&ata(&hold, &mint.mint, &mint.program)),
+                    recipient_stats: pk(&stats_pda(recipient)),
+                    token_program: pk(&mint.program),
+                    associated_token_program: pk(&ATA_PROGRAM),
+                    system_program: pk(&SYSTEM_PROGRAM),
+                },
+                instructions: pk(&Address::from_str_const(
+                    "Sysvar1nstructions1111111111111111111111111",
+                )),
+            },
+            holdback::instruction::CreateHoldAttested {
+                nonce,
+                amount,
+                window_secs,
+                attested_window_secs,
+                tier,
+                evidence_hash: [7u8; 32],
+                expires_at,
+            },
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn ix_create_hold_sol_attested(
+        &self,
+        sender: &Address,
+        recipient: &Address,
+        nonce: u64,
+        amount: u64,
+        window_secs: u32,
+        attested_window_secs: u32,
+        tier: u8,
+        expires_at: i64,
+    ) -> Instruction {
+        build(
+            holdback::accounts::CreateHoldSolAttested {
+                base: holdback::accounts::CreateHoldSol {
+                    sender: pk(sender),
+                    recipient: pk(recipient),
+                    config: pk(&config_pda()),
+                    hold: pk(&hold_pda(sender, nonce)),
+                    recipient_stats: pk(&stats_pda(recipient)),
+                    system_program: pk(&SYSTEM_PROGRAM),
+                },
+                instructions: pk(&Address::from_str_const(
+                    "Sysvar1nstructions1111111111111111111111111",
+                )),
+            },
+            holdback::instruction::CreateHoldSolAttested {
+                nonce,
+                amount,
+                window_secs,
+                attested_window_secs,
+                tier,
+                evidence_hash: [7u8; 32],
+                expires_at,
+            },
+        )
+    }
+
     pub fn ix_create_hold_sol(
         &self,
         sender: &Address,
@@ -370,7 +543,13 @@ impl World {
         )
     }
 
-    pub fn ix_instant_transfer(&self, sender: &Address, recipient: &Address, mint: MintRef, amount: u64) -> Instruction {
+    pub fn ix_instant_transfer(
+        &self,
+        sender: &Address,
+        recipient: &Address,
+        mint: MintRef,
+        amount: u64,
+    ) -> Instruction {
         build(
             holdback::accounts::InstantTransferToken {
                 sender: pk(sender),
@@ -389,7 +568,12 @@ impl World {
         )
     }
 
-    pub fn ix_instant_transfer_sol(&self, sender: &Address, recipient: &Address, amount: u64) -> Instruction {
+    pub fn ix_instant_transfer_sol(
+        &self,
+        sender: &Address,
+        recipient: &Address,
+        amount: u64,
+    ) -> Instruction {
         build(
             holdback::accounts::InstantTransferSol {
                 sender: pk(sender),
@@ -403,7 +587,12 @@ impl World {
         )
     }
 
-    pub fn ix_init_deposit_box(&self, payer: &Address, owner: &Address, mint: MintRef) -> Instruction {
+    pub fn ix_init_deposit_box(
+        &self,
+        payer: &Address,
+        owner: &Address,
+        mint: MintRef,
+    ) -> Instruction {
         let deposit_box = box_pda(owner);
         build(
             holdback::accounts::InitDepositBox {
@@ -484,7 +673,13 @@ impl World {
         )
     }
 
-    pub fn ix_extend_window(&self, signer: &Address, hold: &Address, new_release_at: i64, tier: u8) -> Instruction {
+    pub fn ix_extend_window(
+        &self,
+        signer: &Address,
+        hold: &Address,
+        new_release_at: i64,
+        tier: u8,
+    ) -> Instruction {
         build(
             holdback::accounts::ExtendWindow {
                 risk_oracle: pk(signer),
@@ -500,7 +695,12 @@ impl World {
     }
 
     /// Token reclaim. `destination` is the refund token account.
-    pub fn ix_reclaim(&self, signer: &Address, hold: &Address, destination: &Address) -> Instruction {
+    pub fn ix_reclaim(
+        &self,
+        signer: &Address,
+        hold: &Address,
+        destination: &Address,
+    ) -> Instruction {
         let state = self.hold(hold).expect("hold exists");
         let mint = self.mint_ref(&addr(&state.mint));
         build(
@@ -519,7 +719,12 @@ impl World {
         )
     }
 
-    pub fn ix_reclaim_sol(&self, signer: &Address, hold: &Address, destination: &Address) -> Instruction {
+    pub fn ix_reclaim_sol(
+        &self,
+        signer: &Address,
+        hold: &Address,
+        destination: &Address,
+    ) -> Instruction {
         let state = self.hold(hold).expect("hold exists");
         build(
             holdback::accounts::ReclaimSol {
@@ -534,7 +739,13 @@ impl World {
     }
 
     /// Token release. `recipient` is who the caller claims should be paid.
-    pub fn ix_release(&self, caller: &Address, hold: &Address, recipient: &Address, early: bool) -> Instruction {
+    pub fn ix_release(
+        &self,
+        caller: &Address,
+        hold: &Address,
+        recipient: &Address,
+        early: bool,
+    ) -> Instruction {
         let state = self.hold(hold).expect("hold exists");
         let mint = self.mint_ref(&addr(&state.mint));
         let accounts = holdback::accounts::Release {
@@ -557,7 +768,13 @@ impl World {
         }
     }
 
-    pub fn ix_release_sol(&self, caller: &Address, hold: &Address, recipient: &Address, early: bool) -> Instruction {
+    pub fn ix_release_sol(
+        &self,
+        caller: &Address,
+        hold: &Address,
+        recipient: &Address,
+        early: bool,
+    ) -> Instruction {
         let state = self.hold(hold).expect("hold exists");
         let accounts = holdback::accounts::ReleaseSol {
             caller: pk(caller),
@@ -595,7 +812,12 @@ impl World {
         )
     }
 
-    pub fn ix_flag_subject(&self, reporter: &Address, subject: &Address, reason: u8) -> Instruction {
+    pub fn ix_flag_subject(
+        &self,
+        reporter: &Address,
+        subject: &Address,
+        reason: u8,
+    ) -> Instruction {
         build(
             holdback::accounts::FlagSubject {
                 reporter: pk(reporter),
@@ -604,11 +826,19 @@ impl World {
                 subject_stats: pk(&stats_pda(subject)),
                 system_program: pk(&SYSTEM_PROGRAM),
             },
-            holdback::instruction::FlagSubject { reason, evidence_hash: [5u8; 32] },
+            holdback::instruction::FlagSubject {
+                reason,
+                evidence_hash: [5u8; 32],
+            },
         )
     }
 
-    pub fn ix_close_hold(&self, caller: &Address, hold: &Address, rent_payer: &Address) -> Instruction {
+    pub fn ix_close_hold(
+        &self,
+        caller: &Address,
+        hold: &Address,
+        rent_payer: &Address,
+    ) -> Instruction {
         build(
             holdback::accounts::CloseHold {
                 caller: pk(caller),
@@ -646,7 +876,12 @@ fn build<A: ToAccountMetas, D: InstructionData>(accounts: A, data: D) -> Instruc
 
 fn reduce(failure: FailedTransactionMetadata) -> Failure {
     match failure.err {
-        TransactionError::InstructionError(_, InstructionError::Custom(code)) => Failure::Code(code),
+        TransactionError::InstructionError(_, InstructionError::Custom(code)) => {
+            if std::env::var("HOLDBACK_DEBUG_LOGS").is_ok() {
+                eprintln!("{}", failure.meta.logs.join("\n"));
+            }
+            Failure::Code(code)
+        }
         other => Failure::Other(format!("{other:?} | {}", failure.meta.logs.join(" | "))),
     }
 }

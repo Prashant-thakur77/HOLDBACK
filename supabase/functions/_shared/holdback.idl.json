@@ -255,6 +255,217 @@
       ]
     },
     {
+      "name": "create_hold_attested",
+      "docs": [
+        "Places tokens in a new hold whose window, tier and evidence hash carry",
+        "the risk oracle's signature, verified on-chain. The instruction must be",
+        "preceded by an Ed25519 verification of the signed assessment."
+      ],
+      "discriminator": [
+        206,
+        31,
+        2,
+        109,
+        179,
+        118,
+        225,
+        11
+      ],
+      "accounts": [
+        {
+          "name": "base",
+          "accounts": [
+            {
+              "name": "sender",
+              "writable": true,
+              "signer": true
+            },
+            {
+              "name": "recipient"
+            },
+            {
+              "name": "config",
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "value": [
+                      99,
+                      111,
+                      110,
+                      102,
+                      105,
+                      103
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "mint"
+            },
+            {
+              "name": "sender_token",
+              "writable": true
+            },
+            {
+              "name": "hold",
+              "writable": true,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "value": [
+                      104,
+                      111,
+                      108,
+                      100
+                    ]
+                  },
+                  {
+                    "kind": "account",
+                    "path": "sender"
+                  },
+                  {
+                    "kind": "arg",
+                    "path": "nonce"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "vault",
+              "writable": true,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "account",
+                    "path": "hold"
+                  },
+                  {
+                    "kind": "account",
+                    "path": "token_program"
+                  },
+                  {
+                    "kind": "account",
+                    "path": "mint"
+                  }
+                ],
+                "program": {
+                  "kind": "const",
+                  "value": [
+                    140,
+                    151,
+                    37,
+                    143,
+                    78,
+                    36,
+                    137,
+                    241,
+                    187,
+                    61,
+                    16,
+                    41,
+                    20,
+                    142,
+                    13,
+                    131,
+                    11,
+                    90,
+                    19,
+                    153,
+                    218,
+                    255,
+                    16,
+                    132,
+                    4,
+                    142,
+                    123,
+                    216,
+                    219,
+                    233,
+                    248,
+                    89
+                  ]
+                }
+              }
+            },
+            {
+              "name": "recipient_stats",
+              "writable": true,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "value": [
+                      115,
+                      116,
+                      97,
+                      116,
+                      115
+                    ]
+                  },
+                  {
+                    "kind": "account",
+                    "path": "recipient"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "token_program"
+            },
+            {
+              "name": "associated_token_program",
+              "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+            },
+            {
+              "name": "system_program",
+              "address": "11111111111111111111111111111111"
+            }
+          ]
+        },
+        {
+          "name": "instructions"
+        }
+      ],
+      "args": [
+        {
+          "name": "nonce",
+          "type": "u64"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "window_secs",
+          "type": "u32"
+        },
+        {
+          "name": "attested_window_secs",
+          "type": "u32"
+        },
+        {
+          "name": "tier",
+          "type": "u8"
+        },
+        {
+          "name": "evidence_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "expires_at",
+          "type": "i64"
+        }
+      ]
+    },
+    {
       "name": "create_hold_sol",
       "docs": [
         "Places `amount` lamports in a new hold."
@@ -373,6 +584,144 @@
               32
             ]
           }
+        }
+      ]
+    },
+    {
+      "name": "create_hold_sol_attested",
+      "docs": [
+        "The attested path for native SOL."
+      ],
+      "discriminator": [
+        85,
+        93,
+        51,
+        192,
+        142,
+        16,
+        4,
+        217
+      ],
+      "accounts": [
+        {
+          "name": "base",
+          "accounts": [
+            {
+              "name": "sender",
+              "writable": true,
+              "signer": true
+            },
+            {
+              "name": "recipient"
+            },
+            {
+              "name": "config",
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "value": [
+                      99,
+                      111,
+                      110,
+                      102,
+                      105,
+                      103
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "hold",
+              "writable": true,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "value": [
+                      104,
+                      111,
+                      108,
+                      100
+                    ]
+                  },
+                  {
+                    "kind": "account",
+                    "path": "sender"
+                  },
+                  {
+                    "kind": "arg",
+                    "path": "nonce"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "recipient_stats",
+              "writable": true,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "value": [
+                      115,
+                      116,
+                      97,
+                      116,
+                      115
+                    ]
+                  },
+                  {
+                    "kind": "account",
+                    "path": "recipient"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "system_program",
+              "address": "11111111111111111111111111111111"
+            }
+          ]
+        },
+        {
+          "name": "instructions"
+        }
+      ],
+      "args": [
+        {
+          "name": "nonce",
+          "type": "u64"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "window_secs",
+          "type": "u32"
+        },
+        {
+          "name": "attested_window_secs",
+          "type": "u32"
+        },
+        {
+          "name": "tier",
+          "type": "u8"
+        },
+        {
+          "name": "evidence_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "expires_at",
+          "type": "i64"
         }
       ]
     },
@@ -2799,6 +3148,26 @@
       "code": 6022,
       "name": "WrongParty",
       "msg": "The account does not belong to the expected party"
+    },
+    {
+      "code": 6023,
+      "name": "MissingAttestation",
+      "msg": "No risk-oracle signature over this assessment precedes the instruction"
+    },
+    {
+      "code": 6024,
+      "name": "WrongAttester",
+      "msg": "The assessment was not signed by the configured risk oracle"
+    },
+    {
+      "code": 6025,
+      "name": "AttestationMismatch",
+      "msg": "The signed assessment does not match this payment"
+    },
+    {
+      "code": 6026,
+      "name": "AttestationExpired",
+      "msg": "The signed assessment has expired; ask for a new one"
     }
   ],
   "types": [
