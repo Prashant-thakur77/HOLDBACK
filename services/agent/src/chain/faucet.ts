@@ -7,16 +7,11 @@
  * it from being drained: one grant per address per day, the per-IP
  * rate-limiting binding on the route, and a daily total.
  */
-import {
-  LAMPORTS_PER_SOL,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-  sendAndConfirmTransaction,
-} from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, PublicKey, SystemProgram } from '@solana/web3.js';
 
 import { ApiError, unavailable } from '../errors';
 import { loadKeypair } from '../lib/keys';
+import { sendAndConfirm } from '../lib/solana';
 import type { Services } from '../services';
 
 export const FAUCET_LAMPORTS = 0.02 * LAMPORTS_PER_SOL;
@@ -58,17 +53,17 @@ export async function grant(
     throw new ApiError(429, 'faucet_empty', 'The faucet has given out today’s devnet SOL');
   }
 
-  const signature = await sendAndConfirmTransaction(
+  // Confirms by polling, not a websocket: Workers have no subscriptions.
+  const signature = await sendAndConfirm(
     services.cluster,
-    new Transaction().add(
+    faucet,
+    [
       SystemProgram.transfer({
         fromPubkey: faucet.publicKey,
         toPubkey: recipient,
         lamports: FAUCET_LAMPORTS,
       }),
-    ),
-    [faucet],
-    { commitment: 'confirmed' },
+    ],
   );
   await Promise.all([
     services.cache.set('faucet', recipient.toBase58(), signature, DAY_SECS),
