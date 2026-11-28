@@ -21,6 +21,12 @@ name = "ASSESS_LIMITER"
 namespace_id = "41001"
 simple = { limit = 30, period = 60 }
 
+# Two faucet requests per minute per caller IP (src/chain/faucet.ts).
+[[ratelimits]]
+name = "FAUCET_LIMITER"
+namespace_id = "41002"
+simple = { limit = 2, period = 60 }
+
 # Non-secret settings. Secrets go in with `wrangler secret put <NAME>`
 # (see .dev.vars.example for the full list). SOLANA_RPC_URL is a secret and is
 # required: Solana's public RPC endpoints refuse requests from Workers. Local

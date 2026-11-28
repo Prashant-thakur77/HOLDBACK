@@ -1,9 +1,10 @@
 /** Endpoints called by other services with a shared secret. */
 import { z } from 'zod';
 
+import { grant } from '../chain/faucet';
 import { dojoMemo, writeMemo } from '../chain/memo';
 import { runMinute } from '../cron';
-import { unauthorized, unavailable } from '../errors';
+import { ApiError, unauthorized, unavailable } from '../errors';
 import { timingSafeEqual } from '../lib/encoding';
 import { body, evidenceHash, type App } from './shared';
 
@@ -24,7 +25,24 @@ function requireSecret(
 
 const bearer = (header: string | undefined) => /^Bearer\s+(.+)$/i.exec(header ?? '')?.[1];
 
+const faucetRequest = z.object({ address: z.string().min(32).max(44) });
+
 export function opsRoutes(app: App): void {
+  // Devnet SOL for a throwaway wallet on the Try it page; limited per address,
+  // per IP (FAUCET_LIMITER) and per day.
+  app.post('/v1/faucet', async (c) => {
+    const limiter = c.env?.FAUCET_LIMITER;
+    if (limiter) {
+      const { success } = await limiter.limit({
+        key: c.req.header('cf-connecting-ip') ?? 'unknown',
+      });
+      if (!success)
+        throw new ApiError(429, 'rate_limited', 'Too many requests. Try again in a minute.');
+    }
+    const request = await body(c, faucetRequest);
+    return c.json(await grant(c.var.services, request.address));
+  });
+
   // The same work the every-minute Cron Trigger does, for an external scheduler.
   app.post('/v1/crank', async (c) => {
     requireSecret(c.env.CRANK_SECRET, c.req.header('x-crank-secret'), 'CRANK_SECRET');

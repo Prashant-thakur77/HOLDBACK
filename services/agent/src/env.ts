@@ -17,6 +17,12 @@ export interface VoiceBucket {
 export interface Env {
   /** Workers Rate Limiting binding for the routes that spend money per call. */
   ASSESS_LIMITER?: import('./ratelimit').RateLimiter;
+  /** Per-IP limit on the devnet faucet. */
+  FAUCET_LIMITER?: import('./ratelimit').RateLimiter;
+  /** Pays the Try it page's throwaway wallets; holds only devnet SOL, no program role. */
+  FAUCET_KEYPAIR?: string;
+  /** Grants per day across everyone (default 200). */
+  FAUCET_DAILY_GRANTS?: string;
   /** RPC of the cluster the HOLDBACK program runs on (devnet). */
   SOLANA_RPC_URL?: string;
   /** Mainnet RPC for wallet history, names and Seeker checks. Defaults to Helius, then the public endpoint. */

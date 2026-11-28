@@ -9,7 +9,7 @@ import type { Env } from '../env';
 import { unavailable } from '../errors';
 import { decodeBase58 } from './encoding';
 
-export type KeyName = 'ORACLE_KEYPAIR' | 'RELAYER_KEYPAIR' | 'CRANK_KEYPAIR';
+export type KeyName = 'ORACLE_KEYPAIR' | 'RELAYER_KEYPAIR' | 'CRANK_KEYPAIR' | 'FAUCET_KEYPAIR';
 
 export function parseKeypair(text: string): Keypair {
   const trimmed = text.trim();
