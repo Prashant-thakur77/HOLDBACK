@@ -15,6 +15,7 @@ import {
   LANGS,
   Tier,
   WINDOW_SECS_BY_TIER,
+  attestationFor,
   buildCreateHoldTx,
   formatAmount,
   formatDuration,
@@ -277,6 +278,12 @@ export async function buildPayTransaction(
       windowSecs: plan.windowSecs,
       tier: plan.tier,
       evidenceHash,
+      attestation: attestationFor(assessment, {
+        sender,
+        recipient: query.recipient,
+        mint: query.mint.address ? new PublicKey(query.mint.address) : null,
+        amount: query.amount,
+      }),
     });
     return {
       type: 'transaction',

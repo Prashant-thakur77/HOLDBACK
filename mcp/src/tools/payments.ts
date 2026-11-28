@@ -1,6 +1,7 @@
 import {
   Tier,
   WINDOW_SECS_BY_TIER,
+  attestationFor,
   buildCreateHoldTx,
   fetchConfig,
   fetchHold,
@@ -256,6 +257,12 @@ export function registerPaymentTools(server: McpServer, ctx: ToolContext): void 
         windowSecs,
         tier: assessment.tierIndex,
         evidenceHash: fromHex(assessment.evidenceHash),
+        attestation: attestationFor(assessment, {
+          sender,
+          recipient,
+          mint: asset.mint,
+          amount: base,
+        }),
       });
       const outcome = await submit(deps, built, sender);
 

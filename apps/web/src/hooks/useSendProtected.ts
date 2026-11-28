@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  attestationFor,
   buildCreateHoldTx,
   fromHex,
   getMintInfo,
@@ -160,6 +161,12 @@ export function useSendProtected(): SendProtected {
           windowSecs: plan.windowSecs,
           tier: plan.tier,
           evidenceHash: fromHex(assessment.evidenceHash),
+          attestation: attestationFor(assessment, {
+            sender,
+            recipient,
+            mint,
+            amount: input.amount,
+          }),
         });
 
         stage('previewing');
@@ -228,6 +235,12 @@ export function useSendProtected(): SendProtected {
             tier: prepared.plan.tier,
             evidenceHash: fromHex(prepared.assessment.evidenceHash),
             nonce: pending.built.nonce,
+            attestation: attestationFor(prepared.assessment, {
+              sender: pending.sender,
+              recipient: new PublicKey(prepared.input.recipient.trim()),
+              mint: prepared.input.mint ? new PublicKey(prepared.input.mint) : null,
+              amount: prepared.input.amount,
+            }),
           });
         }
         const signature = await sendAndConfirm(

@@ -93,3 +93,27 @@ export function attestationInstruction(
     signature,
   });
 }
+
+/**
+ * The attestation in `assessment` if it was issued for exactly this payment,
+ * otherwise `undefined` (the caller then creates a plain hold). An
+ * attestation for other terms would be refused on-chain, so this check stops
+ * a stale assessment from breaking the payment.
+ */
+export function attestationFor(
+  assessment: {
+    attestation?: Attestation;
+    document: { sender: string; recipient: string; mint: string; amount: string };
+  },
+  payment: { sender: PublicKey; recipient: PublicKey; mint: PublicKey | null; amount: bigint },
+): Attestation | undefined {
+  const { attestation, document } = assessment;
+  if (!attestation) return undefined;
+  const mint = payment.mint ? payment.mint.toBase58() : 'SOL';
+  const same =
+    document.sender === payment.sender.toBase58() &&
+    document.recipient === payment.recipient.toBase58() &&
+    document.mint === mint &&
+    document.amount === payment.amount.toString();
+  return same && attestation.expiresAt * 1000 > Date.now() ? attestation : undefined;
+}

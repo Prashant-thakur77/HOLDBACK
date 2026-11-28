@@ -1,4 +1,4 @@
-import { buildCreateHoldTx } from '@holdback/sdk';
+import { attestationFor, buildCreateHoldTx } from '@holdback/sdk';
 import { PublicKey } from '@solana/web3.js';
 import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -212,6 +212,14 @@ export default function Send() {
             amount,
             windowSecs,
             ...holdTerms(assessment.data),
+            attestation: assessment.data
+              ? attestationFor(assessment.data, {
+                  sender: address,
+                  recipient: new PublicKey(recipientAddress),
+                  mint: token.mint ? new PublicKey(token.mint) : null,
+                  amount,
+                })
+              : undefined,
           });
           created = built.hold;
           return built;

@@ -1,5 +1,6 @@
 import {
   Tier,
+  attestationFor,
   buildCreateHoldTx,
   fromHex,
   parseProgramError,
@@ -162,6 +163,14 @@ export function usePreview(inputs: PreviewInputs): PreviewState {
         amount: amount!,
         windowSecs,
         ...terms,
+        attestation: assessment
+          ? attestationFor(assessment, {
+              sender,
+              recipient: new PublicKey(recipient!),
+              mint,
+              amount: amount!,
+            })
+          : undefined,
       });
       const preview = await previewTransaction(connection, built.transaction, [
         { owner: sender, mint, tokenProgram: token!.tokenProgram ?? undefined },

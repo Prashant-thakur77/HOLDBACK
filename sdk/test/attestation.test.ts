@@ -9,6 +9,7 @@ import {
   NATIVE_SOL_MINT,
   PROGRAM_ID,
   assessmentMessage,
+  attestationFor,
   attestationInstruction,
   instructions,
 } from '../src';
@@ -94,5 +95,36 @@ describe('attested instructions', () => {
     ).toBe(true);
     // nonce, amount, window, attested window, tier, hash, expiry
     expect(ix.data.length).toBe(8 + 8 + 8 + 4 + 4 + 1 + 32 + 8);
+  });
+});
+
+describe('attestationFor', () => {
+  const attestation = {
+    oracle: Keypair.generate().publicKey.toBase58(),
+    signature: '00'.repeat(64),
+    windowSecs: 1_800,
+    tier: 1,
+    evidenceHash: '11'.repeat(32),
+    expiresAt: Math.floor(Date.now() / 1000) + 600,
+  };
+  const document = {
+    sender: sender.toBase58(),
+    recipient: recipient.toBase58(),
+    mint: 'SOL',
+    amount: '5',
+  };
+  const payment = { sender, recipient, mint: null, amount: 5n };
+
+  it('returns the attestation only for the assessed payment', () => {
+    expect(attestationFor({ attestation, document }, payment)).toBe(attestation);
+    expect(attestationFor({ attestation, document }, { ...payment, amount: 6n })).toBeUndefined();
+    expect(attestationFor({ attestation, document }, { ...payment, mint })).toBeUndefined();
+    expect(
+      attestationFor({ attestation, document }, { ...payment, sender: recipient }),
+    ).toBeUndefined();
+    expect(attestationFor({ document }, payment)).toBeUndefined();
+    expect(
+      attestationFor({ attestation: { ...attestation, expiresAt: 1 }, document }, payment),
+    ).toBeUndefined();
   });
 });
