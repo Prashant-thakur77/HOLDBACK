@@ -436,6 +436,7 @@ npm install                      # sdk, dojo, mcp, guardian
 anchor build && npm run idl:sync
 cargo test -p holdback           # Rust tests + 2,000-case property test
 npm run program:fuzz             # 100,000 cases -> eval/program_invariants.json
+npm run program:mutants          # break each guard, expect a failing test -> eval/mutation.json
 npm run program:test:localnet    # integration tests on a local validator
 npm test                         # all TypeScript packages
 make eval                        # dataset, baseline, metrics, bench, this README's results

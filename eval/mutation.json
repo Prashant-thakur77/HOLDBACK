@@ -1,0 +1,104 @@
+{
+  "mutants": 12,
+  "killed": 12,
+  "killed_by_property_test": 9,
+  "property_test_cases_per_mutant": 2000,
+  "results": [
+    {
+      "id": "M1",
+      "breaks": "undo allowed after the window ended",
+      "file": "reclaim.rs",
+      "killed": true,
+      "killed_by_property_test": true,
+      "seconds": 13
+    },
+    {
+      "id": "M2",
+      "breaks": "release allowed before the window ends",
+      "file": "release.rs",
+      "killed": true,
+      "killed_by_property_test": true,
+      "seconds": 11
+    },
+    {
+      "id": "M3",
+      "breaks": "early release by anyone, not only the sender",
+      "file": "release.rs",
+      "killed": true,
+      "killed_by_property_test": true,
+      "seconds": 9
+    },
+    {
+      "id": "M4",
+      "breaks": "the oracle can shorten a window",
+      "file": "extend_window.rs",
+      "killed": true,
+      "killed_by_property_test": false,
+      "seconds": 48
+    },
+    {
+      "id": "M5",
+      "breaks": "the oracle can re-lock a window that ended",
+      "file": "extend_window.rs",
+      "killed": true,
+      "killed_by_property_test": false,
+      "seconds": 36
+    },
+    {
+      "id": "M6",
+      "breaks": "the oracle can lower the tier",
+      "file": "extend_window.rs",
+      "killed": true,
+      "killed_by_property_test": true,
+      "seconds": 7
+    },
+    {
+      "id": "M7",
+      "breaks": "the relayer can undo any hold, not only deposit-box holds",
+      "file": "reclaim.rs",
+      "killed": true,
+      "killed_by_property_test": true,
+      "seconds": 7
+    },
+    {
+      "id": "M8",
+      "breaks": "a refund can go to any token account of the mint",
+      "file": "reclaim.rs",
+      "killed": true,
+      "killed_by_property_test": true,
+      "seconds": 7
+    },
+    {
+      "id": "M9",
+      "breaks": "deposit-box withdrawals can go to anyone",
+      "file": "deposit_box.rs",
+      "killed": true,
+      "killed_by_property_test": true,
+      "seconds": 7
+    },
+    {
+      "id": "M10",
+      "breaks": "the relayer can open holds shorter than the default window",
+      "file": "deposit_box.rs",
+      "killed": true,
+      "killed_by_property_test": true,
+      "seconds": 8
+    },
+    {
+      "id": "M11",
+      "breaks": "a pending hold can be closed",
+      "file": "close_hold.rs",
+      "killed": true,
+      "killed_by_property_test": true,
+      "seconds": 8
+    },
+    {
+      "id": "M12",
+      "breaks": "an assessment signed by anyone is accepted",
+      "file": "attested.rs",
+      "killed": true,
+      "killed_by_property_test": false,
+      "seconds": 28
+    }
+  ]
+}

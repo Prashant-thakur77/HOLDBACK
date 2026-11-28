@@ -17,6 +17,7 @@
     "program:build": "anchor build && npm run idl:sync",
     "program:test": "cargo test -p holdback",
     "program:fuzz": "./scripts/fuzz.sh",
+    "program:mutants": "python3 scripts/mutation-check.py",
     "program:test:localnet": "anchor build && ./scripts/test-localnet.sh",
     "idl:sync": "node scripts/sync-idl.mjs",
     "readme:numbers": "tsx scripts/readme_numbers.ts",
