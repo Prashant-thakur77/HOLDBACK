@@ -49,3 +49,6 @@ docs/INVENTORY.md
 
 # Design research (local only)
 .design-refs/
+
+# Local worker secrets
+.dev.vars

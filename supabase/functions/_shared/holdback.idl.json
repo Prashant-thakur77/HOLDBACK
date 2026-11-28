@@ -1,0 +1,3520 @@
+{
+  "address": "26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom",
+  "metadata": {
+    "name": "holdback",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "HOLDBACK: every Solana payment gets an undo window enforced on-chain"
+  },
+  "instructions": [
+    {
+      "name": "close_hold",
+      "docs": [
+        "Closes a released or reclaimed hold and refunds its rent."
+      ],
+      "discriminator": [
+        78,
+        157,
+        93,
+        111,
+        95,
+        11,
+        101,
+        24
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "signer": true
+        },
+        {
+          "name": "hold",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hold.sender",
+                "account": "Hold"
+              },
+              {
+                "kind": "account",
+                "path": "hold.nonce",
+                "account": "Hold"
+              }
+            ]
+          }
+        },
+        {
+          "name": "rent_payer",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_hold",
+      "docs": [
+        "Places `amount` of an SPL / Token-2022 token in a new hold."
+      ],
+      "discriminator": [
+        5,
+        206,
+        229,
+        132,
+        223,
+        134,
+        166,
+        221
+      ],
+      "accounts": [
+        {
+          "name": "sender",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "recipient"
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "sender_token",
+          "writable": true
+        },
+        {
+          "name": "hold",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "sender"
+              },
+              {
+                "kind": "arg",
+                "path": "nonce"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "hold"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "recipient_stats",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "recipient"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "nonce",
+          "type": "u64"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "window_secs",
+          "type": "u32"
+        },
+        {
+          "name": "tier",
+          "type": "u8"
+        },
+        {
+          "name": "evidence_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "create_hold_sol",
+      "docs": [
+        "Places `amount` lamports in a new hold."
+      ],
+      "discriminator": [
+        81,
+        36,
+        53,
+        111,
+        32,
+        5,
+        232,
+        133
+      ],
+      "accounts": [
+        {
+          "name": "sender",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "recipient"
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "hold",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "sender"
+              },
+              {
+                "kind": "arg",
+                "path": "nonce"
+              }
+            ]
+          }
+        },
+        {
+          "name": "recipient_stats",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "recipient"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "nonce",
+          "type": "u64"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "window_secs",
+          "type": "u32"
+        },
+        {
+          "name": "tier",
+          "type": "u8"
+        },
+        {
+          "name": "evidence_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "extend_window",
+      "docs": [
+        "Oracle-only: lengthens a pending hold's window and raises its tier."
+      ],
+      "discriminator": [
+        34,
+        117,
+        65,
+        117,
+        156,
+        1,
+        206,
+        9
+      ],
+      "accounts": [
+        {
+          "name": "risk_oracle",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "hold",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hold.sender",
+                "account": "Hold"
+              },
+              {
+                "kind": "account",
+                "path": "hold.nonce",
+                "account": "Hold"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_release_at",
+          "type": "i64"
+        },
+        {
+          "name": "tier",
+          "type": "u8"
+        },
+        {
+          "name": "evidence_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "flag_subject",
+      "docs": [
+        "Records one scam report about `subject`. One per reporter per subject."
+      ],
+      "discriminator": [
+        193,
+        178,
+        52,
+        123,
+        82,
+        168,
+        242,
+        198
+      ],
+      "accounts": [
+        {
+          "name": "reporter",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "subject"
+        },
+        {
+          "name": "flag",
+          "docs": [
+            "`init` makes a second flag by the same reporter fail."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  108,
+                  97,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "reporter"
+              },
+              {
+                "kind": "account",
+                "path": "subject"
+              }
+            ]
+          }
+        },
+        {
+          "name": "subject_stats",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "subject"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "reason",
+          "type": "u8"
+        },
+        {
+          "name": "evidence_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "init_deposit_box",
+      "docs": [
+        "Creates a deposit box for `owner` and its token account for `mint`."
+      ],
+      "discriminator": [
+        59,
+        0,
+        94,
+        163,
+        191,
+        99,
+        128,
+        184
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "docs": [
+            "The owner or the relayer; whoever pays the rent."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "owner",
+          "docs": [
+            "a box for someone grants the creator nothing."
+          ]
+        },
+        {
+          "name": "deposit_box",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  120
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "box_token",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "deposit_box"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize_config",
+      "docs": [
+        "Creates the singleton config. Only the program's upgrade authority can",
+        "call this, and only once."
+      ],
+      "discriminator": [
+        208,
+        127,
+        21,
+        1,
+        194,
+        190,
+        196,
+        70
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "Must be the program's upgrade authority, so nobody can front-run the",
+            "deployer and install their own service keys."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program",
+          "address": "26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom"
+        },
+        {
+          "name": "program_data"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "relayer",
+          "type": "pubkey"
+        },
+        {
+          "name": "risk_oracle",
+          "type": "pubkey"
+        },
+        {
+          "name": "min_window_secs",
+          "type": "u32"
+        },
+        {
+          "name": "default_window_secs",
+          "type": "u32"
+        },
+        {
+          "name": "max_window_secs",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "instant_transfer",
+      "docs": [
+        "Zero-window path: pays a recipient the sender has marked as trusted",
+        "directly, with no vault. Requires the `Trust` PDA to exist."
+      ],
+      "discriminator": [
+        19,
+        222,
+        233,
+        155,
+        34,
+        211,
+        118,
+        129
+      ],
+      "accounts": [
+        {
+          "name": "sender",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "recipient"
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "trust",
+          "docs": [
+            "Proof that the sender trusts this recipient. Without it the account",
+            "fails to deserialize and the transfer is refused."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  117,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "sender"
+              },
+              {
+                "kind": "account",
+                "path": "recipient"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "sender_token",
+          "writable": true
+        },
+        {
+          "name": "recipient_token",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "recipient"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "recipient_stats",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "recipient"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "instant_transfer_sol",
+      "docs": [
+        "Zero-window path for native SOL."
+      ],
+      "discriminator": [
+        252,
+        76,
+        127,
+        52,
+        54,
+        207,
+        24,
+        36
+      ],
+      "accounts": [
+        {
+          "name": "sender",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "recipient",
+          "writable": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "trust",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  117,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "sender"
+              },
+              {
+                "kind": "account",
+                "path": "recipient"
+              }
+            ]
+          }
+        },
+        {
+          "name": "recipient_stats",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "recipient"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "open_hold_from_deposit",
+      "docs": [
+        "Relayer-only: moves tokens from the owner's deposit box into a new",
+        "hold whose sender is the box owner."
+      ],
+      "discriminator": [
+        64,
+        138,
+        139,
+        27,
+        132,
+        71,
+        207,
+        20
+      ],
+      "accounts": [
+        {
+          "name": "relayer",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "deposit_box",
+          "docs": [
+            "The hold's sender is read from here, never from instruction data."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  120
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "deposit_box.owner",
+                "account": "DepositBox"
+              }
+            ]
+          }
+        },
+        {
+          "name": "recipient"
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "box_token",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "deposit_box"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "hold",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "deposit_box.owner",
+                "account": "DepositBox"
+              },
+              {
+                "kind": "arg",
+                "path": "nonce"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "hold"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "recipient_stats",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "recipient"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "nonce",
+          "type": "u64"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "window_secs",
+          "type": "u32"
+        },
+        {
+          "name": "tier",
+          "type": "u8"
+        },
+        {
+          "name": "evidence_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "reclaim",
+      "docs": [
+        "Undo: returns a pending token hold to the sender before `release_at`."
+      ],
+      "discriminator": [
+        44,
+        177,
+        236,
+        249,
+        145,
+        109,
+        163,
+        186
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "hold",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hold.sender",
+                "account": "Hold"
+              },
+              {
+                "kind": "account",
+                "path": "hold.nonce",
+                "account": "Hold"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "hold"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "sender_token",
+          "docs": [
+            "The refund destination: any token account of this mint that the",
+            "hold's sender owns. No signer can point it anywhere else."
+          ],
+          "writable": true
+        },
+        {
+          "name": "rent_payer",
+          "writable": true
+        },
+        {
+          "name": "recipient_stats",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hold.recipient",
+                "account": "Hold"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "reclaim_sol",
+      "docs": [
+        "Undo for a native SOL hold."
+      ],
+      "discriminator": [
+        210,
+        39,
+        108,
+        241,
+        176,
+        122,
+        84,
+        232
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "hold",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hold.sender",
+                "account": "Hold"
+              },
+              {
+                "kind": "account",
+                "path": "hold.nonce",
+                "account": "Hold"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sender",
+          "writable": true
+        },
+        {
+          "name": "recipient_stats",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hold.recipient",
+                "account": "Hold"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "release",
+      "docs": [
+        "Permissionless crank: pays the recipient once the window is over."
+      ],
+      "discriminator": [
+        253,
+        249,
+        15,
+        206,
+        28,
+        127,
+        193,
+        241
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "docs": [
+            "Anyone for `release`; the sender for `release_early`. Pays for the",
+            "recipient's token account if it does not exist yet."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "hold",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hold.sender",
+                "account": "Hold"
+              },
+              {
+                "kind": "account",
+                "path": "hold.nonce",
+                "account": "Hold"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "hold"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "recipient"
+        },
+        {
+          "name": "recipient_token",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "recipient"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "rent_payer",
+          "writable": true
+        },
+        {
+          "name": "recipient_stats",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hold.recipient",
+                "account": "Hold"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "release_early",
+      "docs": [
+        "Sender-only: pays the recipient before the window is over."
+      ],
+      "discriminator": [
+        102,
+        188,
+        55,
+        52,
+        73,
+        225,
+        95,
+        42
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "docs": [
+            "Anyone for `release`; the sender for `release_early`. Pays for the",
+            "recipient's token account if it does not exist yet."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "hold",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hold.sender",
+                "account": "Hold"
+              },
+              {
+                "kind": "account",
+                "path": "hold.nonce",
+                "account": "Hold"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "hold"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "recipient"
+        },
+        {
+          "name": "recipient_token",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "recipient"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "rent_payer",
+          "writable": true
+        },
+        {
+          "name": "recipient_stats",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hold.recipient",
+                "account": "Hold"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "release_early_sol",
+      "docs": [
+        "Sender-only early release of a native SOL hold."
+      ],
+      "discriminator": [
+        110,
+        238,
+        142,
+        164,
+        122,
+        204,
+        229,
+        234
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "docs": [
+            "Anyone for `release_sol`; the sender for `release_early_sol`."
+          ],
+          "signer": true
+        },
+        {
+          "name": "hold",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hold.sender",
+                "account": "Hold"
+              },
+              {
+                "kind": "account",
+                "path": "hold.nonce",
+                "account": "Hold"
+              }
+            ]
+          }
+        },
+        {
+          "name": "recipient",
+          "writable": true
+        },
+        {
+          "name": "recipient_stats",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hold.recipient",
+                "account": "Hold"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "release_sol",
+      "docs": [
+        "Permissionless crank for a native SOL hold."
+      ],
+      "discriminator": [
+        58,
+        64,
+        23,
+        194,
+        212,
+        156,
+        137,
+        9
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "docs": [
+            "Anyone for `release_sol`; the sender for `release_early_sol`."
+          ],
+          "signer": true
+        },
+        {
+          "name": "hold",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hold.sender",
+                "account": "Hold"
+              },
+              {
+                "kind": "account",
+                "path": "hold.nonce",
+                "account": "Hold"
+              }
+            ]
+          }
+        },
+        {
+          "name": "recipient",
+          "writable": true
+        },
+        {
+          "name": "recipient_stats",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hold.recipient",
+                "account": "Hold"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "remove_trust",
+      "docs": [
+        "Removes the signer's trust in `recipient` and refunds the rent."
+      ],
+      "discriminator": [
+        78,
+        235,
+        102,
+        190,
+        255,
+        250,
+        166,
+        247
+      ],
+      "accounts": [
+        {
+          "name": "sender",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "trust"
+          ]
+        },
+        {
+          "name": "recipient"
+        },
+        {
+          "name": "trust",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  117,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "sender"
+              },
+              {
+                "kind": "account",
+                "path": "recipient"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "set_trust",
+      "docs": [
+        "Marks `recipient` as trusted by the signer."
+      ],
+      "discriminator": [
+        126,
+        120,
+        66,
+        30,
+        223,
+        109,
+        158,
+        89
+      ],
+      "accounts": [
+        {
+          "name": "sender",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "recipient"
+        },
+        {
+          "name": "trust",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  117,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "sender"
+              },
+              {
+                "kind": "account",
+                "path": "recipient"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_config",
+      "docs": [
+        "Admin-only update of service keys, window limits and the pause switch."
+      ],
+      "discriminator": [
+        29,
+        158,
+        252,
+        191,
+        10,
+        83,
+        219,
+        99
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "UpdateConfigArgs"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "withdraw_deposit",
+      "docs": [
+        "Returns tokens from a deposit box to its owner. Owner or relayer signs."
+      ],
+      "discriminator": [
+        197,
+        59,
+        182,
+        208,
+        73,
+        187,
+        119,
+        25
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "docs": [
+            "The box owner, or the relayer acting for them."
+          ],
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "deposit_box",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  120
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "deposit_box.owner",
+                "account": "DepositBox"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "box_token",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "deposit_box"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "owner_token",
+          "docs": [
+            "Whoever signs, the money can only land in a token account owned by",
+            "the box owner."
+          ],
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Config",
+      "discriminator": [
+        155,
+        12,
+        170,
+        224,
+        30,
+        250,
+        204,
+        130
+      ]
+    },
+    {
+      "name": "DepositBox",
+      "discriminator": [
+        97,
+        178,
+        112,
+        41,
+        112,
+        75,
+        20,
+        246
+      ]
+    },
+    {
+      "name": "Flag",
+      "discriminator": [
+        156,
+        221,
+        153,
+        134,
+        84,
+        147,
+        165,
+        54
+      ]
+    },
+    {
+      "name": "Hold",
+      "discriminator": [
+        110,
+        65,
+        238,
+        142,
+        146,
+        91,
+        196,
+        171
+      ]
+    },
+    {
+      "name": "SubjectStats",
+      "discriminator": [
+        234,
+        123,
+        28,
+        231,
+        134,
+        161,
+        104,
+        134
+      ]
+    },
+    {
+      "name": "Trust",
+      "discriminator": [
+        71,
+        85,
+        171,
+        132,
+        199,
+        242,
+        21,
+        62
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "DepositBoxOpened",
+      "discriminator": [
+        22,
+        156,
+        33,
+        28,
+        117,
+        74,
+        84,
+        146
+      ]
+    },
+    {
+      "name": "DepositWithdrawn",
+      "discriminator": [
+        152,
+        139,
+        194,
+        204,
+        237,
+        235,
+        26,
+        134
+      ]
+    },
+    {
+      "name": "HoldCreated",
+      "discriminator": [
+        151,
+        126,
+        140,
+        207,
+        163,
+        56,
+        160,
+        216
+      ]
+    },
+    {
+      "name": "HoldReclaimed",
+      "discriminator": [
+        24,
+        51,
+        107,
+        114,
+        172,
+        221,
+        248,
+        14
+      ]
+    },
+    {
+      "name": "HoldReleased",
+      "discriminator": [
+        168,
+        49,
+        116,
+        33,
+        191,
+        86,
+        197,
+        90
+      ]
+    },
+    {
+      "name": "InstantTransfer",
+      "discriminator": [
+        18,
+        122,
+        152,
+        142,
+        158,
+        161,
+        200,
+        234
+      ]
+    },
+    {
+      "name": "SubjectFlagged",
+      "discriminator": [
+        100,
+        233,
+        26,
+        236,
+        29,
+        246,
+        147,
+        209
+      ]
+    },
+    {
+      "name": "TrustRemoved",
+      "discriminator": [
+        44,
+        250,
+        181,
+        213,
+        66,
+        238,
+        204,
+        89
+      ]
+    },
+    {
+      "name": "TrustSet",
+      "discriminator": [
+        80,
+        173,
+        45,
+        218,
+        242,
+        69,
+        7,
+        110
+      ]
+    },
+    {
+      "name": "WindowExtended",
+      "discriminator": [
+        230,
+        79,
+        101,
+        83,
+        197,
+        219,
+        249,
+        203
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "WindowTooLong",
+      "msg": "The undo window is longer than the maximum this program allows"
+    },
+    {
+      "code": 6001,
+      "name": "WindowTooShort",
+      "msg": "The undo window is shorter than the minimum this program allows"
+    },
+    {
+      "code": 6002,
+      "name": "WindowCannotShrink",
+      "msg": "An undo window can be extended but never shortened"
+    },
+    {
+      "code": 6003,
+      "name": "HoldNotPending",
+      "msg": "This hold has already been released or reclaimed"
+    },
+    {
+      "code": 6004,
+      "name": "WindowNotOver",
+      "msg": "The undo window is still running; funds cannot be released yet"
+    },
+    {
+      "code": 6005,
+      "name": "WindowOver",
+      "msg": "The undo window has ended; this action is no longer possible"
+    },
+    {
+      "code": 6006,
+      "name": "NotTrusted",
+      "msg": "The sender has not marked this recipient as trusted"
+    },
+    {
+      "code": 6007,
+      "name": "Unauthorized",
+      "msg": "This signer is not allowed to perform this action"
+    },
+    {
+      "code": 6008,
+      "name": "Paused",
+      "msg": "New holds are paused; existing holds can still be reclaimed or released"
+    },
+    {
+      "code": 6009,
+      "name": "ZeroAmount",
+      "msg": "The amount must be greater than zero"
+    },
+    {
+      "code": 6010,
+      "name": "MintMismatch",
+      "msg": "The token mint does not match this hold"
+    },
+    {
+      "code": 6011,
+      "name": "Overflow",
+      "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6012,
+      "name": "InvalidTier",
+      "msg": "The risk tier is not a known value"
+    },
+    {
+      "code": 6013,
+      "name": "TierCannotDrop",
+      "msg": "The risk tier can be raised but never lowered"
+    },
+    {
+      "code": 6014,
+      "name": "InvalidWindowConfig",
+      "msg": "Window settings must satisfy min <= default <= max <= 30 days"
+    },
+    {
+      "code": 6015,
+      "name": "SelfTransfer",
+      "msg": "Sender and recipient must be different accounts"
+    },
+    {
+      "code": 6016,
+      "name": "InvalidReason",
+      "msg": "The flag reason code is not a known value"
+    },
+    {
+      "code": 6017,
+      "name": "HoldStillPending",
+      "msg": "This hold is still pending and cannot be closed"
+    },
+    {
+      "code": 6018,
+      "name": "NotTokenHold",
+      "msg": "This hold holds native SOL; use the SOL instruction"
+    },
+    {
+      "code": 6019,
+      "name": "NotSolHold",
+      "msg": "This hold holds tokens; use the token instruction"
+    },
+    {
+      "code": 6020,
+      "name": "UnsupportedMint",
+      "msg": "Mints that take a fee on transfer are not supported"
+    },
+    {
+      "code": 6021,
+      "name": "AmountBelowRentFloor",
+      "msg": "The amount is too small to keep the recipient account rent-exempt"
+    },
+    {
+      "code": 6022,
+      "name": "WrongParty",
+      "msg": "The account does not belong to the expected party"
+    }
+  ],
+  "types": [
+    {
+      "name": "Config",
+      "docs": [
+        "Singleton program configuration. Seeds: `[\"config\"]`."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "docs": [
+              "May update this account. Set to the program's upgrade authority at init."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "relayer",
+            "docs": [
+              "Service key that may act for deposit-box owners, within the limits",
+              "enforced by `open_hold_from_deposit`, `withdraw_deposit` and `reclaim`."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "risk_oracle",
+            "docs": [
+              "Service key that may extend (never shorten) a pending hold's window."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "min_window_secs",
+            "docs": [
+              "Shortest window a hold may have. `0` enables the trusted instant path."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "default_window_secs",
+            "docs": [
+              "Window used when nothing is known about the recipient. Also the floor",
+              "for holds opened by the relayer from a deposit box."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "max_window_secs",
+            "docs": [
+              "Longest window a hold may ever reach, measured from `created_at`."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "paused",
+            "docs": [
+              "Emergency stop for new holds. Reclaim, release and close keep working."
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DepositBox",
+      "docs": [
+        "A program-owned inbox for a wallet that cannot sign program instructions",
+        "itself (a seedless embedded wallet). The owner sends tokens to the box's",
+        "associated token account; the relayer can then only return them to the",
+        "owner or open a hold whose sender is the owner. Seeds: `[\"box\", owner]`."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DepositBoxOpened",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "deposit_box",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DepositWithdrawn",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "deposit_box",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "by",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Flag",
+      "docs": [
+        "One scam report by one reporter about one subject.",
+        "Seeds: `[\"flag\", reporter, subject]`, so a reporter can flag a subject once."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "reporter",
+            "type": "pubkey"
+          },
+          {
+            "name": "subject",
+            "type": "pubkey"
+          },
+          {
+            "name": "reason",
+            "type": "u8"
+          },
+          {
+            "name": "evidence_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Hold",
+      "docs": [
+        "One protected payment. Seeds: `[\"hold\", sender, nonce_le_u64]`.",
+        "",
+        "Token holds keep the funds in an associated token account owned by this",
+        "PDA. SOL holds keep the lamports in this account itself, above rent."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "sender",
+            "docs": [
+              "Who paid and who alone can get the money back before `release_at`."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "docs": [
+              "Who receives the money once the window is over."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "docs": [
+              "Token mint, or [`NATIVE_SOL_MINT`] for a SOL hold."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "docs": [
+              "Amount held, in the mint's base units (lamports for SOL)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "created_at",
+            "docs": [
+              "Unix time the hold was created."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "release_at",
+            "docs": [
+              "Unix time from which anyone may release the funds to the recipient."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "tier",
+            "docs": [
+              "Risk tier, see [`crate::constants::tier`]."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "evidence_hash",
+            "docs": [
+              "sha256 of the canonical evidence JSON that justified the window."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "origin",
+            "docs": [
+              "See [`crate::constants::origin`]."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "status",
+            "docs": [
+              "See [`crate::constants::status`]."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "rent_payer",
+            "docs": [
+              "Paid the rent for this account and its vault; gets it back on close."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "nonce",
+            "docs": [
+              "Sender-chosen nonce that makes the PDA unique."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HoldCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hold",
+            "type": "pubkey"
+          },
+          {
+            "name": "sender",
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "release_at",
+            "type": "i64"
+          },
+          {
+            "name": "tier",
+            "type": "u8"
+          },
+          {
+            "name": "origin",
+            "type": "u8"
+          },
+          {
+            "name": "evidence_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HoldReclaimed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hold",
+            "type": "pubkey"
+          },
+          {
+            "name": "sender",
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "tier",
+            "type": "u8"
+          },
+          {
+            "name": "by",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HoldReleased",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hold",
+            "type": "pubkey"
+          },
+          {
+            "name": "sender",
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "tier",
+            "type": "u8"
+          },
+          {
+            "name": "early",
+            "docs": [
+              "True when the sender released before the window ended."
+            ],
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "InstantTransfer",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "sender",
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "tier",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SubjectFlagged",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "reporter",
+            "type": "pubkey"
+          },
+          {
+            "name": "subject",
+            "type": "pubkey"
+          },
+          {
+            "name": "reason",
+            "type": "u8"
+          },
+          {
+            "name": "evidence_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "total_flags",
+            "type": "u32"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SubjectStats",
+      "docs": [
+        "On-chain reputation of an address as a payment recipient.",
+        "Seeds: `[\"stats\", subject]`.",
+        "",
+        "`holds_reclaimed_against` counts how often senders pulled money back from",
+        "this address. The risk agent reads it as a scam signal."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "subject",
+            "type": "pubkey"
+          },
+          {
+            "name": "flags",
+            "type": "u32"
+          },
+          {
+            "name": "holds_received",
+            "type": "u32"
+          },
+          {
+            "name": "holds_reclaimed_against",
+            "type": "u32"
+          },
+          {
+            "name": "holds_released_to",
+            "type": "u32"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Trust",
+      "docs": [
+        "\"The sender trusts this recipient\". Existence is the whole signal.",
+        "Seeds: `[\"trust\", sender, recipient]`."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "sender",
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TrustRemoved",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "sender",
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TrustSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "sender",
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateConfigArgs",
+      "docs": [
+        "Fields left as `None` keep their current value."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "relayer",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "risk_oracle",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "min_window_secs",
+            "type": {
+              "option": "u32"
+            }
+          },
+          {
+            "name": "default_window_secs",
+            "type": {
+              "option": "u32"
+            }
+          },
+          {
+            "name": "max_window_secs",
+            "type": {
+              "option": "u32"
+            }
+          },
+          {
+            "name": "paused",
+            "type": {
+              "option": "bool"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "WindowExtended",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hold",
+            "type": "pubkey"
+          },
+          {
+            "name": "sender",
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "old_release_at",
+            "type": "i64"
+          },
+          {
+            "name": "new_release_at",
+            "type": "i64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "tier",
+            "type": "u8"
+          },
+          {
+            "name": "evidence_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

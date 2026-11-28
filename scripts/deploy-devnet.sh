@@ -35,6 +35,6 @@ solana program deploy target/deploy/holdback.so \
   --keypair "$WALLET" \
   --url "$RPC"
 
-solana program show "$(solana-keygen pubkey "$PROGRAM_KEYPAIR")" --url "$RPC"
+solana program show "$(solana-keygen pubkey "$PROGRAM_KEYPAIR")" --url "$RPC" --keypair "$WALLET"
 
 ANCHOR_PROVIDER_URL="$RPC" ANCHOR_WALLET="$WALLET" npx tsx scripts/init-config.ts
