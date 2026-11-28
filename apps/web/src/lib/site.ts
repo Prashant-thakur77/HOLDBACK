@@ -8,7 +8,7 @@ import type { MessageKey } from './i18n';
 export interface SitePage {
   href: string;
   label: MessageKey;
-  ink: 'ink' | 'blue' | 'magenta' | 'green' | 'copper' | 'red' | 'water';
+  ink: 'ink' | 'blue' | 'magenta' | 'green' | 'copper' | 'red' | 'water' | 'ochre';
   page: number;
   /** One line for the contents sheet and the footer. */
   summary: string;
@@ -64,6 +64,13 @@ export const SITE_PAGES: SitePage[] = [
     page: 7,
     summary: 'Run it, program id, accounts, questions.',
   },
+  {
+    href: '/proof',
+    label: 'nav.proof',
+    ink: 'ochre',
+    page: 8,
+    summary: 'Try to rob it: every attack, refused on-chain, and re-checked by your browser.',
+  },
 ];
 
 export const PROGRAM_ID = '26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom';
@@ -82,9 +89,9 @@ export function isBareRoute(pathname: string): boolean {
  */
 export const EXAMPLE_HOLD = 'GAVEL3zT8wQDsS1LimSsaABMu4m8w4skmsmsz4fhgWrg';
 
-/** Story pages get the richer motion; app screens stay calm. */
+/** Story pages get the richer motion; app screens and the proof table stay calm. */
 export function isStoryRoute(pathname: string): boolean {
-  return !['/app', '/h/', '/pay', '/dojo/watch/'].some(
+  return !['/app', '/h/', '/pay', '/proof', '/dojo/watch/'].some(
     (prefix) => pathname === prefix || pathname.startsWith(prefix),
   );
 }

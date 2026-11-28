@@ -235,6 +235,9 @@ export default async function HomePage() {
           <Continued href="/evidence" page={3}>
             The evidence and the trust model
           </Continued>
+          <Continued href="/proof" page={8}>
+            Try to rob it: every attack, refused on-chain
+          </Continued>
         </p>
       </section>
 

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 import { DateStamp } from '@/components/art/Stamps';
 import { KeyTable, PageOpener, SectionHead } from '@/components/site/blocks';
@@ -126,6 +127,14 @@ export default function EvidencePage() {
           promise from whoever runs the service.
         </p>
         <KeyTable />
+        <p className="prose rules-note">
+          Each of these limits was attacked on devnet, with the stolen-key cases included, and every
+          attempt was refused by the program.{' '}
+          <Link href="/proof" className="link">
+            Try to rob it: the transactions, re-checked by your browser
+          </Link>
+          .
+        </p>
         <div className="faq" style={{ marginTop: 'var(--s6)' }}>
           {ATTACKS.map((attack) => (
             <details key={attack.title}>

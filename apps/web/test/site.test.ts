@@ -48,7 +48,7 @@ describe('ticket punch position', () => {
 
 describe('routes', () => {
   it('keeps the richer motion off the app screens', () => {
-    for (const path of ['/app', '/h/abc', '/pay', '/dojo/watch/run']) {
+    for (const path of ['/app', '/h/abc', '/pay', '/proof', '/dojo/watch/run']) {
       expect(isStoryRoute(path)).toBe(false);
     }
     for (const path of ['/', '/how-it-works', '/dojo', '/docs']) {
@@ -64,6 +64,7 @@ describe('routes', () => {
   it('finds a page by its exact path', () => {
     expect(pageFor('/evidence')?.page).toBe(3);
     expect(pageFor('/app')).toBeNull();
+    expect(pageFor('/proof')?.ink).toBe('ochre');
   });
 });
 

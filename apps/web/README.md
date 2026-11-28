@@ -139,20 +139,21 @@ art, chrome, home, pages, app), fonts are self-hosted in `public/fonts`, and all
 in code (`src/components/art`). Nothing loads from another origin; if that changes, add the origin
 to the policy in `src/lib/security-headers.ts`, or the browser will block it.
 
-| Route                 | File                                             | What it is                                                           |
-| --------------------- | ------------------------------------------------ | -------------------------------------------------------------------- |
-| `/`                   | `src/app/page.tsx`, `src/components/home/*`      | The claim, the bowl demo, live counters, the whole story in teasers  |
-| `/how-it-works`       | `src/app/how-it-works/page.tsx`                  | One payment in five stages, tiers, deposit boxes, limits             |
-| `/evidence`           | `src/app/evidence/page.tsx`                      | Evidence hash, collectors, what each key can do, invariants          |
-| `/results`            | `src/app/results/page.tsx`, `src/lib/results.ts` | Printed from `eval/results.json` and `eval/program_invariants.json`  |
-| `/integrations`       | `src/app/integrations/page.tsx`                  | What each integration does here                                      |
-| `/dojo`               | `src/app/dojo/page.tsx`, `src/components/dojo/*` | Scam Dojo, played in the browser against `/api/dojo`                 |
-| `/docs`               | `src/app/docs/page.tsx`                          | Commands, addresses, accounts, routes, questions                     |
-| `/app`                | `src/app/app/page.tsx`, `src/components/app/*`   | Dashboard: connect, send with verdict and pre-sign slip, holds       |
-| `/h/[holdPda]`        | `src/app/h/[holdPda]/*`                          | Public receipt with the in-browser hash check                        |
-| `/pay`                | `src/app/pay/page.tsx`                           | Payment request slip (the Action's fallback page)                    |
-| `/dojo/watch/[runId]` | `src/app/dojo/watch/[runId]/*`                   | Spectator page; rendered without the site shell because it is framed |
-| not found, errors     | `not-found.tsx`, `error.tsx`, `global-error.tsx` | Designed dead ends                                                   |
+| Route                 | File                                             | What it is                                                             |
+| --------------------- | ------------------------------------------------ | ---------------------------------------------------------------------- |
+| `/`                   | `src/app/page.tsx`, `src/components/home/*`      | The claim, the bowl demo, live counters, the whole story in teasers    |
+| `/how-it-works`       | `src/app/how-it-works/page.tsx`                  | One payment in five stages, tiers, deposit boxes, limits               |
+| `/evidence`           | `src/app/evidence/page.tsx`                      | Evidence hash, collectors, what each key can do, invariants            |
+| `/results`            | `src/app/results/page.tsx`, `src/lib/results.ts` | Printed from `eval/results.json` and `eval/program_invariants.json`    |
+| `/integrations`       | `src/app/integrations/page.tsx`                  | What each integration does here                                        |
+| `/dojo`               | `src/app/dojo/page.tsx`, `src/components/dojo/*` | Scam Dojo, played in the browser against `/api/dojo`                   |
+| `/docs`               | `src/app/docs/page.tsx`                          | Commands, addresses, accounts, routes, questions                       |
+| `/proof`              | `src/app/proof/*`, `src/lib/proof/*`             | The devnet proofs from `proofs/devnet.json`, re-checked in the browser |
+| `/app`                | `src/app/app/page.tsx`, `src/components/app/*`   | Dashboard: connect, send with verdict and pre-sign slip, holds         |
+| `/h/[holdPda]`        | `src/app/h/[holdPda]/*`                          | Public receipt with the in-browser hash check                          |
+| `/pay`                | `src/app/pay/page.tsx`                           | Payment request slip (the Action's fallback page)                      |
+| `/dojo/watch/[runId]` | `src/app/dojo/watch/[runId]/*`                   | Spectator page; rendered without the site shell because it is framed   |
+| not found, errors     | `not-found.tsx`, `error.tsx`, `global-error.tsx` | Designed dead ends                                                     |
 
 The shell (header, contents sheet, footer, scroll reveals, page turn) is `src/components/site`.
 
@@ -170,10 +171,14 @@ synthesised punch, stamp and gong sounds (`src/lib/sound.ts`; off by default, no
 Interface copy in the four languages is `src/lib/i18n.ts`; the server renders English and the
 reader's saved choice is applied after hydration.
 
-`next.config.ts` reads `eval/program_invariants.json` and `eval/results.json` when the build
-starts and compiles their text in, because the Workers runtime has no file system. A missing file
-becomes an explicit "not run" state on the results page. Rebuild after `make eval` to publish new
-numbers.
+`next.config.ts` reads `eval/program_invariants.json`, `eval/results.json`, `proofs/devnet.json`
+and `proofs/build.json` when the build starts and compiles their text in, because the Workers
+runtime has no file system. A missing file becomes an explicit "not run" or "not found" state on
+the page that prints it. Rebuild after `make eval` or a new proof run to publish new numbers.
+
+`/proof` re-checks from the visitor's browser: `getTransaction` for each row and the program data
+account for the build hash, straight against the RPC endpoint, with the same rules as
+`make verify` (`src/lib/proof/verify.ts`). `/dashboard` redirects to `/app`.
 
 `public/action-icon.svg` is the mark shown on Action cards; `src/app/icon.svg` is the favicon and
 `public/og.png` the share image.

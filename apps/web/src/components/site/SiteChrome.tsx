@@ -93,7 +93,9 @@ export function SiteChrome({ header, footer, slimFooter, children }: Props) {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const url = internalTarget(event);
       const page = url ? pageFor(url.pathname) : null;
-      if (!url || !page || !isStoryRoute(window.location.pathname)) return;
+      // Between story pages only: the app screens and the proof table change plainly.
+      if (!url || !page) return;
+      if (!isStoryRoute(url.pathname) || !isStoryRoute(window.location.pathname)) return;
       event.preventDefault();
       if (turning.current) return;
       turning.current = true;
@@ -121,7 +123,7 @@ export function SiteChrome({ header, footer, slimFooter, children }: Props) {
       <div id="content" className="page">
         {children}
       </div>
-      {pageFor(pathname) ? footer : slimFooter}
+      {pageFor(pathname) && isStoryRoute(pathname) ? footer : slimFooter}
       {isStoryRoute(pathname) ? <StoryMotion pathname={pathname} /> : null}
       {turn ? (
         <div className={`turn is-${turn.phase}`} data-ink={turn.page.ink} aria-hidden="true">

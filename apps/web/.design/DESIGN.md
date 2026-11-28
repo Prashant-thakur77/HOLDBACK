@@ -230,20 +230,21 @@ the same voice.
 
 ## Sitemap
 
-| Page            | Ink     | Job and section order                                                                            |
-| --------------- | ------- | ------------------------------------------------------------------------------------------------ |
-| `/`             | ink     | claim + toy, counters, the problem, how a hold works, verifiable, results, Dojo, integrations    |
-| `/how-it-works` | blue    | one payment step by step: assess, decide, commit, hold, undo or settle; tiers; limits            |
-| `/evidence`     | magenta | evidence hash, eight collectors, what each key can and cannot do, six invariants, open a receipt |
-| `/results`      | green   | what was measured, generated from the eval data; what has run where                              |
-| `/integrations` | copper  | one section per integration: what it does here and how it is wired                               |
-| `/dojo`         | red     | play eight requests in the browser; rules; watch link                                            |
-| `/docs`         | water   | run it, program id, accounts and seeds, HTTP surface, FAQ                                        |
-| `404`           | ink     | a "nothing at this address" slip that points back in                                             |
-| `/app`          | ink     | connect, send with live verdict and pre-sign preview, holds with countdown and actions           |
-| `/h/[holdPda]`  | by tier | public receipt as a ticket: parties, amount, status, countdown, evidence, verify the hash        |
-| `/pay`          | ink     | a payment request slip with the recipient's verdict and one button                               |
-| `/dojo/watch/`  | red     | spectator view, framed, readable at 320 px                                                       |
+| Page            | Ink     | Job and section order                                                                                                                                                                                                           |
+| --------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`             | ink     | claim + toy, counters, the problem, how a hold works, verifiable, results, Dojo, integrations                                                                                                                                   |
+| `/how-it-works` | blue    | one payment step by step: assess, decide, commit, hold, undo or settle; tiers; limits                                                                                                                                           |
+| `/evidence`     | magenta | evidence hash, eight collectors, what each key can and cannot do, six invariants, open a receipt                                                                                                                                |
+| `/results`      | green   | what was measured, generated from the eval data; what has run where                                                                                                                                                             |
+| `/integrations` | copper  | one section per integration: what it does here and how it is wired                                                                                                                                                              |
+| `/dojo`         | red     | play eight requests in the browser; rules; watch link                                                                                                                                                                           |
+| `/docs`         | water   | run it, program id, accounts and seeds, HTTP surface, FAQ                                                                                                                                                                       |
+| `/proof`        | ochre   | the devnet record: counts from the file, attacks grouped by who attempts them with a REFUSED stamp each, happy paths, and a re-check of every row and of the program hash from the visitor's browser; calm like the app screens |
+| `404`           | ink     | a "nothing at this address" slip that points back in                                                                                                                                                                            |
+| `/app`          | ink     | connect, send with live verdict and pre-sign preview, holds with countdown and actions                                                                                                                                          |
+| `/h/[holdPda]`  | by tier | public receipt as a ticket: parties, amount, status, countdown, evidence, verify the hash                                                                                                                                       |
+| `/pay`          | ink     | a payment request slip with the recipient's verdict and one button                                                                                                                                                              |
+| `/dojo/watch/`  | red     | spectator view, framed, readable at 320 px                                                                                                                                                                                      |
 
 App screens run calm: no entrances, only feedback (press, drain, stamp on outcome).
 

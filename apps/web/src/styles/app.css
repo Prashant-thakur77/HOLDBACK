@@ -551,3 +551,136 @@ div.holds__empty {
     min-height: 44px;
   }
 }
+
+/* ---------- Proof: the devnet record, row by row ---------- */
+
+.proof-ledger {
+  border-top: 3px solid var(--ink);
+  margin-bottom: var(--s5);
+}
+.proof-ledger__date {
+  font-size: clamp(22px, 2.2vw, 30px);
+  font-weight: 700;
+  font-stretch: 80%;
+  line-height: 1.15;
+}
+.proof-check__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3) var(--s5);
+}
+.proof-check__head > div {
+  max-width: 46em;
+}
+.proof-check__tally {
+  min-height: 1.6em;
+}
+.proof-program {
+  display: grid;
+  gap: var(--s3);
+  padding-top: var(--s4);
+  border-top: 1px dashed var(--ink);
+}
+.proof-program__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2) var(--s4);
+}
+.proof-group {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+  gap: var(--s3) var(--s6);
+  padding-block: var(--s4);
+  border-top: 3px solid var(--ink);
+}
+.proof-group__head .small {
+  margin-top: var(--s2);
+  max-width: 34ch;
+}
+.proof-group__lead {
+  margin-bottom: var(--s4);
+}
+.proof-rows {
+  border-top: 1px solid var(--ink);
+}
+.proof-group .proof-rows {
+  border-top: 0;
+}
+.proof-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 124px auto;
+  gap: var(--s2) var(--s4);
+  align-items: center;
+  padding: var(--s3) 0;
+  border-bottom: 1px solid var(--ink);
+}
+.proof-row__id {
+  font-size: 15px;
+  font-weight: 700;
+}
+.proof-row__desc {
+  font-weight: 600;
+  line-height: 1.35;
+}
+.proof-row__result:empty {
+  display: none;
+}
+.proof-row__verdict {
+  color: var(--tk-text);
+}
+.proof-row__mark {
+  justify-self: center;
+}
+.proof-row__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--s2) var(--s3);
+}
+.proof-row__actions .link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+}
+.proof-foot {
+  padding-block: var(--s5) var(--s7);
+  max-width: 70ch;
+}
+@media (max-width: 900px) {
+  .proof-group {
+    grid-template-columns: 1fr;
+  }
+  .proof-row {
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+  }
+  .proof-row__mark {
+    justify-self: end;
+  }
+  .proof-row__actions {
+    grid-column: 2 / -1;
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 520px) {
+  .proof-check__head .btn {
+    width: 100%;
+  }
+}
+@media (max-width: 520px) {
+  /* The id and the mark share the first line; the words get the full width under them. */
+  .proof-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .proof-row__what {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .proof-row__actions {
+    grid-column: 1 / -1;
+  }
+}

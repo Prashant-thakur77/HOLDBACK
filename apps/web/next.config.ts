@@ -31,14 +31,14 @@ function browserRpcUrl(): string {
 }
 
 /**
- * Evaluation data, read once when the build starts and compiled in as text.
- * The Workers runtime has no file system, so the results page cannot read
- * these at request time. A file that does not exist yet becomes an empty
- * string and the page says the evaluation has not been run.
+ * Evaluation data and the devnet proofs, read once when the build starts and
+ * compiled in as text. The Workers runtime has no file system, so the pages
+ * cannot read these at request time. A file that does not exist yet becomes
+ * an empty string and the page that prints it says so.
  */
-function evalFile(name: string): string {
+function repoFile(relative: string): string {
   try {
-    return fs.readFileSync(path.resolve(__dirname, '../../eval', name), 'utf8');
+    return fs.readFileSync(path.resolve(__dirname, '../..', relative), 'utf8');
   } catch {
     return '';
   }
@@ -59,8 +59,10 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_BUILD_COMMIT: process.env.NEXT_PUBLIC_BUILD_COMMIT ?? buildCommit(),
     NEXT_PUBLIC_BUILD_TIME: process.env.NEXT_PUBLIC_BUILD_TIME ?? new Date().toISOString(),
-    EVAL_PROGRAM_INVARIANTS: evalFile('program_invariants.json'),
-    EVAL_RESULTS: evalFile('results.json'),
+    EVAL_PROGRAM_INVARIANTS: repoFile('eval/program_invariants.json'),
+    EVAL_RESULTS: repoFile('eval/results.json'),
+    PROOFS_DEVNET: repoFile('proofs/devnet.json'),
+    PROOFS_BUILD: repoFile('proofs/build.json'),
   },
   webpack(config) {
     // The linked packages resolve `@solana/web3.js` from the repository root,
@@ -71,6 +73,10 @@ const nextConfig: NextConfig = {
       '@solana/web3.js': path.resolve(__dirname, 'node_modules/@solana/web3.js'),
     };
     return config;
+  },
+  async redirects() {
+    // The dashboard lives at /app; this is the address people guess.
+    return [{ source: '/dashboard', destination: '/app', permanent: true }];
   },
   async headers() {
     const agent = process.env.NEXT_PUBLIC_AGENT_URL ?? null;

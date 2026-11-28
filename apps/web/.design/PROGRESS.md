@@ -23,3 +23,7 @@ One line per finished stage, so a restart knows where to pick up.
 - [x] n. Play: time slider on the hero, Spot the scam, Verify any receipt, punch row, sound toggle
 - [x] o. Verified in a browser (text-size audit, 360 and 1920 overflow, keyboard, reduced motion, scroll story, page turn, live hash check, frame pacing under 4x CPU slowdown); Lighthouse mobile home 94 / 100 / 100 / 100; critic round 2 run and its top five fixed (not re-scored)
 - [x] p. Final gates: prettier, `tsc --noEmit`, `vitest run` (109 tests), `next build`, `opennextjs-cloudflare build`
+
+## Proof page
+
+- [x] q. `/proof` ("Try to rob it") from `proofs/devnet.json` and `proofs/build.json`; in-browser re-check (`src/lib/proof/verify.ts`, tested on fixtures); nav, footer, sitemap, links from home and evidence; `/dashboard` redirects to `/app`

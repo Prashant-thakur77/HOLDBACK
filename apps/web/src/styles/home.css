@@ -450,6 +450,9 @@
   margin-block: var(--s7) var(--s3);
 }
 .verify__more {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--s6);
   margin-top: var(--s3);
 }
 .open-receipt {
