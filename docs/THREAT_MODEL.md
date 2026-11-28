@@ -120,6 +120,16 @@ release time and its tier before treating the payment as final, exactly as a mer
 a pending card payment. Senders who undo often accumulate `holds_reclaimed_against` on their
 counterparties' stats, not their own; a sender-side reputation is on the roadmap.
 
+### Reputation farming against an honest recipient
+
+`SubjectStats.flags` and `holds_reclaimed_against` can be inflated with throwaway wallets:
+one flag per reporter, and a hold that is created and undone costs only fees. The program
+records these counters but never acts on them; only the risk agent reads them, and its policy
+treats them as one signal among eight. The resulting harm is a longer window for that
+recipient, which the sender can end with an early release. Not yet built: weighting flags by
+the reporter's own age and history, and counting reclaims only from senders with prior
+released holds.
+
 ## Out of scope
 
 - A sender who waits out the window and only then discovers the fraud. The window buys time

@@ -1,8 +1,8 @@
 # HOLDBACK
 
 **Every Solana payment gets an undo window, enforced by an on-chain program.** A risk agent
-sizes that window from live, cited scam evidence: no wait for people you trust, up to 24 hours
-for a flagged wallet. When the recipient looks dangerous, a voice in your language explains
+sizes that window from live, cited scam evidence: no wait for people you trust, 24 hours for a
+flagged wallet, 72 hours for a sanctioned one. When the recipient looks dangerous, a voice in your language explains
 why, and one tap brings the money back before a scammer can claim it.
 
 [![CI](https://github.com/Prashant-thakur77/HOLDBACK/actions/workflows/ci.yml/badge.svg)](https://github.com/Prashant-thakur77/HOLDBACK/actions/workflows/ci.yml)

@@ -99,7 +99,7 @@ Postgres stores the evidence documents by hash, a mirror of holds fed by a Heliu
 through an Edge Function, caches for the collectors, profiles and game runs. Row-level
 security lets a wallet read only its own holds; evidence and receipts are fetched by hash or
 address through definer functions and cannot be listed; only the service role writes.
-Realtime on `holds` drives the countdown rings in the app. Ingest is idempotent: a retried
+The apps read the mirror for countdowns and history (Realtime on `holds` is enabled in the schema; the apps poll until the project's JWT secret is configured). Ingest is idempotent: a retried
 webhook cannot double-count.
 
 ## India
