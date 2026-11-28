@@ -801,7 +801,7 @@ async function main() {
     generated_at: new Date().toISOString(),
     cluster: 'devnet',
     program: PROGRAM_ID.toBase58(),
-    test_mints: { spl: usdc.toBase58(), token_2022: t22.toBase58() },
+    test_mints: { spl: usdc.toBase58(), spl_2022: t22.toBase58() },
     parties: {
       sender: sender.publicKey.toBase58(),
       recipient: recipient.toBase58(),

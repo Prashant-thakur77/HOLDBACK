@@ -4,7 +4,7 @@
   "program": "26Tx1zAiL26RfxqTAVDaFaD2TTVku4Hm2vy3LBw8unom",
   "test_mints": {
     "spl": "9T72TwZ1ABGfoPGdRus2HiwXqFF6bVC3doPgYMU4TYr3",
-    "token_2022": "55riDtjJL3eJNJb6dJYgexpU216c21MJeS98tKo1hAg3"
+    "spl_2022": "55riDtjJL3eJNJb6dJYgexpU216c21MJeS98tKo1hAg3"
   },
   "parties": {
     "sender": "Hq4rzfQZtmDS4gH5jHf18gFxhHMicHiuH7p9hDUQUTQr",
