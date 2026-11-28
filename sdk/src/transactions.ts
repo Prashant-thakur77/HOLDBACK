@@ -12,7 +12,16 @@ import {
 } from '@solana/web3.js';
 
 import { PROGRAM_ID, TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID } from './constants';
-import { createHold, createHoldSol, instantTransfer, instantTransferSol } from './instructions';
+import { assessmentMessage, attestationInstruction, type Attestation } from './attestation';
+import { fromHex, toHex } from './evidence';
+import {
+  createHold,
+  createHoldAttested,
+  createHoldSol,
+  createHoldSolAttested,
+  instantTransfer,
+  instantTransferSol,
+} from './instructions';
 import { associatedTokenAddress, holdPda } from './pdas';
 
 export interface MintInfo {
@@ -120,6 +129,13 @@ export interface CreateHoldParams extends BuildOptions {
   evidenceHash: Uint8Array;
   nonce?: bigint;
   programId?: PublicKey;
+  /**
+   * The Guardian's signed assessment. When present the hold is created with
+   * `create_hold_attested`, so the program checks that the risk oracle set
+   * this window, tier and evidence hash. `windowSecs` may exceed the signed
+   * window, never fall below it.
+   */
+  attestation?: Attestation;
 }
 
 export interface CreateHoldResult extends BuiltTransaction {
@@ -143,6 +159,12 @@ export async function buildCreateHoldTx(
   const instant = params.windowSecs === 0;
   const { sender, recipient, amount } = params;
 
+  if (params.attestation && !instant) {
+    const attested = await attestedInstructions(connection, params, nonce, programId);
+    const built = await buildTransaction(connection, sender, attested, params);
+    return { ...built, hold: holdPda(sender, nonce, programId), nonce, instant };
+  }
+
   let instruction: TransactionInstruction;
   if (params.mint === null) {
     instruction = instant
@@ -157,6 +179,53 @@ export async function buildCreateHoldTx(
 
   const built = await buildTransaction(connection, sender, [instruction], params);
   return { ...built, hold: instant ? null : holdPda(sender, nonce, programId), nonce, instant };
+}
+
+/** The Ed25519 verification and the attested hold instruction, in that order. */
+async function attestedInstructions(
+  connection: Connection,
+  params: CreateHoldParams,
+  nonce: bigint,
+  programId: PublicKey,
+): Promise<TransactionInstruction[]> {
+  const attestation = params.attestation!;
+  const evidenceHash = fromHex(attestation.evidenceHash);
+  if (toHex(params.evidenceHash) !== attestation.evidenceHash.toLowerCase()) {
+    throw new Error('The evidence hash does not match the signed assessment');
+  }
+  const message = assessmentMessage(
+    {
+      sender: params.sender,
+      recipient: params.recipient,
+      mint: params.mint,
+      amount: params.amount,
+      windowSecs: attestation.windowSecs,
+      tier: attestation.tier,
+      evidenceHash,
+      expiresAt: attestation.expiresAt,
+    },
+    programId,
+  );
+  const verify = attestationInstruction(
+    new PublicKey(attestation.oracle),
+    fromHex(attestation.signature),
+    message,
+  );
+  const common = {
+    sender: params.sender,
+    recipient: params.recipient,
+    nonce,
+    amount: params.amount,
+    windowSecs: Math.max(params.windowSecs, attestation.windowSecs),
+    attestedWindowSecs: attestation.windowSecs,
+    tier: attestation.tier,
+    evidenceHash,
+    expiresAt: attestation.expiresAt,
+    programId,
+  };
+  if (params.mint === null) return [verify, createHoldSolAttested(common)];
+  const { tokenProgram } = await getMintInfo(connection, params.mint);
+  return [verify, createHoldAttested({ ...common, mint: params.mint, tokenProgram })];
 }
 
 export interface BalanceChange {

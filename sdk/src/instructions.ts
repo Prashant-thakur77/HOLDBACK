@@ -3,7 +3,12 @@
  * `TransactionInstruction`, so it works with wallet adapters, Mobile Wallet
  * Adapter, server keypairs and Solana Actions alike.
  */
-import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js';
+import {
+  PublicKey,
+  SYSVAR_INSTRUCTIONS_PUBKEY,
+  SystemProgram,
+  TransactionInstruction,
+} from '@solana/web3.js';
 
 import type { Hold } from './accounts';
 import { camel, encodeType, type IdlType } from './codec';
@@ -25,11 +30,24 @@ import {
   vaultAddress,
 } from './pdas';
 
+interface IdlAccount {
+  name: string;
+  writable?: boolean;
+  signer?: boolean;
+  /** Present on a nested group (an Anchor composite accounts struct). */
+  accounts?: IdlAccount[];
+}
+
 interface IdlInstruction {
   name: string;
   discriminator: number[];
-  accounts: { name: string; writable?: boolean; signer?: boolean }[];
+  accounts: IdlAccount[];
   args: { name: string; type: IdlType }[];
+}
+
+/** Nested account groups, in order, as the flat list the program reads. */
+function flatten(accounts: IdlAccount[]): IdlAccount[] {
+  return accounts.flatMap((account) => (account.accounts ? flatten(account.accounts) : [account]));
 }
 
 const instructions = new Map<string, IdlInstruction>(
@@ -56,7 +74,7 @@ export function buildInstruction(
     encodeType(arg.type, args[key], data, key);
   }
 
-  const keys = spec.accounts.map((account) => {
+  const keys = flatten(spec.accounts).map((account) => {
     const key = camel(account.name);
     const pubkey = accounts[key];
     if (!pubkey) throw new Error(`${name}: missing account ${key}`);
@@ -184,6 +202,68 @@ export function createHold(
       systemProgram: SystemProgram.programId,
     },
     holdArgs(params),
+    params.programId,
+  );
+}
+
+interface AttestedArgs {
+  /** The window the oracle signed; the hold's window may be longer. */
+  attestedWindowSecs: number;
+  /** Unix seconds, as signed. */
+  expiresAt: number | bigint;
+}
+
+/** `create_hold` under the oracle's signature. Put the Ed25519 instruction right before it. */
+export function createHoldAttested(
+  params: TokenParams & NewHoldArgs & AttestedArgs & { sender: PublicKey; recipient: PublicKey },
+): TransactionInstruction {
+  const tokenProgram = params.tokenProgram ?? TOKEN_PROGRAM_ID;
+  const hold = holdPda(params.sender, params.nonce, params.programId);
+  return buildInstruction(
+    'create_hold_attested',
+    {
+      sender: params.sender,
+      recipient: params.recipient,
+      config: configPda(params.programId),
+      mint: params.mint,
+      senderToken: associatedTokenAddress(params.sender, params.mint, tokenProgram),
+      hold,
+      vault: vaultAddress(hold, params.mint, tokenProgram),
+      recipientStats: statsPda(params.recipient, params.programId),
+      tokenProgram,
+      associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      systemProgram: SystemProgram.programId,
+      instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+    },
+    {
+      ...holdArgs(params),
+      attestedWindowSecs: params.attestedWindowSecs,
+      expiresAt: BigInt(params.expiresAt),
+    },
+    params.programId,
+  );
+}
+
+/** `create_hold_sol` under the oracle's signature. */
+export function createHoldSolAttested(
+  params: WithProgram & NewHoldArgs & AttestedArgs & { sender: PublicKey; recipient: PublicKey },
+): TransactionInstruction {
+  return buildInstruction(
+    'create_hold_sol_attested',
+    {
+      sender: params.sender,
+      recipient: params.recipient,
+      config: configPda(params.programId),
+      hold: holdPda(params.sender, params.nonce, params.programId),
+      recipientStats: statsPda(params.recipient, params.programId),
+      systemProgram: SystemProgram.programId,
+      instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+    },
+    {
+      ...holdArgs(params),
+      attestedWindowSecs: params.attestedWindowSecs,
+      expiresAt: BigInt(params.expiresAt),
+    },
     params.programId,
   );
 }

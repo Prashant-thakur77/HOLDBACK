@@ -38,6 +38,12 @@ export interface AssessResponse {
   /** True for SANCTIONED: the app must make the user type a confirmation phrase. */
   requiresConfirmation: boolean;
   latencyMs: number;
+  /**
+   * The oracle's signature over this assessment for this exact payment.
+   * Pass it to `buildCreateHoldTx` so the program enforces the window.
+   * Absent when the oracle key is not configured.
+   */
+  attestation?: import('./attestation').Attestation;
   /** Where the service keeps evidence. `memory` is a local, non-persistent mode. */
   storage?: { kind: 'supabase' | 'memory'; persistent: boolean };
 }
