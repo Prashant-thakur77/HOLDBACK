@@ -16,6 +16,8 @@
  */
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 
+import { ed25519 } from '@noble/curves/ed25519';
+
 import {
   TOKEN_2022_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -39,6 +41,8 @@ import {
 import {
   PROGRAM_ID,
   Tier,
+  assessmentMessage,
+  attestationInstruction,
   associatedTokenAddress,
   depositBoxPda,
   fetchConfig,
@@ -160,7 +164,13 @@ async function attack(
   const logs = landed?.meta?.logMessages ?? [];
   const program = parseProgramError({ logs, err });
   const anchor = logs.join('\n').match(/Error Code: (\w+)/)?.[1];
-  const error = program?.name ?? anchor ?? JSON.stringify(err);
+  // Same labels as scripts/verify-proofs.ts, so the record and the check agree.
+  const error =
+    anchor ??
+    program?.name ??
+    (logs.some((line) => /already in use/.test(line))
+      ? 'AccountAlreadyInUse (system program)'
+      : JSON.stringify(err));
   proofs.push({
     id,
     kind: 'attack',
@@ -668,6 +678,99 @@ async function main() {
     'close_hold for the deposit-box hold; rent returns to the relayer',
     [instructions.closeHold({ caller: relayer.publicKey, hold: h5 })],
     [relayer],
+  );
+
+  // 8. Holds whose window the risk oracle signed, checked on-chain.
+  const signedBy = (signer: Keypair, amount: bigint, windowSecs: number, expiresAt: number) => {
+    const message = assessmentMessage({
+      sender: sender.publicKey,
+      recipient,
+      mint: usdc,
+      amount,
+      windowSecs,
+      tier: Tier.SUSPICIOUS,
+      evidenceHash: HASH,
+      expiresAt,
+    });
+    return attestationInstruction(
+      signer.publicKey,
+      ed25519.sign(message, signer.secretKey.subarray(0, 32)),
+      message,
+    );
+  };
+  const attested = (
+    n: bigint,
+    amount: bigint,
+    windowSecs: number,
+    signedWindow: number,
+    expiresAt: number,
+  ) =>
+    instructions.createHoldAttested({
+      sender: sender.publicKey,
+      recipient,
+      mint: usdc,
+      nonce: n,
+      amount,
+      windowSecs,
+      attestedWindowSecs: signedWindow,
+      tier: Tier.SUSPICIOUS,
+      evidenceHash: HASH,
+      expiresAt,
+    });
+  const soon = Math.floor(Date.now() / 1000) + 600;
+  await attack(
+    'A20',
+    'An assessment signed by someone other than the risk oracle',
+    'WrongAttester',
+    [signedBy(attacker, AMOUNT, 60, soon), attested(next(), AMOUNT, 60, 60, soon)],
+    [attacker, sender],
+  );
+  await attack(
+    'A21',
+    'The amount is changed after the oracle signed the assessment',
+    'AttestationMismatch',
+    [signedBy(oracle, AMOUNT, 21_600, soon), attested(next(), AMOUNT + 1n, 21_600, 21_600, soon)],
+    [sender],
+  );
+  await attack(
+    'A22',
+    'An attested hold sent without the oracle’s signature',
+    'MissingAttestation',
+    [attested(next(), AMOUNT, 21_600, 21_600, soon)],
+    [sender],
+  );
+  const past = Math.floor(Date.now() / 1000) - 60;
+  await attack(
+    'A23',
+    'An assessment used after it expired',
+    'AttestationExpired',
+    [signedBy(oracle, AMOUNT, 21_600, past), attested(next(), AMOUNT, 21_600, 21_600, past)],
+    [sender],
+  );
+  await attack(
+    'A24',
+    'The sender asks for a shorter window than the oracle signed',
+    'WindowTooShort',
+    [signedBy(oracle, AMOUNT, 21_600, soon), attested(next(), AMOUNT, 1_800, 21_600, soon)],
+    [sender],
+  );
+  const n6 = next();
+  await happy(
+    'H23',
+    'create_hold_attested: a 6-hour hold whose window, tier and evidence hash the risk oracle signed',
+    [signedBy(oracle, AMOUNT, 21_600, soon), attested(n6, AMOUNT, 21_600, 21_600, soon)],
+    [sender],
+  );
+  await happy(
+    'H24',
+    'reclaim the attested hold',
+    [
+      instructions.reclaim({
+        authority: sender.publicKey,
+        hold: await hold(holdPda(sender.publicKey, n6)),
+      }),
+    ],
+    [sender],
   );
 
   // Balances the run must end with.

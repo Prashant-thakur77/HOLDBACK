@@ -1,0 +1,6 @@
+{
+  "program_hash": "e9ca70cbab99f65afb8d5140a5c5958da9a529dddea1af4fc48e0e5cc5c7c33e",
+  "base_image": "solanafoundation/solana-verifiable-build:4.3.0",
+  "commit": "7476805",
+  "command": "solana-verify build --library-name holdback --base-image solanafoundation/solana-verifiable-build:4.3.0"
+}

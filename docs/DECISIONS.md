@@ -234,3 +234,17 @@ hash now equals the hash anyone gets from the documented command.
   Realtime without code changes.
 - **The Supabase server key is the new secret key**, used where the code says "service
   role".
+
+## D26. Attested holds
+
+`create_hold` takes the window, tier and evidence hash from the sender, so on its own the
+program cannot tell whether the risk agent chose them. `create_hold_attested` closes that gap:
+the oracle signs the assessment (domain tag, program id, sender, recipient, mint, amount,
+window, tier, evidence hash, expiry), the transaction carries the signature as an Ed25519
+program instruction immediately before the hold, and the program reads it through the
+instructions sysvar. Only single-signature instructions whose key, signature and message sit
+inside that instruction are accepted, so the verified bytes are the bytes compared. The plain
+`create_hold` stays for wallets and tools that do not use the Guardian; attested holds are
+marked with `origin = 2`, which keeps the account layout unchanged for existing holds.
+Attestations expire after ten minutes. Clients attach one only when it was issued for exactly
+the payment being built (`attestationFor` in the SDK).

@@ -104,6 +104,14 @@ The indexer and the SDK accept event data only when it is logged while the HOLDB
 is the executing program, so another program cannot make the off-chain mirror believe in a
 hold. The chain remains the source of truth for money in every client.
 
+### A sender who skips the risk agent
+
+A sender can always call the plain `create_hold` with any window from the configured minimum.
+That only weakens the sender's own protection. Holds made through the HOLDBACK apps, the
+Blink and the MCP server use `create_hold_attested`, where the program refuses a window
+shorter than the one the oracle signed, or any change to the signed terms
+[`tests/attested.rs`; devnet A20–A24].
+
 ### A dishonest or wrong risk agent
 
 The agent chooses nothing the sender does not sign. A too-short window is a missed warning,

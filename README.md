@@ -115,6 +115,13 @@ xychart-beta
   bar [0, 0.5, 6, 24, 72]
 ```
 
+**The window is enforced, not just suggested.** The Guardian signs each assessment with the risk
+oracle's key. The client puts that signature in the transaction as an Ed25519 instruction right
+before `create_hold_attested`, and the program checks that the configured oracle signed exactly
+this sender, recipient, mint, amount, window, tier and evidence hash, that the signature has not
+expired, and that the window is at least the signed one. A sender can choose a longer window,
+never a shorter one; the hold is marked as attested on-chain.
+
 The language model never decides a tier or a window. It extracts quotes from web pages and
 writes the spoken explanation; both outputs are schema-validated, and a fixed template in each
 language is used when the model is unavailable.
